@@ -39,6 +39,7 @@ import org.pac4j.saml.client.Saml2Client;
 import org.pac4j.saml.credentials.Saml2Credentials;
 import org.pac4j.saml.profile.Saml2Profile;
 
+import javax.servlet.ServletException;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -221,6 +222,15 @@ public class SamlSecurityRealm extends SecurityRealm {
     String referer = (String) request.getSession().getAttribute(REFERER_ATTRIBUTE);
     String redirectUrl = referer != null ? referer : baseUrl();
     return HttpResponses.redirectTo(redirectUrl);
+  }
+
+  public HttpResponse doMetadata(StaplerRequest request, StaplerResponse response) {
+    return new HttpResponse() {
+      public void generateResponse(StaplerRequest req, StaplerResponse rsp, Object node) throws IOException, ServletException {
+        rsp.setContentType("text/xml;charset=UTF-8");
+        rsp.getWriter().println(newClient().printClientMetadata());
+      }
+    };
   }
 
   private Saml2Client newClient() {

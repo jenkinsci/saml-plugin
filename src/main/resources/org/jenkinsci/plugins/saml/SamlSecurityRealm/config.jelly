@@ -23,5 +23,8 @@
         <f:option value="uppercase" selected="${instance.usernameCaseConversion == 'uppercase'}">Uppercase</f:option>
       </select>
     </f:entry>
+    <f:block>
+        <p>${%blurb(app.rootUrl)}</p>
+    </f:block>
   </f:section>
 </j:jelly>
