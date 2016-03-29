@@ -16,12 +16,42 @@
     <f:entry title="Maximum Authentication Lifetime" field="maximumAuthenticationLifetime" help="/plugin/saml/help/maximumAuthenticationLifetime.html">
       <f:textbox default="86400" />
     </f:entry>
+    <f:entry title="Username Attribute"  field="usernameAttributeName" 
+             help="/plugin/saml/help/usernameAttributeName.html">
+      <f:textbox />
+    </f:entry>
     <f:entry title="Username Case Conversion" field="usernameCaseConversion" help="/plugin/saml/help/usernameCaseConversion.html">
       <select name="usernameCaseConversion">
         <f:option value="none" selected="${instance.usernameCaseConversion == 'none'}">None</f:option>
         <f:option value="lowercase" selected="${instance.usernameCaseConversion == 'lowercase'}">Lowercase</f:option>
         <f:option value="uppercase" selected="${instance.usernameCaseConversion == 'uppercase'}">Uppercase</f:option>
       </select>
+    </f:entry>
+    
+    <f:entry> 
+      <table>
+        <f:optionalBlock title="Use Encryption ?" field="encryptionData"
+                         checked="${instance.encryptionData != null}"
+                         help="/plugin/saml/help/encryption.html">
+          <f:entry title="Keystore path"  field="keystorePath" help="/plugin/saml/help/keystorePath.html">
+            <f:textbox />
+          </f:entry>
+          <f:entry title="Keystore password"  field="keystorePassword" help="/plugin/saml/help/keystorePassword.html">
+             <f:textbox />
+           </f:entry>
+           <f:entry title="Private Key password"  field="privateKeyPassword" help="/plugin/saml/help/keyPassword.html">
+             <f:textbox />
+           </f:entry>
+         </f:optionalBlock>
+      </table> 
+    </f:entry>
+    
+    <f:entry>
+      <block>
+        <a href="../securityRealm/metadata">Service Provider Metadata</a> 
+        which may be required to configure your Identity Provider 
+        (based on last saved settings).
+      </block>
     </f:entry>
   </f:section>
 </j:jelly>

@@ -1,6 +1,6 @@
 /* Licensed to Jenkins CI under one or more contributor license
 agreements.  See the NOTICE file distributed with this work
-for additional information regarding copyright ownership. 
+for additional information regarding copyright ownership.
 Jenkins CI licenses this file to you under the Apache License,
 Version 2.0 (the "License"); you may not use this file except
 in compliance with the License.  You may obtain a copy of the
@@ -17,17 +17,24 @@ under the License. */
 
 package org.jenkinsci.plugins.saml;
 
-import com.google.common.base.Preconditions;
-import hudson.Extension;
-import hudson.Util;
-import hudson.model.Descriptor;
-import hudson.model.User;
-import hudson.security.SecurityRealm;
-import jenkins.model.Jenkins;
-import jenkins.security.SecurityListener;
-import org.acegisecurity.*;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
+import org.acegisecurity.Authentication;
+import org.acegisecurity.AuthenticationException;
+import org.acegisecurity.AuthenticationManager;
+import org.acegisecurity.BadCredentialsException;
+import org.acegisecurity.GrantedAuthority;
 import org.acegisecurity.context.SecurityContextHolder;
-import org.kohsuke.stapler.*;
+import org.kohsuke.stapler.DataBoundConstructor;
+import org.kohsuke.stapler.Header;
+import org.kohsuke.stapler.HttpResponse;
+import org.kohsuke.stapler.HttpResponses;
+import org.kohsuke.stapler.StaplerRequest;
+import org.kohsuke.stapler.StaplerResponse;
 import org.opensaml.common.xml.SAMLConstants;
 import org.pac4j.core.client.RedirectAction;
 import org.pac4j.core.client.RedirectAction.RedirectType;
@@ -39,11 +46,15 @@ import org.pac4j.saml.client.Saml2Client;
 import org.pac4j.saml.credentials.Saml2Credentials;
 import org.pac4j.saml.profile.Saml2Profile;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import com.google.common.base.Preconditions;
+
+import hudson.Extension;
+import hudson.Util;
+import hudson.model.Descriptor;
+import hudson.model.User;
+import hudson.security.SecurityRealm;
+import jenkins.model.Jenkins;
+import jenkins.security.SecurityListener;
 
 /**
  * Authenticates the user via SAML.
@@ -67,12 +78,16 @@ public class SamlSecurityRealm extends SecurityRealm {
   private int maximumAuthenticationLifetime;
   private String usernameCaseConversion;
 
+  private String usernameAttributeName;
+
+  private SamlEncryptionData encryptionData = null;
+
   /**
    * Jenkins passes these parameters in when you update the settings.
    * It does this because of the @DataBoundConstructor
    */
   @DataBoundConstructor
-  public SamlSecurityRealm(String signOnUrl, String idpMetadata, String displayNameAttributeName, String groupsAttributeName, Integer maximumAuthenticationLifetime, String usernameCaseConversion) {
+  public SamlSecurityRealm(String signOnUrl, String idpMetadata, String displayNameAttributeName, String groupsAttributeName, Integer maximumAuthenticationLifetime, String usernameAttributeName, SamlEncryptionData encryptionData, String usernameCaseConversion) {
     super();
     this.idpMetadata = Util.fixEmptyAndTrim(idpMetadata);
     this.displayNameAttributeName = DEFAULT_DISPLAY_NAME_ATTRIBUTE_NAME;
@@ -89,13 +104,15 @@ public class SamlSecurityRealm extends SecurityRealm {
     if (maximumAuthenticationLifetime != null && maximumAuthenticationLifetime > 0) {
       this.maximumAuthenticationLifetime = maximumAuthenticationLifetime;
     }
+    this.usernameAttributeName = Util.fixEmptyAndTrim(usernameAttributeName);
+    this.encryptionData = encryptionData;
     if (usernameCaseConversion != null && !usernameCaseConversion.isEmpty()) {
-      this.usernameCaseConversion = Util.fixEmptyAndTrim(usernameCaseConversion);;
+      this.usernameCaseConversion = Util.fixEmptyAndTrim(usernameCaseConversion);
     }
   }
 
-  public SamlSecurityRealm(String signOnUrl, String idpMetadata, String displayNameAttributeName, String groupsAttributeName, Integer maximumAuthenticationLifetime) {
-    this(signOnUrl, idpMetadata, displayNameAttributeName, groupsAttributeName, maximumAuthenticationLifetime, "none");
+  public SamlSecurityRealm(String signOnUrl, String idpMetadata, String displayNameAttributeName, String groupsAttributeName, Integer maximumAuthenticationLifetime, String usernameAttributeName, SamlEncryptionData encryptionData) {
+    this(signOnUrl, idpMetadata, displayNameAttributeName, groupsAttributeName, maximumAuthenticationLifetime, usernameAttributeName, encryptionData, "none");
   }
 
   @Override
@@ -163,6 +180,7 @@ public class SamlSecurityRealm extends SecurityRealm {
 
     Saml2Profile saml2Profile = client.getUserProfile(credentials, context);
 
+    LOG.finer(saml2Profile.toString());
     // retrieve user display name
     String userFullName = null;
     List<?> names = (List<?>) saml2Profile.getAttribute(this.displayNameAttributeName);
@@ -187,7 +205,7 @@ public class SamlSecurityRealm extends SecurityRealm {
     }
 
     // getId and possibly convert, based on settings
-    String username = saml2Profile.getId();
+    String username = getUsernameFromProfile(saml2Profile);
     if (this.usernameCaseConversion != null) {
       if (this.usernameCaseConversion.compareTo("lowercase") == 0) {
         username = username.toLowerCase();
@@ -223,6 +241,38 @@ public class SamlSecurityRealm extends SecurityRealm {
     return HttpResponses.redirectTo(redirectUrl);
   }
 
+  /**
+   * Extract a usable Username from the samlProfile object.
+   * @param saml2Profile
+   * @return
+   */
+  private String getUsernameFromProfile(Saml2Profile saml2Profile) {
+    if (usernameAttributeName != null) {
+      Object attribute = saml2Profile.getAttribute(usernameAttributeName);
+      if (attribute instanceof String) {
+        return (String) attribute;
+      }
+      if (attribute instanceof List) {
+        return (String) ((List<?>)attribute).get(0);
+      }
+      LOG.log(Level.WARNING, "Unable to get username from Saml Profile {0}, using profile ID instead", saml2Profile);
+    }
+
+    return saml2Profile.getId();
+  }
+
+  /**
+   * /securityRealm/metadata
+   *
+   * URL request service method to expose the SP metadata to the user so that
+   * they can configure their IdP.
+   */
+  public HttpResponse doMetadata(StaplerRequest request, StaplerResponse response) {
+    Saml2Client client = newClient();
+
+    return HttpResponses.plainText(client.printClientMetadata());
+  }
+
   private Saml2Client newClient() {
     Preconditions.checkNotNull(idpMetadata);
 
@@ -230,6 +280,13 @@ public class SamlSecurityRealm extends SecurityRealm {
     client.setIdpMetadata(idpMetadata);
     client.setCallbackUrl(getConsumerServiceUrl());
     client.setDestinationBindingType(SAMLConstants.SAML2_REDIRECT_BINDING_URI);
+    if (encryptionData != null) {
+      client.setKeystorePath(encryptionData.getKeystorePath());
+      client.setKeystorePassword(encryptionData.getKeystorePassword());
+      client.setPrivateKeyPassword(encryptionData.getPrivateKeyPassword());
+    }
+
+    LOG.fine(client.printClientMetadata());
     client.setMaximumAuthenticationLifetime(this.maximumAuthenticationLifetime);
     return client;
   }
@@ -250,6 +307,18 @@ public class SamlSecurityRealm extends SecurityRealm {
     this.idpMetadata = idpMetadata;
   }
 
+  public String getUsernameAttributeName() {
+    return usernameAttributeName;
+  }
+
+  public void setUsernameAttributeName(String attribute) {
+    this.usernameAttributeName = attribute;
+  }
+
+  public String getSpMetadata() {
+    return newClient().printClientMetadata();
+  }
+
   public String getDisplayNameAttributeName() {
     return displayNameAttributeName;
   }
@@ -260,6 +329,22 @@ public class SamlSecurityRealm extends SecurityRealm {
 
   public Integer getMaximumAuthenticationLifetime() {
     return maximumAuthenticationLifetime;
+  }
+
+  public SamlEncryptionData getEncryptionData() {
+    return encryptionData;
+  }
+
+  public String getKeystorePath() {
+    return encryptionData != null ? encryptionData.getKeystorePath() : null;
+  }
+
+  public String getKeystorePassword() {
+    return encryptionData != null ? encryptionData.getKeystorePassword() : null;
+  }
+
+  public String getPrivateKeyPassword() {
+    return encryptionData != null ? encryptionData.getPrivateKeyPassword() : null;
   }
 
   public String getUsernameCaseConversion() {

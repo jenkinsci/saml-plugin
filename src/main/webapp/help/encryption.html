@@ -1,0 +1,17 @@
+<div>
+The SAML standard allows using a key-pair to authenticate and encrypt messages between
+service providers and identity providers.The IdP Metadata entered above contains the 
+IdP's public key, and in order to use encryption for the messages passed from IdP to SP,
+you need to generate a key and enter the details here.  Your IdP may or may not require
+or implement this encryption - check with the IdP administrator if unsure.
+<p>
+The key can be created using the following command:
+<pre>
+$JAVA_HOME/bin/keytool -genkeypair -alias saml-key -keypass &lt;pw1&gt; \
+  -keystore /path/to/saml-key.jks -storepass  &lt;pw2&gt; \
+  -keyalg RSA -keysize 2048 -validity 3650
+  
+</pre>
+where pw1 and pw2 are the key and store passwords respectively.  These passwords need to be entered in the corresponding fields 
+below.  The validity period given above is 10 years, feel free to choose whatever period suits you.
+</div>
