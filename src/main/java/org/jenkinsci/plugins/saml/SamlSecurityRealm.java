@@ -23,6 +23,7 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import jenkins.model.IdStrategy;
 import org.acegisecurity.Authentication;
 import org.acegisecurity.AuthenticationException;
 import org.acegisecurity.AuthenticationManager;
@@ -82,12 +83,18 @@ public class SamlSecurityRealm extends SecurityRealm {
 
   private SamlEncryptionData encryptionData = null;
 
-  /**
-   * Jenkins passes these parameters in when you update the settings.
-   * It does this because of the @DataBoundConstructor
-   */
-  @DataBoundConstructor
+  private final IdStrategy userIdStrategy;
+
   public SamlSecurityRealm(String signOnUrl, String idpMetadata, String displayNameAttributeName, String groupsAttributeName, Integer maximumAuthenticationLifetime, String usernameAttributeName, SamlEncryptionData encryptionData, String usernameCaseConversion) {
+  this(signOnUrl, idpMetadata, displayNameAttributeName, groupsAttributeName, maximumAuthenticationLifetime, usernameAttributeName, encryptionData, usernameCaseConversion, null);
+  }
+
+    /**
+     * Jenkins passes these parameters in when you update the settings.
+     * It does this because of the @DataBoundConstructor
+     */
+  @DataBoundConstructor
+  public SamlSecurityRealm(String signOnUrl, String idpMetadata, String displayNameAttributeName, String groupsAttributeName, Integer maximumAuthenticationLifetime, String usernameAttributeName, SamlEncryptionData encryptionData, String usernameCaseConversion, IdStrategy userIdStrategy) {
     super();
     this.idpMetadata = Util.fixEmptyAndTrim(idpMetadata);
     this.displayNameAttributeName = DEFAULT_DISPLAY_NAME_ATTRIBUTE_NAME;
@@ -109,6 +116,8 @@ public class SamlSecurityRealm extends SecurityRealm {
     if (usernameCaseConversion != null && !usernameCaseConversion.isEmpty()) {
       this.usernameCaseConversion = Util.fixEmptyAndTrim(usernameCaseConversion);
     }
+
+    this.userIdStrategy = userIdStrategy == null ? IdStrategy.CASE_INSENSITIVE : userIdStrategy;
   }
 
   public SamlSecurityRealm(String signOnUrl, String idpMetadata, String displayNameAttributeName, String groupsAttributeName, Integer maximumAuthenticationLifetime, String usernameAttributeName, SamlEncryptionData encryptionData) {
@@ -138,6 +147,10 @@ public class SamlSecurityRealm extends SecurityRealm {
   @Override
   public String getLoginUrl() {
     return "securityRealm/commenceLogin";
+  }
+
+  @Override public IdStrategy getUserIdStrategy() {
+    return userIdStrategy == null ? IdStrategy.CASE_INSENSITIVE : userIdStrategy;
   }
 
   /**

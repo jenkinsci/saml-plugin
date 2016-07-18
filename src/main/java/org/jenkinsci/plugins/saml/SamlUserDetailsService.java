@@ -19,6 +19,7 @@ package org.jenkinsci.plugins.saml;
 
 import hudson.model.User;
 import hudson.security.SecurityRealm;
+import jenkins.model.IdStrategy;
 import jenkins.model.Jenkins;
 import jenkins.security.LastGrantedAuthoritiesProperty;
 import org.acegisecurity.Authentication;
@@ -51,8 +52,10 @@ public class SamlUserDetailsService implements UserDetailsService {
 
     List<GrantedAuthority> authorities = new ArrayList<GrantedAuthority>();
     authorities.add(SecurityRealm.AUTHENTICATED_AUTHORITY);
+    SecurityRealm securityRealm = Jenkins.getInstance().getSecurityRealm();
+    final IdStrategy idStrategy = securityRealm.getUserIdStrategy();
 
-    if (username.compareTo(user.getId()) == 0) {
+    if (idStrategy.equals(user.getId(), username)) {
       LastGrantedAuthoritiesProperty lastGranted = user.getProperty(LastGrantedAuthoritiesProperty.class);
       if (lastGranted != null) {
         for (GrantedAuthority a : lastGranted.getAuthorities()) {
