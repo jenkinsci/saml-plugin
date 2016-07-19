@@ -72,8 +72,8 @@ public class SamlSecurityRealm extends SecurityRealm {
   private static final String DEFAULT_GROUPS_ATTRIBUTE_NAME = "http://schemas.xmlsoap.org/claims/Group";
   private static final int DEFAULT_MAXIMUM_AUTHENTICATION_LIFETIME = 24 * 60 * 60; // 24h
   private static final String DEFAULT_USERNAME_CASE_CONVERSION = "none";
-  private static final String SAML_USERNAME_LOWERCASE_CONVERSION_ = "lowercase";
-  private static final String SAML_USERNAME_UPPERCASE_CONVERSION_ = "uppercase";
+  private static final String SAML_USERNAME_LOWERCASE_CONVERSION = "lowercase";
+  private static final String SAML_USERNAME_UPPERCASE_CONVERSION = "uppercase";
 
   private String idpMetadata;
   private String displayNameAttributeName;
@@ -119,7 +119,7 @@ public class SamlSecurityRealm extends SecurityRealm {
       this.usernameCaseConversion = Util.fixEmptyAndTrim(usernameCaseConversion);
     }
 
-    if (usernameCaseConversion != null && (usernameCaseConversion.equals(SAML_USERNAME_LOWERCASE_CONVERSION_) || usernameCaseConversion.equals(SAML_USERNAME_UPPERCASE_CONVERSION_))) {
+    if (usernameCaseConversion != null && (usernameCaseConversion.equals(SAML_USERNAME_LOWERCASE_CONVERSION) || usernameCaseConversion.equals(SAML_USERNAME_UPPERCASE_CONVERSION))) {
       this.userIdStrategy = new IdStrategy.CaseSensitive();
     } else {
       this.userIdStrategy = userIdStrategy == null ? IdStrategy.CASE_INSENSITIVE : userIdStrategy;
