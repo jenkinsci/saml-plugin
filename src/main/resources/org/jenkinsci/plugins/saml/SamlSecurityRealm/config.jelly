@@ -27,6 +27,8 @@
         <f:option value="uppercase" selected="${instance.usernameCaseConversion == 'uppercase'}">Uppercase</f:option>
       </select>
     </f:entry>
+
+    <f:dropdownDescriptorSelector field="userIdStrategy" title="${%User name case sensitivity}" default="${descriptor.defaultIdStrategy}"/>
     
     <f:entry> 
       <table>
