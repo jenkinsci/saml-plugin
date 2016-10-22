@@ -29,7 +29,7 @@ under the License.
   </parent>
 
   <artifactId>saml</artifactId>
-  <version>0.13-SNAPSHOT</version>
+  <version>0.13</version>
   <packaging>hpi</packaging>
   <name>SAML Plugin</name>
   <url>http://wiki.jenkins-ci.org/display/JENKINS/SAML+Plugin</url>
@@ -52,6 +52,10 @@ under the License.
     <developer>
       <id>benmccann</id>
       <name>Ben McCann</name>
+    </developer>
+    <developer>
+      <id>swl</id>
+      <name>Scotty Logan</name>
     </developer>
   </developers>
 
