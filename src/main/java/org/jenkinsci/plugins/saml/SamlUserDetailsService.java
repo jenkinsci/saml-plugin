@@ -29,6 +29,7 @@ import org.springframework.dao.DataAccessException;
 
 import javax.annotation.Nonnull;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -47,7 +48,7 @@ public class SamlUserDetailsService implements UserDetailsService {
     }
 
     // try to rebuild authentication details based on data stored in user storage
-    User user = User.get(username);
+    User user = User.get(username, false, Collections.emptyMap());
     if (user == null) {
       throw new UsernameNotFoundException(username);
     }
