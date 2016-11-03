@@ -73,30 +73,6 @@ under the License.
     </pluginRepository>
   </pluginRepositories>
 
-  <properties>
-    <!-- TODO: fix findbugs warnings and remove this line -->
-   <!--
-    <findbugs.failOnError>false</findbugs.failOnError>
-    -->
-  </properties>
-
-  <dependencyManagement>
-    <dependencies>
-      <dependency>
-        <groupId>commons-codec</groupId>
-        <artifactId>commons-codec</artifactId>
-        <version>1.4</version>
-        <scope>provided</scope>
-      </dependency>
-      <dependency>
-        <groupId>commons-logging</groupId>
-        <artifactId>commons-logging</artifactId>
-        <version>1.1.1</version>
-        <scope>provided</scope>
-      </dependency>
-    </dependencies>
-  </dependencyManagement>
-
   <dependencies>
     <dependency>
         <groupId>org.pac4j</groupId>
