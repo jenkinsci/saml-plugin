@@ -17,8 +17,11 @@ under the License. */
 
 package org.jenkinsci.plugins.saml;
 
+import com.google.common.collect.ImmutableList;
 import org.acegisecurity.GrantedAuthority;
 import org.acegisecurity.userdetails.UserDetails;
+
+import java.util.Arrays;
 
 public class SamlUserDetails implements UserDetails {
 
@@ -29,11 +32,11 @@ public class SamlUserDetails implements UserDetails {
   
   public SamlUserDetails(String username, GrantedAuthority[] authorities) {
     this.username = username;
-    this.authorities = authorities;
+    this.authorities = Arrays.copyOf(authorities, authorities.length);
   }
 
   public GrantedAuthority[] getAuthorities() {
-    return authorities;
+    return Arrays.copyOf(authorities, authorities.length);
   }
 
   public String getPassword() {
