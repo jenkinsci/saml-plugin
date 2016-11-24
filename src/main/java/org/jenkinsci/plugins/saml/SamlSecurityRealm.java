@@ -17,24 +17,17 @@ under the License. */
 
 package org.jenkinsci.plugins.saml;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
-import org.acegisecurity.Authentication;
-import org.acegisecurity.AuthenticationException;
-import org.acegisecurity.AuthenticationManager;
-import org.acegisecurity.BadCredentialsException;
-import org.acegisecurity.GrantedAuthority;
+import com.google.common.base.Preconditions;
+import hudson.Extension;
+import hudson.Util;
+import hudson.model.Descriptor;
+import hudson.model.User;
+import hudson.security.SecurityRealm;
+import jenkins.model.Jenkins;
+import jenkins.security.SecurityListener;
+import org.acegisecurity.*;
 import org.acegisecurity.context.SecurityContextHolder;
-import org.kohsuke.stapler.DataBoundConstructor;
-import org.kohsuke.stapler.Header;
-import org.kohsuke.stapler.HttpResponse;
-import org.kohsuke.stapler.HttpResponses;
-import org.kohsuke.stapler.StaplerRequest;
-import org.kohsuke.stapler.StaplerResponse;
+import org.kohsuke.stapler.*;
 import org.opensaml.common.xml.SAMLConstants;
 import org.pac4j.core.client.RedirectAction;
 import org.pac4j.core.client.RedirectAction.RedirectType;
@@ -46,22 +39,23 @@ import org.pac4j.saml.client.Saml2Client;
 import org.pac4j.saml.credentials.Saml2Credentials;
 import org.pac4j.saml.profile.Saml2Profile;
 
-import com.google.common.base.Preconditions;
-
-import hudson.Extension;
-import hudson.Util;
-import hudson.model.Descriptor;
-import hudson.model.User;
-import hudson.security.SecurityRealm;
-import jenkins.model.Jenkins;
-import jenkins.security.SecurityListener;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * Authenticates the user via SAML.
  * This class is the main entry point to the plugin.
  * Uses Stapler (stapler.kohsuke.org) to bind methods to URLs.
+ *
+ * @see SecurityRealm
  */
 public class SamlSecurityRealm extends SecurityRealm {
+  /**
+   * URL to process the SAML answers
+   */
   public static final String CONSUMER_SERVICE_URL_PATH = "securityRealm/finishLogin";
 
 
@@ -109,6 +103,7 @@ public class SamlSecurityRealm extends SecurityRealm {
     if (usernameCaseConversion != null && !usernameCaseConversion.isEmpty()) {
       this.usernameCaseConversion = Util.fixEmptyAndTrim(usernameCaseConversion);
     }
+    LOG.finer(this.toString());
   }
 
   public SamlSecurityRealm(String signOnUrl, String idpMetadata, String displayNameAttributeName, String groupsAttributeName, Integer maximumAuthenticationLifetime, String usernameAttributeName, SamlEncryptionData encryptionData) {
@@ -122,7 +117,7 @@ public class SamlSecurityRealm extends SecurityRealm {
 
   @Override
   public SecurityComponents createSecurityComponents() {
-
+    LOG.finer("createSecurityComponents");
     return new SecurityComponents(new AuthenticationManager() {
 
       public Authentication authenticate(Authentication authentication) throws AuthenticationException {
@@ -152,8 +147,10 @@ public class SamlSecurityRealm extends SecurityRealm {
     try {
       RedirectAction action = client.getRedirectAction(context, true, false);
       if (action.getType() == RedirectType.REDIRECT) {
+        LOG.fine("REDIRECT : "+action.getLocation());
         return HttpResponses.redirectTo(action.getLocation());
       } else if (action.getType() == RedirectType.SUCCESS) {
+        LOG.fine("SUCCESS :\n"+action.getContent());
         return HttpResponses.html(action.getContent());
       } else {
         throw new IllegalStateException("Received unexpected response type " + action.getType());
@@ -372,5 +369,19 @@ public class SamlSecurityRealm extends SecurityRealm {
       return "SAML 2.0";
     }
 
+  }
+
+  @Override
+  public String toString() {
+    final StringBuffer sb = new StringBuffer("SamlSecurityRealm{");
+    sb.append("idpMetadata='").append(idpMetadata).append('\'');
+    sb.append(", displayNameAttributeName='").append(displayNameAttributeName).append('\'');
+    sb.append(", groupsAttributeName='").append(groupsAttributeName).append('\'');
+    sb.append(", maximumAuthenticationLifetime=").append(maximumAuthenticationLifetime);
+    sb.append(", usernameCaseConversion='").append(usernameCaseConversion).append('\'');
+    sb.append(", usernameAttributeName='").append(usernameAttributeName).append('\'');
+    sb.append(", encryptionData=").append(encryptionData);
+    sb.append('}');
+    return sb.toString();
   }
 }

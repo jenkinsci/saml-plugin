@@ -48,4 +48,14 @@ public class SamlEncryptionData {
   public String getPrivateKeyPassword() {
     return privateKeyPassword;
   }
+
+  @Override
+  public String toString() {
+    final StringBuffer sb = new StringBuffer("SamlEncryptionData{");
+    sb.append("keystorePath='").append(keystorePath).append('\'');
+    sb.append(", keystorePassword='").append(keystorePassword).append('\'');
+    sb.append(", privateKeyPassword='").append(privateKeyPassword).append('\'');
+    sb.append('}');
+    return sb.toString();
+  }
 }

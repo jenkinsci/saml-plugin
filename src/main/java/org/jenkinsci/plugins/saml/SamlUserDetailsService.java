@@ -27,15 +27,18 @@ import org.acegisecurity.userdetails.UserDetailsService;
 import org.acegisecurity.userdetails.UsernameNotFoundException;
 import org.springframework.dao.DataAccessException;
 
+import javax.annotation.Nonnull;
 import java.util.ArrayList;
 import java.util.List;
 
 /**
  * This service is responsible for restoring UserDetails object by userId
+ *
+ * @see UserDetailsService
  */
 public class SamlUserDetailsService implements UserDetailsService {
 
-  public SamlUserDetails loadUserByUsername(String username) throws UsernameNotFoundException, DataAccessException {
+  public SamlUserDetails loadUserByUsername(@Nonnull String username) throws UsernameNotFoundException, DataAccessException {
 
     // try to obtain user details from current authentication details
     Authentication auth = Jenkins.getAuthentication();

@@ -19,13 +19,18 @@ package org.jenkinsci.plugins.saml;
 
 import org.acegisecurity.providers.AbstractAuthenticationToken;
 
-public class SamlAuthenticationToken extends AbstractAuthenticationToken {
+import javax.annotation.Nonnull;
+
+/**
+ * @see org.acegisecurity.Authentication
+ */
+public final class SamlAuthenticationToken extends AbstractAuthenticationToken {
 
   private static final long serialVersionUID = 2L;
 
   private final SamlUserDetails userDetails;
 
-  public SamlAuthenticationToken(SamlUserDetails userDetails) {
+  public SamlAuthenticationToken(@Nonnull SamlUserDetails userDetails) {
     super(userDetails.getAuthorities());
     this.userDetails = userDetails;
     this.setDetails(userDetails);

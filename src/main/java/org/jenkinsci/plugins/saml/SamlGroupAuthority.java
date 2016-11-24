@@ -21,6 +21,8 @@ import org.acegisecurity.GrantedAuthority;
 
 /**
  * Authority class, represents a group receved in SAML response
+ *
+ * @see org.acegisecurity.GrantedAuthority
  */
 public class SamlGroupAuthority implements GrantedAuthority {
 
