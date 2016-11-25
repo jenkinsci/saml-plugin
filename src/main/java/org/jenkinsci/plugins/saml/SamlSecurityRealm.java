@@ -147,10 +147,10 @@ public class SamlSecurityRealm extends SecurityRealm {
     try {
       RedirectAction action = client.getRedirectAction(context, true, false);
       if (action.getType() == RedirectType.REDIRECT) {
-        LOG.fine("REDIRECT : "+action.getLocation());
+        LOG.fine("REDIRECT : " + action.getLocation());
         return HttpResponses.redirectTo(action.getLocation());
       } else if (action.getType() == RedirectType.SUCCESS) {
-        LOG.fine("SUCCESS :\n"+action.getContent());
+        LOG.fine("SUCCESS : " + action.getContent());
         return HttpResponses.html(action.getContent());
       } else {
         throw new IllegalStateException("Received unexpected response type " + action.getType());
