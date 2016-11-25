@@ -21,6 +21,8 @@ import hudson.Util;
 
 import org.kohsuke.stapler.DataBoundConstructor;
 
+import org.apache.commons.lang.StringUtils;
+
 /**
  * Simple immutable data class to hold the optional encryption data section
  * of the plugin's configuration page
@@ -53,8 +55,8 @@ public class SamlEncryptionData {
   public String toString() {
     final StringBuffer sb = new StringBuffer("SamlEncryptionData{");
     sb.append("keystorePath='").append(keystorePath).append('\'');
-    sb.append(", keystorePassword='").append(keystorePassword).append('\'');
-    sb.append(", privateKeyPassword='").append(privateKeyPassword).append('\'');
+    sb.append(", keystorePassword is NOT empty='").append(StringUtils.isNotEmpty(keystorePassword)).append('\'');
+    sb.append(", privateKeyPassword is NOT empty='").append(StringUtils.isNotEmpty(privateKeyPassword)).append('\'');
     sb.append('}');
     return sb.toString();
   }
