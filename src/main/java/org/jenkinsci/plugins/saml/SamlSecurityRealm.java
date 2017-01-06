@@ -17,17 +17,27 @@ under the License. */
 
 package org.jenkinsci.plugins.saml;
 
-import com.google.common.base.Preconditions;
-import hudson.Extension;
-import hudson.Util;
-import hudson.model.Descriptor;
-import hudson.model.User;
-import hudson.security.SecurityRealm;
-import jenkins.model.Jenkins;
-import jenkins.security.SecurityListener;
-import org.acegisecurity.*;
+import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
+import org.acegisecurity.Authentication;
+import org.acegisecurity.AuthenticationException;
+import org.acegisecurity.AuthenticationManager;
+import org.acegisecurity.BadCredentialsException;
+import org.acegisecurity.GrantedAuthority;
 import org.acegisecurity.context.SecurityContextHolder;
-import org.kohsuke.stapler.*;
+import org.kohsuke.stapler.DataBoundConstructor;
+import org.kohsuke.stapler.Header;
+import org.kohsuke.stapler.HttpResponse;
+import org.kohsuke.stapler.HttpResponses;
+import org.kohsuke.stapler.QueryParameter;
+import org.kohsuke.stapler.StaplerRequest;
+import org.kohsuke.stapler.StaplerResponse;
 import org.opensaml.common.xml.SAMLConstants;
 import org.pac4j.core.client.RedirectAction;
 import org.pac4j.core.client.RedirectAction.RedirectType;
@@ -39,11 +49,16 @@ import org.pac4j.saml.client.Saml2Client;
 import org.pac4j.saml.credentials.Saml2Credentials;
 import org.pac4j.saml.profile.Saml2Profile;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import com.google.common.base.Preconditions;
+
+import hudson.Extension;
+import hudson.Util;
+import hudson.model.Descriptor;
+import hudson.model.User;
+import hudson.security.SecurityRealm;
+import hudson.util.FormValidation;
+import jenkins.model.Jenkins;
+import jenkins.security.SecurityListener;
 
 /**
  * Authenticates the user via SAML.
@@ -388,6 +403,18 @@ public class SamlSecurityRealm extends SecurityRealm {
       return "SAML 2.0";
     }
 
+    public FormValidation doCheckLogoutUrl(@QueryParameter String logoutUrl) {
+      if (logoutUrl == null || logoutUrl.isEmpty()) {
+        return FormValidation.ok();
+      }
+      try {
+        new URL(logoutUrl);
+      } catch (MalformedURLException e) {
+        return FormValidation.error("The url is malformed.", e);
+      }
+      return FormValidation.ok();
+    }
+    
   }
 
   @Override
