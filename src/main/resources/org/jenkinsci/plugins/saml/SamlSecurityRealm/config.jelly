@@ -20,6 +20,12 @@
              help="/plugin/saml/help/usernameAttributeName.html">
       <f:textbox />
     </f:entry>
+    <!-- Add a logout url to be redirected to once clicked on logout button -->
+    <f:entry title="Logout URL"  field="logoutUrl" 
+             help="/plugin/saml/help/logoutUrl.html">
+      <f:textbox />
+    </f:entry>
+     
     <f:entry title="Username Case Conversion" field="usernameCaseConversion" help="/plugin/saml/help/usernameCaseConversion.html">
       <select name="usernameCaseConversion">
         <f:option value="none" selected="${instance.usernameCaseConversion == 'none'}">None</f:option>

@@ -75,13 +75,15 @@ public class SamlSecurityRealm extends SecurityRealm {
   private String usernameAttributeName;
 
   private SamlEncryptionData encryptionData = null;
+  
+  private String logoutUrl;
 
   /**
    * Jenkins passes these parameters in when you update the settings.
    * It does this because of the @DataBoundConstructor
    */
   @DataBoundConstructor
-  public SamlSecurityRealm(String signOnUrl, String idpMetadata, String displayNameAttributeName, String groupsAttributeName, Integer maximumAuthenticationLifetime, String usernameAttributeName, SamlEncryptionData encryptionData, String usernameCaseConversion) {
+  public SamlSecurityRealm(String signOnUrl, String idpMetadata, String displayNameAttributeName, String groupsAttributeName, Integer maximumAuthenticationLifetime, String usernameAttributeName, String logoutUrl, SamlEncryptionData encryptionData, String usernameCaseConversion) {
     super();
     this.idpMetadata = Util.fixEmptyAndTrim(idpMetadata);
     this.displayNameAttributeName = DEFAULT_DISPLAY_NAME_ATTRIBUTE_NAME;
@@ -99,6 +101,7 @@ public class SamlSecurityRealm extends SecurityRealm {
       this.maximumAuthenticationLifetime = maximumAuthenticationLifetime;
     }
     this.usernameAttributeName = Util.fixEmptyAndTrim(usernameAttributeName);
+    this.logoutUrl = Util.fixEmptyAndTrim(logoutUrl);
     this.encryptionData = encryptionData;
     if (usernameCaseConversion != null && !usernameCaseConversion.isEmpty()) {
       this.usernameCaseConversion = Util.fixEmptyAndTrim(usernameCaseConversion);
@@ -106,8 +109,8 @@ public class SamlSecurityRealm extends SecurityRealm {
     LOG.finer(this.toString());
   }
 
-  public SamlSecurityRealm(String signOnUrl, String idpMetadata, String displayNameAttributeName, String groupsAttributeName, Integer maximumAuthenticationLifetime, String usernameAttributeName, SamlEncryptionData encryptionData) {
-    this(signOnUrl, idpMetadata, displayNameAttributeName, groupsAttributeName, maximumAuthenticationLifetime, usernameAttributeName, encryptionData, "none");
+  public SamlSecurityRealm(String signOnUrl, String idpMetadata, String displayNameAttributeName, String groupsAttributeName, Integer maximumAuthenticationLifetime, String usernameAttributeName, String logoutUrl, SamlEncryptionData encryptionData) {
+    this(signOnUrl, idpMetadata, displayNameAttributeName, groupsAttributeName, maximumAuthenticationLifetime, usernameAttributeName, logoutUrl, encryptionData, "none");
   }
 
   @Override
@@ -237,6 +240,14 @@ public class SamlSecurityRealm extends SecurityRealm {
     String redirectUrl = referer != null ? referer : baseUrl();
     return HttpResponses.redirectTo(redirectUrl);
   }
+  
+  @Override
+  protected String getPostLogOutUrl(StaplerRequest req, Authentication auth) {
+    if (getLogoutUrl() == null || getLogoutUrl().isEmpty()) {
+      return super.getPostLogOutUrl(req, auth);
+    }
+    return getLogoutUrl();
+  }
 
   /**
    * Extract a usable Username from the samlProfile object.
@@ -325,6 +336,14 @@ public class SamlSecurityRealm extends SecurityRealm {
     return groupsAttributeName;
   }
 
+  public String getLogoutUrl() {
+    return logoutUrl;
+  }
+
+  public void setLogoutUrl(String logoutUrl) {
+    this.logoutUrl = logoutUrl;
+  }
+  
   public Integer getMaximumAuthenticationLifetime() {
     return maximumAuthenticationLifetime;
   }
@@ -384,4 +403,5 @@ public class SamlSecurityRealm extends SecurityRealm {
     sb.append('}');
     return sb.toString();
   }
+  
 }
