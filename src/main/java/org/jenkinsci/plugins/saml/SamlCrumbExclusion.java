@@ -13,6 +13,9 @@ import hudson.model.Descriptor;
 import hudson.security.SecurityRealm;
 import hudson.security.csrf.CrumbExclusion;
 
+/**
+ * @see hudson.security.csrf.CrumbExclusion
+ */
 @Extension
 public class SamlCrumbExclusion extends CrumbExclusion {
     private static final Logger LOG = Logger.getLogger(SamlCrumbExclusion.class.getName());
@@ -30,6 +33,7 @@ public class SamlCrumbExclusion extends CrumbExclusion {
 
     private static boolean shouldExclude(String pathInfo) {
         if(pathInfo == null) {
+            LOG.fine("SamlCrumbExclusion.shouldExclude empty");
             return false;
         }
         if(pathInfo.indexOf(SamlSecurityRealm.CONSUMER_SERVICE_URL_PATH) == 1) {

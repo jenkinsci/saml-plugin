@@ -27,14 +27,19 @@ import javax.servlet.http.HttpSession;
 import jenkins.model.Jenkins;
 import jenkins.security.SecurityListener;
 
-public class SamlAuthenticationToken extends AbstractAuthenticationToken {
+import javax.annotation.Nonnull;
+
+/**
+ * @see org.acegisecurity.Authentication
+ */
+public final class SamlAuthenticationToken extends AbstractAuthenticationToken {
 
   private static final long serialVersionUID = 2L;
 
   private final SamlUserDetails userDetails;
   private final HttpSession session;
 
-  public SamlAuthenticationToken(SamlUserDetails userDetails, HttpSession session) {
+  public SamlAuthenticationToken(@Nonnull SamlUserDetails userDetails, HttpSession session) {
     super(userDetails.getAuthorities());
     this.userDetails = userDetails;
     this.setDetails(userDetails);

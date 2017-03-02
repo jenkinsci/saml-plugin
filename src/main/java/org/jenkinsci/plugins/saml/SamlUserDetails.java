@@ -17,9 +17,16 @@ under the License. */
 
 package org.jenkinsci.plugins.saml;
 
+import com.google.common.collect.ImmutableList;
 import org.acegisecurity.GrantedAuthority;
 import org.acegisecurity.userdetails.UserDetails;
 
+import javax.annotation.Nonnull;
+import java.util.Arrays;
+
+/**
+ * @see UserDetails
+ */
 public class SamlUserDetails implements UserDetails {
 
   private static final long serialVersionUID = 2L;
@@ -27,13 +34,13 @@ public class SamlUserDetails implements UserDetails {
   private final String username;
   private final GrantedAuthority[] authorities;
   
-  public SamlUserDetails(String username, GrantedAuthority[] authorities) {
+  public SamlUserDetails(@Nonnull String username, GrantedAuthority[] authorities) {
     this.username = username;
-    this.authorities = authorities;
+    this.authorities = Arrays.copyOf(authorities, authorities.length);
   }
 
   public GrantedAuthority[] getAuthorities() {
-    return authorities;
+    return Arrays.copyOf(authorities, authorities.length);
   }
 
   public String getPassword() {
@@ -60,4 +67,16 @@ public class SamlUserDetails implements UserDetails {
     return true;
   }
 
+  @Override
+  public String toString() {
+    final StringBuffer sb = new StringBuffer("SamlUserDetails{");
+    sb.append("username='").append(username).append('\'');
+    sb.append(", authorities=").append(authorities == null ? "null" : java.util.Arrays.asList(authorities).toString()).append('\'');;
+    sb.append(", isAccountNonExpired='").append(isAccountNonExpired()).append('\'');
+    sb.append(", isAccountNonLocked='").append(isAccountNonLocked()).append('\'');
+    sb.append(", isCredentialsNonExpired='").append(isCredentialsNonExpired()).append('\'');
+    sb.append(", isEnabled='").append(isEnabled());
+    sb.append('}');
+    return sb.toString();
+  }
 }
