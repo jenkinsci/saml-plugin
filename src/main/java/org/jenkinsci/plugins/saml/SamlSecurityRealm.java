@@ -299,8 +299,8 @@ public class SamlSecurityRealm extends SecurityRealm {
     LOG.log(Level.FINE,"Doing Logout");
     // if we just redirect to the root and anonymous does not have Overall read then we will start a login all over again.
     // we are actually anonymous here as the security context has been cleared
-    if (Jenkins.getInstance().hasPermission(Jenkins.READ)) {
-      return super.getPostLogOutUrl(req, auth);
+    if (Jenkins.getActiveInstance().hasPermission(Jenkins.READ)) {
+        return super.getPostLogOutUrl(req, auth);
     }
     return req.getContextPath()+ "/" + SamlLogoutAction.POST_LOGOUT_URL;
   }
