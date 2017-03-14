@@ -7,7 +7,7 @@ in compliance with the License.  You may obtain a copy of the
 License at
 
   http://www.apache.org/licenses/LICENSE-2.0
-
+  
 Unless required by applicable law or agreed to in writing,
 software distributed under the License is distributed on an
 "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
@@ -23,6 +23,7 @@ import hudson.Util;
 import hudson.model.Descriptor;
 import hudson.model.User;
 import hudson.security.SecurityRealm;
+import hudson.util.FormValidation;
 import jenkins.model.Jenkins;
 import jenkins.security.SecurityListener;
 import org.acegisecurity.*;
@@ -41,6 +42,8 @@ import org.pac4j.saml.profile.Saml2Profile;
 
 import javax.annotation.Nonnull;
 import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
@@ -76,13 +79,15 @@ public class SamlSecurityRealm extends SecurityRealm {
   private String usernameAttributeName;
 
   private SamlEncryptionData encryptionData = null;
+  
+  private String logoutUrl;
 
   /**
    * Jenkins passes these parameters in when you update the settings.
    * It does this because of the @DataBoundConstructor
    */
   @DataBoundConstructor
-  public SamlSecurityRealm(String signOnUrl, String idpMetadata, String displayNameAttributeName, String groupsAttributeName, Integer maximumAuthenticationLifetime, String usernameAttributeName, SamlEncryptionData encryptionData, String usernameCaseConversion) {
+  public SamlSecurityRealm(String signOnUrl, String idpMetadata, String displayNameAttributeName, String groupsAttributeName, Integer maximumAuthenticationLifetime, String usernameAttributeName, String logoutUrl, SamlEncryptionData encryptionData, String usernameCaseConversion) {
     super();
     this.idpMetadata = Util.fixEmptyAndTrim(idpMetadata);
     this.displayNameAttributeName = DEFAULT_DISPLAY_NAME_ATTRIBUTE_NAME;
@@ -100,6 +105,7 @@ public class SamlSecurityRealm extends SecurityRealm {
       this.maximumAuthenticationLifetime = maximumAuthenticationLifetime;
     }
     this.usernameAttributeName = Util.fixEmptyAndTrim(usernameAttributeName);
+    this.logoutUrl = Util.fixEmptyAndTrim(logoutUrl);
     this.encryptionData = encryptionData;
     if (usernameCaseConversion != null && !usernameCaseConversion.isEmpty()) {
       this.usernameCaseConversion = Util.fixEmptyAndTrim(usernameCaseConversion);
@@ -107,8 +113,8 @@ public class SamlSecurityRealm extends SecurityRealm {
     LOG.finer(this.toString());
   }
 
-  public SamlSecurityRealm(String signOnUrl, String idpMetadata, String displayNameAttributeName, String groupsAttributeName, Integer maximumAuthenticationLifetime, String usernameAttributeName, SamlEncryptionData encryptionData) {
-    this(signOnUrl, idpMetadata, displayNameAttributeName, groupsAttributeName, maximumAuthenticationLifetime, usernameAttributeName, encryptionData, "none");
+  public SamlSecurityRealm(String signOnUrl, String idpMetadata, String displayNameAttributeName, String groupsAttributeName, Integer maximumAuthenticationLifetime, String usernameAttributeName, String logoutUrl, SamlEncryptionData encryptionData) {
+    this(signOnUrl, idpMetadata, displayNameAttributeName, groupsAttributeName, maximumAuthenticationLifetime, usernameAttributeName, logoutUrl, encryptionData, "none");
   }
 
   @Override
@@ -238,6 +244,14 @@ public class SamlSecurityRealm extends SecurityRealm {
     String redirectUrl = referer != null ? referer : baseUrl();
     return HttpResponses.redirectTo(redirectUrl);
   }
+  
+  @Override
+  protected String getPostLogOutUrl(StaplerRequest req, Authentication auth) {
+    if (getLogoutUrl() == null || getLogoutUrl().isEmpty()) {
+      return super.getPostLogOutUrl(req, auth);
+    }
+    return getLogoutUrl();
+  }
 
   /**
    * Extract a usable Username from the samlProfile object.
@@ -349,6 +363,14 @@ public class SamlSecurityRealm extends SecurityRealm {
     return groupsAttributeName;
   }
 
+  public String getLogoutUrl() {
+    return logoutUrl;
+  }
+
+  public void setLogoutUrl(String logoutUrl) {
+    this.logoutUrl = logoutUrl;
+  }
+  
   public Integer getMaximumAuthenticationLifetime() {
     return maximumAuthenticationLifetime;
   }
@@ -393,6 +415,18 @@ public class SamlSecurityRealm extends SecurityRealm {
       return "SAML 2.0";
     }
 
+    public FormValidation doCheckLogoutUrl(@QueryParameter String logoutUrl) {
+      if (logoutUrl == null || logoutUrl.isEmpty()) {
+        return FormValidation.ok();
+      }
+      try {
+        new URL(logoutUrl);
+      } catch (MalformedURLException e) {
+        return FormValidation.error("The url is malformed.", e);
+      }
+      return FormValidation.ok();
+    }
+    
   }
 
   @Override
@@ -408,4 +442,5 @@ public class SamlSecurityRealm extends SecurityRealm {
     sb.append('}');
     return sb.toString();
   }
+  
 }
