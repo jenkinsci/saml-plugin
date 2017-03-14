@@ -17,7 +17,15 @@ under the License. */
 
 package org.jenkinsci.plugins.saml;
 
+import org.kohsuke.stapler.Stapler;
+
 import org.acegisecurity.providers.AbstractAuthenticationToken;
+import org.acegisecurity.context.SecurityContextHolder;
+
+import javax.servlet.http.HttpSession;
+
+import jenkins.model.Jenkins;
+import jenkins.security.SecurityListener;
 
 import javax.annotation.Nonnull;
 
@@ -29,15 +37,28 @@ public final class SamlAuthenticationToken extends AbstractAuthenticationToken {
   private static final long serialVersionUID = 2L;
 
   private final SamlUserDetails userDetails;
+  private final HttpSession session;
 
-  public SamlAuthenticationToken(@Nonnull SamlUserDetails userDetails) {
+  public SamlAuthenticationToken(@Nonnull SamlUserDetails userDetails, HttpSession session) {
     super(userDetails.getAuthorities());
     this.userDetails = userDetails;
     this.setDetails(userDetails);
     this.setAuthenticated(true);
+    this.session = session;
   }
 
   public SamlUserDetails getPrincipal() {
+    // check if session should have expired
+    if (session.getAttribute(SamlSecurityRealm.EXPIRATION_ATTRIBUTE) != null &&
+        System.currentTimeMillis() > (long)session.getAttribute(SamlSecurityRealm.EXPIRATION_ATTRIBUTE)) {
+
+      // log the current user out and invalidate this session
+      this.setAuthenticated(false);
+      session.invalidate();
+      SecurityContextHolder.clearContext();
+      SecurityListener.fireLoggedOut(userDetails.getUsername());
+    }
+
     return userDetails;
   }
 

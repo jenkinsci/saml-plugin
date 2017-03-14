@@ -27,7 +27,32 @@
         <f:option value="uppercase" selected="${instance.usernameCaseConversion == 'uppercase'}">Uppercase</f:option>
       </select>
     </f:entry>
-    
+
+    <f:entry>
+      <table>
+        <f:optionalBlock title="Advanced Configuration ?" field="advancedConfiguration"
+                         checked="${instance.advancedConfiguration != null}">
+
+          <f:entry title="Force Authentication?" field="forceAuthn" help="/plugin/saml/help/forceAuthn.html">
+            <f:checkbox />
+          </f:entry>
+
+          <f:entry title="Authentication Context" field="authnContextClassRef" help="/plugin/saml/help/authnContextClassRef.html">
+            <f:textbox />
+          </f:entry>
+
+          <f:entry title="SP Entity ID" field="spEntityId" help="/plugin/saml/help/spEntityId.html">
+            <f:textbox />
+          </f:entry>
+
+          <f:entry title="Maximum Session Lifetime" field="maximumSessionLifetime" help="/plugin/saml/help/maximumSessionLifetime.html">
+            <f:textbox default="86400" />
+          </f:entry>
+
+        </f:optionalBlock>
+      </table>
+    </f:entry>
+
     <f:entry> 
       <table>
         <f:optionalBlock title="Use Encryption ?" field="encryptionData"
