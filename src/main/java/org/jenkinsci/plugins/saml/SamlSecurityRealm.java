@@ -7,7 +7,7 @@ in compliance with the License.  You may obtain a copy of the
 License at
 
   http://www.apache.org/licenses/LICENSE-2.0
-
+  
 Unless required by applicable law or agreed to in writing,
 software distributed under the License is distributed on an
 "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
@@ -23,6 +23,8 @@ import hudson.Util;
 import hudson.model.Descriptor;
 import hudson.model.User;
 import hudson.security.SecurityRealm;
+import hudson.tasks.Mailer;
+import hudson.tasks.Mailer.UserProperty;
 import jenkins.model.Jenkins;
 import jenkins.security.SecurityListener;
 import org.acegisecurity.*;
@@ -66,6 +68,7 @@ public class SamlSecurityRealm extends SecurityRealm {
   private static final String DEFAULT_GROUPS_ATTRIBUTE_NAME = "http://schemas.xmlsoap.org/claims/Group";
   private static final int DEFAULT_MAXIMUM_AUTHENTICATION_LIFETIME = 24 * 60 * 60; // 24h
   private static final String DEFAULT_USERNAME_CASE_CONVERSION = "none";
+  private static final String DEFAULT_EMAIL_ATTRIBUTE_NAME = "email";
 
   private String idpMetadata;
   private String displayNameAttributeName;
@@ -74,6 +77,7 @@ public class SamlSecurityRealm extends SecurityRealm {
   private String usernameCaseConversion;
 
   private String usernameAttributeName;
+  private String emailAttributeName;
 
   private SamlEncryptionData encryptionData = null;
 
@@ -82,7 +86,7 @@ public class SamlSecurityRealm extends SecurityRealm {
    * It does this because of the @DataBoundConstructor
    */
   @DataBoundConstructor
-  public SamlSecurityRealm(String signOnUrl, String idpMetadata, String displayNameAttributeName, String groupsAttributeName, Integer maximumAuthenticationLifetime, String usernameAttributeName, SamlEncryptionData encryptionData, String usernameCaseConversion) {
+  public SamlSecurityRealm(String signOnUrl, String idpMetadata, String displayNameAttributeName, String groupsAttributeName, Integer maximumAuthenticationLifetime, String usernameAttributeName, String emailAttributeName, SamlEncryptionData encryptionData, String usernameCaseConversion) {
     super();
     this.idpMetadata = Util.fixEmptyAndTrim(idpMetadata);
     this.displayNameAttributeName = DEFAULT_DISPLAY_NAME_ATTRIBUTE_NAME;
@@ -100,6 +104,9 @@ public class SamlSecurityRealm extends SecurityRealm {
       this.maximumAuthenticationLifetime = maximumAuthenticationLifetime;
     }
     this.usernameAttributeName = Util.fixEmptyAndTrim(usernameAttributeName);
+    if (emailAttributeName != null && !emailAttributeName.isEmpty()) {
+      this.emailAttributeName = Util.fixEmptyAndTrim(emailAttributeName);
+    }
     this.encryptionData = encryptionData;
     if (usernameCaseConversion != null && !usernameCaseConversion.isEmpty()) {
       this.usernameCaseConversion = Util.fixEmptyAndTrim(usernameCaseConversion);
@@ -107,8 +114,8 @@ public class SamlSecurityRealm extends SecurityRealm {
     LOG.finer(this.toString());
   }
 
-  public SamlSecurityRealm(String signOnUrl, String idpMetadata, String displayNameAttributeName, String groupsAttributeName, Integer maximumAuthenticationLifetime, String usernameAttributeName, SamlEncryptionData encryptionData) {
-    this(signOnUrl, idpMetadata, displayNameAttributeName, groupsAttributeName, maximumAuthenticationLifetime, usernameAttributeName, encryptionData, "none");
+  public SamlSecurityRealm(String signOnUrl, String idpMetadata, String displayNameAttributeName, String groupsAttributeName, Integer maximumAuthenticationLifetime, String usernameAttributeName, String emailAttributeName, SamlEncryptionData encryptionData) {
+    this(signOnUrl, idpMetadata, displayNameAttributeName, groupsAttributeName, maximumAuthenticationLifetime, usernameAttributeName, emailAttributeName, encryptionData, "none");
   }
 
   @Override
@@ -185,6 +192,14 @@ public class SamlSecurityRealm extends SecurityRealm {
     if (names != null && !names.isEmpty()) {
       userFullName = (String) names.get(0);
     }
+    
+    //retrieve user email
+    String userEmail = null;
+    List<?> emails = (List<?>) saml2Profile.getAttribute(getEmailAttributeName());
+    if (emails != null && !emails.isEmpty()) {
+      userEmail = (String) emails.get(0);
+    }
+
 
     // prepare list of groups
     List<?> groups = (List<?>) saml2Profile.getAttribute(this.groupsAttributeName);
@@ -219,17 +234,20 @@ public class SamlSecurityRealm extends SecurityRealm {
     SecurityContextHolder.getContext().setAuthentication(samlAuthToken);
     SecurityListener.fireAuthenticated(userDetails);
 
-    // update user full name if necessary
-    if (userFullName != null && !userFullName.isEmpty()) {
-      User user = User.current();
-      if (user != null && userFullName.compareTo(user.getFullName()) != 0) {
+ // update user full name if necessary
+    User user = User.current();
+    if (user != null) {
+      if (userFullName != null && !userFullName.isEmpty() && userFullName.compareTo(user.getFullName()) != 0) {
         user.setFullName(userFullName);
-        try {
-          user.save();
-        } catch (IOException e) {
-          // even if it fails, nothing critical
-          LOG.log(Level.WARNING, "Unable to save updated user data", e);
-        }
+      }
+
+     modifyUserEmail(user,userEmail);
+     
+      try {
+        user.save();
+      } catch (IOException e) {
+        // even if it fails, nothing critical
+        LOG.log(Level.WARNING, "Unable to save updated user data", e);
       }
     }
 
@@ -237,6 +255,22 @@ public class SamlSecurityRealm extends SecurityRealm {
     String referer = (String) request.getSession().getAttribute(REFERER_ATTRIBUTE);
     String redirectUrl = referer != null ? referer : baseUrl();
     return HttpResponses.redirectTo(redirectUrl);
+  }
+
+  private void modifyUserEmail(User user, String userEmail) {
+    if(userEmail == null || userEmail.isEmpty()){
+      return;
+    }
+    UserProperty currentUserEmailProperty = user.getProperty(Mailer.UserProperty.class);
+    if (currentUserEmailProperty!=null && userEmail.compareTo(currentUserEmailProperty.getAddress()) != 0) {
+      // email address
+      UserProperty emailProperty = new Mailer.UserProperty(userEmail);
+      try {
+        user.addProperty(emailProperty);
+      } catch (IOException e) {
+        LOG.log(Level.SEVERE, "Could not update suer email", e);
+      }
+    }
   }
 
   /**
@@ -375,6 +409,14 @@ public class SamlSecurityRealm extends SecurityRealm {
 
   public void setUsernameCaseConversion(String usernameCaseConversion) {
     this.usernameCaseConversion = usernameCaseConversion;
+  }
+  
+  public String getEmailAttributeName() {
+    return emailAttributeName;
+  }
+
+  public void setEmailAttributeName(String emailAttributeName) {
+    this.emailAttributeName = emailAttributeName;
   }
 
   @Extension
