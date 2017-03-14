@@ -277,7 +277,7 @@ public class SamlSecurityRealm extends SecurityRealm {
     Saml2Client client = new Saml2Client();
     client.setIdpMetadata(idpMetadata);
     client.setCallbackUrl(getConsumerServiceUrl());
-    client.setDestinationBindingType(SAMLConstants.SAML2_REDIRECT_BINDING_URI);
+
     if (encryptionData != null) {
       client.setKeystorePath(encryptionData.getKeystorePath());
       client.setKeystorePassword(encryptionData.getKeystorePassword());
