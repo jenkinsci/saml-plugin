@@ -30,10 +30,10 @@
 
     <f:entry>
       <table>
-        <f:optionalBlock title="Advanced Configuration ?" field="advancedConfiguration"
-                         checked="${instance.advancedConfiguration != null}">
+        <f:optionalBlock title="Advanced Configuration" field="advancedConfiguration"
+                         checked="${instance.advancedConfiguration != null}" help="/plugin/saml/help/advancedConfiguration.html">
 
-          <f:entry title="Force Authentication?" field="forceAuthn" help="/plugin/saml/help/forceAuthn.html">
+          <f:entry title="Force Authentication" field="forceAuthn" help="/plugin/saml/help/forceAuthn.html">
             <f:checkbox />
           </f:entry>
 
@@ -55,7 +55,7 @@
 
     <f:entry> 
       <table>
-        <f:optionalBlock title="Use Encryption ?" field="encryptionData"
+        <f:optionalBlock title="Use Encryption" field="encryptionData"
                          checked="${instance.encryptionData != null}"
                          help="/plugin/saml/help/encryption.html">
           <f:entry title="Keystore path"  field="keystorePath" help="/plugin/saml/help/keystorePath.html">

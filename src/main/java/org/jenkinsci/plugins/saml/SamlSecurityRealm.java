@@ -27,6 +27,7 @@ import jenkins.model.Jenkins;
 import jenkins.security.SecurityListener;
 import org.acegisecurity.*;
 import org.acegisecurity.context.SecurityContextHolder;
+import org.apache.commons.lang.StringUtils;
 import org.kohsuke.stapler.*;
 import org.opensaml.common.xml.SAMLConstants;
 import org.pac4j.core.client.RedirectAction;
@@ -67,16 +68,16 @@ public class SamlSecurityRealm extends SecurityRealm {
   private static final int DEFAULT_MAXIMUM_AUTHENTICATION_LIFETIME = 24 * 60 * 60; // 24h
   private static final String DEFAULT_USERNAME_CASE_CONVERSION = "none";
 
-  private String idpMetadata;
   private String displayNameAttributeName;
   private String groupsAttributeName;
   private int maximumAuthenticationLifetime;
-  private String usernameCaseConversion;
 
-  private String usernameAttributeName;
+  private final String idpMetadata;
+  private final String usernameCaseConversion;
+  private final String usernameAttributeName;
 
-  private SamlEncryptionData encryptionData = null;
-  private SamlAdvancedConfiguration advancedConfiguration = null;
+  private SamlEncryptionData encryptionData;
+  private SamlAdvancedConfiguration advancedConfiguration;
 
   /**
    * Jenkins passes these parameters in when you update the settings.
@@ -89,7 +90,6 @@ public class SamlSecurityRealm extends SecurityRealm {
     this.displayNameAttributeName = DEFAULT_DISPLAY_NAME_ATTRIBUTE_NAME;
     this.groupsAttributeName = DEFAULT_GROUPS_ATTRIBUTE_NAME;
     this.maximumAuthenticationLifetime = DEFAULT_MAXIMUM_AUTHENTICATION_LIFETIME;
-    this.usernameCaseConversion = DEFAULT_USERNAME_CASE_CONVERSION;
 
     if (displayNameAttributeName != null && !displayNameAttributeName.isEmpty()) {
       this.displayNameAttributeName = displayNameAttributeName;
@@ -103,9 +103,7 @@ public class SamlSecurityRealm extends SecurityRealm {
     this.usernameAttributeName = Util.fixEmptyAndTrim(usernameAttributeName);
     this.advancedConfiguration = advancedConfiguration;
     this.encryptionData = encryptionData;
-    if (usernameCaseConversion != null && !usernameCaseConversion.isEmpty()) {
-      this.usernameCaseConversion = Util.fixEmptyAndTrim(usernameCaseConversion);
-    }
+    this.usernameCaseConversion = StringUtils.defaultIfBlank(usernameCaseConversion,DEFAULT_USERNAME_CASE_CONVERSION);
     LOG.finer(this.toString());
   }
 
@@ -217,10 +215,10 @@ public class SamlSecurityRealm extends SecurityRealm {
     SamlUserDetails userDetails = new SamlUserDetails(username, authorities.toArray(new GrantedAuthority[authorities.size()]));
     // set session expiration, if needed.
 
-    if (advancedConfiguration.getMaximumSessionLifetime() != null) {
+    if (getMaximumSessionLifetime() != null) {
       request.getSession().setAttribute(
         EXPIRATION_ATTRIBUTE,
-        System.currentTimeMillis() + 1000 * advancedConfiguration.getMaximumSessionLifetime()
+        System.currentTimeMillis() + 1000 * getMaximumSessionLifetime()
       );
     }
 
@@ -290,28 +288,29 @@ public class SamlSecurityRealm extends SecurityRealm {
     client.setIdpMetadata(idpMetadata);
     client.setCallbackUrl(getConsumerServiceUrl());
     client.setDestinationBindingType(SAMLConstants.SAML2_REDIRECT_BINDING_URI);
-    if (encryptionData != null) {
-      client.setKeystorePath(encryptionData.getKeystorePath());
-      client.setKeystorePassword(encryptionData.getKeystorePassword());
-      client.setPrivateKeyPassword(encryptionData.getPrivateKeyPassword());
+    if (getEncryptionData() != null) {
+      client.setKeystorePath(getKeystorePath());
+      client.setKeystorePassword(getKeystorePassword());
+      client.setPrivateKeyPassword(getPrivateKeyPassword());
     }
+
     client.setMaximumAuthenticationLifetime(this.maximumAuthenticationLifetime);
 
-    if (advancedConfiguration != null) {
+    if(getAdvancedConfiguration()!=null) {
 
       // request forced authentication at the IdP, if selected
-      client.setForceAuth(advancedConfiguration.getForceAuthn());
+      client.setForceAuth(getForceAuthn());
 
       // override the default EntityId for this SP, if one is set
-      if (advancedConfiguration.getSpEntityId() != null) {
-        client.setSpEntityId(advancedConfiguration.getSpEntityId());
+      if (getSpEntityId() != null) {
+        client.setSpEntityId(getSpEntityId());
       }
 
       // if a specific authentication type (authentication context class
       // reference) is set, include it in the request to the IdP, and request
       // that the IdP uses exact matching for authentication types
-      if (advancedConfiguration.getAuthnContextClassRef() != null) {
-        client.setAuthnContextClassRef(advancedConfiguration.getAuthnContextClassRef());
+      if (getAuthnContextClassRef() != null) {
+        client.setAuthnContextClassRef(getAuthnContextClassRef());
         client.setComparisonType("exact");
       }
     }
@@ -356,17 +355,10 @@ public class SamlSecurityRealm extends SecurityRealm {
     return idpMetadata;
   }
 
-  public void setIdpMetadata(String idpMetadata) {
-    this.idpMetadata = idpMetadata;
-  }
-
   public String getUsernameAttributeName() {
     return usernameAttributeName;
   }
 
-  public void setUsernameAttributeName(String attribute) {
-    this.usernameAttributeName = attribute;
-  }
 
   public String getSpMetadata() {
     return newClient().printClientMetadata();
@@ -389,7 +381,7 @@ public class SamlSecurityRealm extends SecurityRealm {
   }
 
   public Boolean getForceAuthn() {
-    return advancedConfiguration != null ? advancedConfiguration.getForceAuthn() : null;
+    return advancedConfiguration != null ? advancedConfiguration.getForceAuthn() : Boolean.FALSE;
   }
 
   public String getAuthnContextClassRef() {
@@ -424,10 +416,6 @@ public class SamlSecurityRealm extends SecurityRealm {
     return usernameCaseConversion;
   }
 
-  public void setUsernameCaseConversion(String usernameCaseConversion) {
-    this.usernameCaseConversion = usernameCaseConversion;
-  }
-
   @Extension
   public static final class DescriptorImpl extends Descriptor<SecurityRealm> {
 
@@ -456,6 +444,7 @@ public class SamlSecurityRealm extends SecurityRealm {
     sb.append(", usernameCaseConversion='").append(usernameCaseConversion).append('\'');
     sb.append(", usernameAttributeName='").append(usernameAttributeName).append('\'');
     sb.append(", encryptionData=").append(encryptionData);
+    sb.append(", advancedConfiguration=").append(advancedConfiguration);
     sb.append('}');
     return sb.toString();
   }

@@ -19,6 +19,7 @@ package org.jenkinsci.plugins.saml;
 
 import hudson.Util;
 
+import org.apache.commons.lang.StringUtils;
 import org.kohsuke.stapler.DataBoundConstructor;
 
 /**
@@ -55,4 +56,14 @@ public class SamlAdvancedConfiguration {
     return maximumSessionLifetime;
   }
 
+  @Override
+  public String toString() {
+    final StringBuffer sb = new StringBuffer("SamlAdvancedConfiguration{");
+    sb.append("forceAuthn=").append(forceAuthn);
+    sb.append(", authnContextClassRef='").append(StringUtils.defaultIfBlank(authnContextClassRef,"none")).append('\'');
+    sb.append(", spEntityId='").append(StringUtils.defaultIfBlank(spEntityId,"none")).append('\'');
+    sb.append(", maximumSessionLifetime=").append(maximumSessionLifetime != null ? maximumSessionLifetime : "none");
+    sb.append('}');
+    return sb.toString();
+  }
 }
