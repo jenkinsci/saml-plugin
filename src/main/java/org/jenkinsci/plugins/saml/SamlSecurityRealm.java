@@ -59,10 +59,10 @@ public class SamlSecurityRealm extends SecurityRealm {
    * URL to process the SAML answers
    */
   public static final String CONSUMER_SERVICE_URL_PATH = "securityRealm/finishLogin";
+  public static final String EXPIRATION_ATTRIBUTE = SamlSecurityRealm.class.getName() + ".expiration";
 
   private static final Logger LOG = Logger.getLogger(SamlSecurityRealm.class.getName());
   private static final String REFERER_ATTRIBUTE = SamlSecurityRealm.class.getName() + ".referer";
-  protected static final String EXPIRATION_ATTRIBUTE = SamlSecurityRealm.class.getName() + ".expiration";
   private static final String DEFAULT_DISPLAY_NAME_ATTRIBUTE_NAME = "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name";
   private static final String DEFAULT_GROUPS_ATTRIBUTE_NAME = "http://schemas.xmlsoap.org/claims/Group";
   private static final int DEFAULT_MAXIMUM_AUTHENTICATION_LIFETIME = 24 * 60 * 60; // 24h
@@ -82,9 +82,18 @@ public class SamlSecurityRealm extends SecurityRealm {
   /**
    * Jenkins passes these parameters in when you update the settings.
    * It does this because of the @DataBoundConstructor
+   *
+   * @param idpMetadata Identity provider Metadata
+   * @param displayNameAttributeName attribute that has the displayname
+   * @param groupsAttributeName attribute that has the groups
+   * @param maximumAuthenticationLifetime maximum time that an identification it is valid
+   * @param usernameAttributeName attribute that has the username
+   * @param advancedConfiguration advanced configuration settings
+   * @param encryptionData encryption configuration settings
+   * @param usernameCaseConversion username case sensitive settings
    */
   @DataBoundConstructor
-  public SamlSecurityRealm(String signOnUrl, String idpMetadata, String displayNameAttributeName, String groupsAttributeName, Integer maximumAuthenticationLifetime, String usernameAttributeName, SamlAdvancedConfiguration advancedConfiguration, SamlEncryptionData encryptionData, String usernameCaseConversion) {
+  public SamlSecurityRealm(String idpMetadata, String displayNameAttributeName, String groupsAttributeName, Integer maximumAuthenticationLifetime, String usernameAttributeName, SamlAdvancedConfiguration advancedConfiguration, SamlEncryptionData encryptionData, String usernameCaseConversion) {
     super();
     this.idpMetadata = Util.fixEmptyAndTrim(idpMetadata);
     this.displayNameAttributeName = DEFAULT_DISPLAY_NAME_ATTRIBUTE_NAME;
@@ -107,8 +116,8 @@ public class SamlSecurityRealm extends SecurityRealm {
     LOG.finer(this.toString());
   }
 
-  public SamlSecurityRealm(String signOnUrl, String idpMetadata, String displayNameAttributeName, String groupsAttributeName, Integer maximumAuthenticationLifetime, String usernameAttributeName, SamlAdvancedConfiguration advancedConfiguration, SamlEncryptionData encryptionData) {
-    this(signOnUrl, idpMetadata, displayNameAttributeName, groupsAttributeName, maximumAuthenticationLifetime, usernameAttributeName, advancedConfiguration, encryptionData, "none");
+  public SamlSecurityRealm( String idpMetadata, String displayNameAttributeName, String groupsAttributeName, Integer maximumAuthenticationLifetime, String usernameAttributeName, SamlAdvancedConfiguration advancedConfiguration, SamlEncryptionData encryptionData) {
+    this(idpMetadata, displayNameAttributeName, groupsAttributeName, maximumAuthenticationLifetime, usernameAttributeName, advancedConfiguration, encryptionData, "none");
   }
 
   @Override
@@ -251,8 +260,8 @@ public class SamlSecurityRealm extends SecurityRealm {
 
   /**
    * Extract a usable Username from the samlProfile object.
-   * @param saml2Profile
-   * @return
+   * @param saml2Profile user profile
+   * @return the username or if it is not possible to get the attribute the profile ID
    */
   private String getUsernameFromProfile(Saml2Profile saml2Profile) {
     if (usernameAttributeName != null) {
