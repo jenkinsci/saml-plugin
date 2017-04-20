@@ -45,6 +45,7 @@ public class SamlSecurityRealmTest {
             assertEquals("urn:mace:dir:attribute-def:groups", samlSecurityRealm.getGroupsAttributeName());
             assertEquals(86400, samlSecurityRealm.getMaximumAuthenticationLifetime().longValue());
             assertEquals("none", samlSecurityRealm.getUsernameCaseConversion());
+            assertEquals("urn:mace:dir:attribute-def:mail", samlSecurityRealm.getEmailAttributeName());
             assertEquals("urn:mace:dir:attribute-def:uid", samlSecurityRealm.getUsernameAttributeName());
             assertEquals(true, samlSecurityRealm.getIdpMetadata().startsWith("<?xml version"));
         }

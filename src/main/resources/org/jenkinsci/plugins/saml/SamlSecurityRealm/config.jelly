@@ -20,6 +20,10 @@
              help="/plugin/saml/help/usernameAttributeName.html">
       <f:textbox />
     </f:entry>
+    <f:entry title="Email Attribute"  field="emailAttributeName"
+             help="/plugin/saml/help/emailAttributeName.html">
+      <f:textbox />
+    </f:entry>
     <f:entry title="Username Case Conversion" field="usernameCaseConversion" help="/plugin/saml/help/usernameCaseConversion.html">
       <select name="usernameCaseConversion">
         <f:option value="none" selected="${instance.usernameCaseConversion == 'none'}">None</f:option>

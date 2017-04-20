@@ -88,6 +88,12 @@ under the License.
       <artifactId>xml-apis</artifactId>
       <version>1.4.01</version>
     </dependency>
+    <dependency>
+      <groupId>org.jenkins-ci.plugins</groupId>
+      <artifactId>mailer</artifactId>
+      <version>1.18</version>
+      <scope>compile</scope>
+    </dependency>
   </dependencies>
 
 </project>
