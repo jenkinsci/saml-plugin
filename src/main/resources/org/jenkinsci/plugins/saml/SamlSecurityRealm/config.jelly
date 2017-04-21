@@ -28,6 +28,10 @@
       </select>
     </f:entry>
 
+    <f:entry title="Logout URL"  field="logoutUrl" help="/plugin/saml/help/logoutUrl.html">
+      <f:textbox />
+    </f:entry>
+
     <f:entry>
       <table>
         <f:optionalBlock title="Advanced Configuration" field="advancedConfiguration"
