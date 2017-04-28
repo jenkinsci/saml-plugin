@@ -20,6 +20,7 @@ package org.jenkinsci.plugins.saml;
 import com.google.common.base.Preconditions;
 import hudson.Extension;
 import hudson.Util;
+import hudson.util.FormValidation;
 import hudson.model.Descriptor;
 import hudson.model.User;
 import hudson.security.SecurityRealm;
@@ -43,6 +44,8 @@ import org.pac4j.saml.profile.Saml2Profile;
 
 import javax.annotation.Nonnull;
 import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
@@ -78,6 +81,7 @@ public class SamlSecurityRealm extends SecurityRealm {
   private final String idpMetadata;
   private final String usernameCaseConversion;
   private final String usernameAttributeName;
+  private final String logoutUrl;
 
   private SamlEncryptionData encryptionData;
   private SamlAdvancedConfiguration advancedConfiguration;
@@ -91,12 +95,14 @@ public class SamlSecurityRealm extends SecurityRealm {
    * @param groupsAttributeName attribute that has the groups
    * @param maximumAuthenticationLifetime maximum time that an identification it is valid
    * @param usernameAttributeName attribute that has the username
+   * @param emailAttributeName attribute that has the email
+   * @param logoutUrl optional URL to redirect on logout
    * @param advancedConfiguration advanced configuration settings
    * @param encryptionData encryption configuration settings
    * @param usernameCaseConversion username case sensitive settings
    */
   @DataBoundConstructor
-  public SamlSecurityRealm(String idpMetadata, String displayNameAttributeName, String groupsAttributeName, Integer maximumAuthenticationLifetime, String usernameAttributeName, String emailAttributeName, SamlAdvancedConfiguration advancedConfiguration, SamlEncryptionData encryptionData, String usernameCaseConversion) {
+  public SamlSecurityRealm(String signOnUrl, String idpMetadata, String displayNameAttributeName, String groupsAttributeName, Integer maximumAuthenticationLifetime, String usernameAttributeName, String emailAttributeName, String logoutUrl, SamlAdvancedConfiguration advancedConfiguration, SamlEncryptionData encryptionData, String usernameCaseConversion) {
     super();
     this.idpMetadata = Util.fixEmptyAndTrim(idpMetadata);
     this.displayNameAttributeName = DEFAULT_DISPLAY_NAME_ATTRIBUTE_NAME;
@@ -120,11 +126,13 @@ public class SamlSecurityRealm extends SecurityRealm {
     if (StringUtils.isNotBlank(emailAttributeName)) {
       this.emailAttributeName = Util.fixEmptyAndTrim(emailAttributeName);
     }
+
+    this.logoutUrl = Util.fixEmptyAndTrim(logoutUrl);
     LOG.finer(this.toString());
   }
 
-  public SamlSecurityRealm( String idpMetadata, String displayNameAttributeName, String groupsAttributeName, Integer maximumAuthenticationLifetime, String usernameAttributeName, String emailAttributeName, SamlAdvancedConfiguration advancedConfiguration, SamlEncryptionData encryptionData) {
-    this(idpMetadata, displayNameAttributeName, groupsAttributeName, maximumAuthenticationLifetime, usernameAttributeName, emailAttributeName, advancedConfiguration, encryptionData, "none");
+  public SamlSecurityRealm(String signOnUrl, String idpMetadata, String displayNameAttributeName, String groupsAttributeName, Integer maximumAuthenticationLifetime, String usernameAttributeName, String emailAttributeName, String logoutUrl, SamlAdvancedConfiguration advancedConfiguration, SamlEncryptionData encryptionData) {
+    this(signOnUrl, idpMetadata, displayNameAttributeName, groupsAttributeName, maximumAuthenticationLifetime, usernameAttributeName, emailAttributeName, logoutUrl, advancedConfiguration, encryptionData, "none");
   }
 
   @Override
@@ -418,10 +426,10 @@ public class SamlSecurityRealm extends SecurityRealm {
     LOG.log(Level.FINE,"Doing Logout {}",auth.getPrincipal());
     // if we just redirect to the root and anonymous does not have Overall read then we will start a login all over again.
     // we are actually anonymous here as the security context has been cleared
-    if (Jenkins.getActiveInstance().hasPermission(Jenkins.READ)) {
+    if (Jenkins.getActiveInstance().hasPermission(Jenkins.READ) && StringUtils.isBlank(getLogoutUrl())) {
         return super.getPostLogOutUrl(req, auth);
     }
-    return req.getContextPath()+ "/" + SamlLogoutAction.POST_LOGOUT_URL;
+    return StringUtils.isNotBlank(getLogoutUrl()) ? getLogoutUrl() : Jenkins.getActiveInstance().getRootUrl() + SamlLogoutAction.POST_LOGOUT_URL;
   }
 
   @Override
@@ -506,6 +514,8 @@ public class SamlSecurityRealm extends SecurityRealm {
 
   public String getEmailAttributeName() { return emailAttributeName; }
 
+  public String getLogoutUrl() { return logoutUrl; }
+
   @Extension
   public static final class DescriptorImpl extends Descriptor<SecurityRealm> {
 
@@ -522,6 +532,18 @@ public class SamlSecurityRealm extends SecurityRealm {
       return "SAML 2.0";
     }
 
+  }
+
+  public FormValidation doCheckLogoutUrl(@QueryParameter String logoutUrl) {
+    if (logoutUrl == null || logoutUrl.isEmpty()) {
+      return FormValidation.ok();
+    }
+    try {
+      new URL(logoutUrl);
+    } catch (MalformedURLException e) {
+      return FormValidation.error("The url is malformed.", e);
+    }
+    return FormValidation.ok();
   }
 
   @Override
