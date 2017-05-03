@@ -243,6 +243,8 @@ public class SamlSecurityRealm extends SecurityRealm {
       LOG.log(Level.WARNING, "Unable to save updated user data", e);
     }
 
+    SecurityListener.fireLoggedIn(userDetails.getUsername());
+
     // redirect back to original page
     String referer = (String) request.getSession().getAttribute(REFERER_ATTRIBUTE);
     String redirectUrl = referer != null ? referer : baseUrl();
