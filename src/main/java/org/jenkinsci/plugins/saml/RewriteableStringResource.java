@@ -1,15 +1,24 @@
 package org.jenkinsci.plugins.saml;
 
 import java.io.*;
+import java.nio.charset.Charset;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 class RewriteableStringResource implements org.pac4j.core.io.WritableResource {
+
+  private static final Logger LOG = Logger.getLogger(RewriteableStringResource.class.getName());
 
   private final String name;
 
   private byte[] string;
 
   public RewriteableStringResource(String string, String name) {
-    this.string = string != null ? string.getBytes() : null;
+    try {
+      this.string = string != null ? string.getBytes("UTF-8") : null;
+    } catch (UnsupportedEncodingException e) {
+      LOG.log(Level.SEVERE, "Could not get string bytes.", e);
+    }
     this.name = name;
   }
 

@@ -19,6 +19,7 @@ package org.jenkinsci.plugins.saml;
 
 import com.google.common.base.Preconditions;
 import hudson.Extension;
+import hudson.PluginManager;
 import hudson.Util;
 import hudson.model.Descriptor;
 import hudson.model.User;
@@ -81,7 +82,7 @@ public class SamlSecurityRealm extends SecurityRealm {
         try {
           InitializationService.initialize();
         } catch (InitializationException e) {
-          e.printStackTrace();
+          LOG.log(Level.SEVERE, "Could not initialize opensaml service.", e);
         }
         return null;
       }
@@ -90,10 +91,14 @@ public class SamlSecurityRealm extends SecurityRealm {
 
   // opensaml uses java.util.ServiceLoader to find service implementations. Implementations from other jars cannot
   // be found using plugin's default context classloader.
-  private static <F, T> T runUberClassLoaderAsContextClassLoader(com.google.common.base.Supplier<T> runnable) {
+  private static <F, T> T runUberClassLoaderAsContextClassLoader(@Nonnull com.google.common.base.Supplier<T> runnable) {
     ClassLoader orig = Thread.currentThread().getContextClassLoader();
     try {
-      Thread.currentThread().setContextClassLoader(Jenkins.getInstance().getPluginManager().uberClassLoader);
+      Jenkins instance = Jenkins.getInstance();
+      if (instance != null) {
+        PluginManager pluginManager = instance.getPluginManager();
+        Thread.currentThread().setContextClassLoader(pluginManager.uberClassLoader);
+      }
       return runnable.get();
     } finally {
       Thread.currentThread().setContextClassLoader(orig);
