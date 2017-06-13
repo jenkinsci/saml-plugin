@@ -79,9 +79,15 @@ under the License.
 
   <dependencies>
     <dependency>
-        <groupId>org.pac4j</groupId>
-        <artifactId>pac4j-saml</artifactId>
-        <version>1.8.9</version>
+      <groupId>org.pac4j</groupId>
+      <artifactId>pac4j-saml</artifactId>
+      <version>1.8.9</version>
+      <exclusions>
+        <exclusion>
+          <groupId>org.springframework</groupId>
+          <artifactId>spring-core</artifactId>
+        </exclusion>
+      </exclusions>
     </dependency>
     <dependency>
       <groupId>org.jenkins-ci.plugins</groupId>
