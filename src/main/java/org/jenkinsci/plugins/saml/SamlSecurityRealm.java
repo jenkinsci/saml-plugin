@@ -19,31 +19,33 @@ package org.jenkinsci.plugins.saml;
 
 import com.google.common.base.Preconditions;
 import hudson.Extension;
+import hudson.PluginManager;
 import hudson.Util;
-import hudson.util.FormValidation;
 import hudson.model.Descriptor;
 import hudson.model.User;
 import hudson.security.SecurityRealm;
 import hudson.tasks.Mailer.UserProperty;
+import hudson.util.FormValidation;
 import jenkins.model.Jenkins;
 import jenkins.security.SecurityListener;
 import org.acegisecurity.*;
 import org.acegisecurity.context.SecurityContextHolder;
 import org.apache.commons.lang.StringUtils;
 import org.kohsuke.stapler.*;
-import org.opensaml.common.xml.SAMLConstants;
+import org.opensaml.core.config.InitializationException;
+import org.opensaml.core.config.InitializationService;
 import org.pac4j.core.client.RedirectAction;
 import org.pac4j.core.client.RedirectAction.RedirectType;
 import org.pac4j.core.context.J2EContext;
-import org.pac4j.core.context.J2ERequestContext;
 import org.pac4j.core.context.WebContext;
 import org.pac4j.core.exception.RequiresHttpAction;
-import org.pac4j.saml.client.Saml2Client;
-import org.pac4j.saml.credentials.Saml2Credentials;
-import org.pac4j.saml.profile.Saml2Profile;
+import org.pac4j.saml.client.SAML2Client;
+import org.pac4j.saml.client.SAML2ClientConfiguration;
+import org.pac4j.saml.credentials.SAML2Credentials;
+import org.pac4j.saml.profile.SAML2Profile;
 
 import javax.annotation.Nonnull;
-import java.io.IOException;
+import java.io.*;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
@@ -72,6 +74,36 @@ public class SamlSecurityRealm extends SecurityRealm {
   private static final int DEFAULT_MAXIMUM_AUTHENTICATION_LIFETIME = 24 * 60 * 60; // 24h
   private static final String DEFAULT_USERNAME_CASE_CONVERSION = "none";
   private static final String DEFAULT_EMAIL_ATTRIBUTE_NAME = "email";
+
+  static {
+    runUberClassLoaderAsContextClassLoader(new com.google.common.base.Supplier<Void>() {
+      @Override
+      public Void get() {
+        try {
+          InitializationService.initialize();
+        } catch (InitializationException e) {
+          LOG.log(Level.SEVERE, "Could not initialize opensaml service.", e);
+        }
+        return null;
+      }
+    });
+  }
+
+  // opensaml uses java.util.ServiceLoader to find service implementations. Implementations from other jars cannot
+  // be found using plugin's default context classloader.
+  private static <F, T> T runUberClassLoaderAsContextClassLoader(@Nonnull com.google.common.base.Supplier<T> runnable) {
+    ClassLoader orig = Thread.currentThread().getContextClassLoader();
+    try {
+      Jenkins instance = Jenkins.getInstance();
+      if (instance != null) {
+        PluginManager pluginManager = instance.getPluginManager();
+        Thread.currentThread().setContextClassLoader(pluginManager.uberClassLoader);
+      }
+      return runnable.get();
+    } finally {
+      Thread.currentThread().setContextClassLoader(orig);
+    }
+  }
 
   private String displayNameAttributeName;
   private String groupsAttributeName;
@@ -163,92 +195,111 @@ public class SamlSecurityRealm extends SecurityRealm {
   /**
    * /securityRealm/commenceLogin
    */
-  public HttpResponse doCommenceLogin(StaplerRequest request, @Header("Referer") final String referer) {
-    LOG.fine("SamlSecurityRealm.doCommenceLogin called. Using consumerServiceUrl " + getConsumerServiceUrl());
-    request.getSession().setAttribute(REFERER_ATTRIBUTE, referer);
+  public HttpResponse doCommenceLogin(final StaplerRequest request, final StaplerResponse response, @Header("Referer") final String referer) {
+    return runUberClassLoaderAsContextClassLoader(new com.google.common.base.Supplier<HttpResponse>() {
+      @Override
+      public HttpResponse get() {
+        LOG.fine("SamlSecurityRealm.doCommenceLogin called. Using consumerServiceUrl " + getConsumerServiceUrl());
+        request.getSession().setAttribute(REFERER_ATTRIBUTE, referer);
 
-    Saml2Client client = newClient();
-    WebContext context = new J2ERequestContext(request);
-    try {
-      RedirectAction action = client.getRedirectAction(context, true, false);
-      if (action.getType() == RedirectType.REDIRECT) {
-        LOG.fine("REDIRECT : " + action.getLocation());
-        return HttpResponses.redirectTo(action.getLocation());
-      } else if (action.getType() == RedirectType.SUCCESS) {
-        LOG.fine("SUCCESS : " + action.getContent());
-        return HttpResponses.html(action.getContent());
-      } else {
-        throw new IllegalStateException("Received unexpected response type " + action.getType());
+        SAML2Client client = newClient(request, response);
+        WebContext context = newWebContext(request, response);
+        try {
+          RedirectAction action = client.getRedirectAction(context, true);
+          if (action.getType() == RedirectType.REDIRECT) {
+            LOG.fine("REDIRECT : " + action.getLocation());
+            return HttpResponses.redirectTo(action.getLocation());
+          } else if (action.getType() == RedirectType.SUCCESS) {
+            LOG.fine("SUCCESS : " + action.getContent());
+            return HttpResponses.html(action.getContent());
+          } else {
+            throw new IllegalStateException("Received unexpected response type " + action.getType());
+          }
+        } catch (RequiresHttpAction e) {
+          throw new IllegalStateException(e);
+        }
       }
-    } catch (RequiresHttpAction e) {
-      throw new IllegalStateException(e);
-    }
+    });
+  }
+
+  private WebContext newWebContext(StaplerRequest request, StaplerResponse response) {
+    return new J2EContext(request,response);
   }
 
   /**
    * /securityRealm/finishLogin
    */
-  public HttpResponse doFinishLogin(StaplerRequest request, StaplerResponse response) {
-    LOG.finer("SamlSecurityRealm.doFinishLogin called");
-    boolean saveUser = false;
+  public HttpResponse doFinishLogin(final StaplerRequest request, final StaplerResponse response) {
+    return runUberClassLoaderAsContextClassLoader(new com.google.common.base.Supplier<HttpResponse>() {
+      @Override
+      public HttpResponse get() {
+        LOG.finer("SamlSecurityRealm.doFinishLogin called");
+        boolean saveUser = false;
 
-    Saml2Client client = newClient();
-    WebContext context = new J2EContext(request, response);
-    Saml2Credentials credentials;
-    try {
-      credentials = client.getCredentials(context);
-    } catch (RequiresHttpAction e) {
-      throw new IllegalStateException(e);
-    }
+        final SAML2Client client = newClient(request, response);
+        final WebContext context = newWebContext(request, response);
+        SAML2Credentials credentials;
+        SAML2Profile saml2Profile;
+        try {
+          credentials = client.getCredentials(context);
+          saml2Profile = client.getUserProfile(credentials, context);
+        } catch (RequiresHttpAction e) {
+          throw new IllegalStateException(e);
+        }
 
-    Saml2Profile saml2Profile = client.getUserProfile(credentials, context);
+        if (saml2Profile == null) {
+          LOG.info("Could not find user profile for SAML credentials: " + credentials);
+          return HttpResponses.forbidden();
+        }
 
-    LOG.finer(saml2Profile.toString());
+        LOG.finer(saml2Profile.toString());
 
-    // getId and possibly convert, based on settings
-    String username = loadUserName(saml2Profile);
+        // getId and possibly convert, based on settings
+        String username = loadUserName(saml2Profile);
 
-    List<GrantedAuthority> authorities = loadGrantedAuthorities(saml2Profile);
+        List<GrantedAuthority> authorities = loadGrantedAuthorities(saml2Profile);
 
-    // create user data
-    SamlUserDetails userDetails = new SamlUserDetails(username, authorities.toArray(new GrantedAuthority[authorities.size()]));
-    // set session expiration, if needed.
+        // create user data
+        SamlUserDetails userDetails = new SamlUserDetails(username, authorities.toArray(new GrantedAuthority[authorities.size()]));
+        // set session expiration, if needed.
 
-    if (getMaximumSessionLifetime() != null) {
-      request.getSession().setAttribute(
-        EXPIRATION_ATTRIBUTE,
-        System.currentTimeMillis() + 1000 * getMaximumSessionLifetime()
-      );
-    }
+        if (getMaximumSessionLifetime() != null) {
+          request.getSession().setAttribute(
+            EXPIRATION_ATTRIBUTE,
+            System.currentTimeMillis() + 1000 * getMaximumSessionLifetime()
+          );
+        }
 
-    SamlAuthenticationToken samlAuthToken = new SamlAuthenticationToken(userDetails, request.getSession());
+        SamlAuthenticationToken samlAuthToken = new SamlAuthenticationToken(userDetails, request.getSession());
 
-    // initialize security context
-    SecurityContextHolder.getContext().setAuthentication(samlAuthToken);
-    SecurityListener.fireAuthenticated(userDetails);
-    User user = User.current();
+        // initialize security context
+        SecurityContextHolder.getContext().setAuthentication(samlAuthToken);
+        SecurityListener.fireAuthenticated(userDetails);
+        User user = User.current();
 
-    saveUser |= modifyUserFullName(user, saml2Profile);
+        saveUser |= modifyUserFullName(user, saml2Profile);
 
 
-    //retrieve user email
-    saveUser |= modifyUserEmail(user,(List<?>) saml2Profile.getAttribute(getEmailAttributeName()));
+        //retrieve user email
+        saveUser |= modifyUserEmail(user, (List<?>) saml2Profile.getAttribute(getEmailAttributeName()));
 
-    try {
-      if(user != null && saveUser) {
-        user.save();
+        try {
+          if (user != null && saveUser) {
+            user.save();
+          }
+        } catch (IOException e) {
+          // even if it fails, nothing critical
+          LOG.log(Level.WARNING, "Unable to save updated user data", e);
+        }
+
+        SecurityListener.fireLoggedIn(userDetails.getUsername());
+
+        // redirect back to original page
+        String referer = (String) request.getSession().getAttribute(REFERER_ATTRIBUTE);
+        String redirectUrl = referer != null ? referer : baseUrl();
+        return HttpResponses.redirectTo(redirectUrl);
       }
-    } catch (IOException e) {
-      // even if it fails, nothing critical
-      LOG.log(Level.WARNING, "Unable to save updated user data", e);
-    }
-
-    SecurityListener.fireLoggedIn(userDetails.getUsername());
-
-    // redirect back to original page
-    String referer = (String) request.getSession().getAttribute(REFERER_ATTRIBUTE);
-    String redirectUrl = referer != null ? referer : baseUrl();
-    return HttpResponses.redirectTo(redirectUrl);
+    });
   }
 
   /**
@@ -256,7 +307,7 @@ public class SamlSecurityRealm extends SecurityRealm {
    * @param saml2Profile SAML Profile.
    * @return the user name.
    */
-  private String loadUserName(Saml2Profile saml2Profile) {
+  private String loadUserName(SAML2Profile saml2Profile) {
     String username = getUsernameFromProfile(saml2Profile);
     if (this.usernameCaseConversion != null) {
       if (this.usernameCaseConversion.compareTo("lowercase") == 0) {
@@ -274,7 +325,7 @@ public class SamlSecurityRealm extends SecurityRealm {
    * @param saml2Profile SAML Profile.
    * @return true if the current user is modified.
    */
-  private boolean modifyUserFullName(User user, Saml2Profile saml2Profile) {
+  private boolean modifyUserFullName(User user, SAML2Profile saml2Profile) {
     boolean saveUser = false;
     // retrieve user display name
     String userFullName = null;
@@ -298,7 +349,7 @@ public class SamlSecurityRealm extends SecurityRealm {
    * @param saml2Profile SAML Profile.
    * @return granted authorities.
    */
-  private List<GrantedAuthority> loadGrantedAuthorities(Saml2Profile saml2Profile) {
+  private List<GrantedAuthority> loadGrantedAuthorities(SAML2Profile saml2Profile) {
     // prepare list of groups
     List<?> groups = (List<?>) saml2Profile.getAttribute(this.groupsAttributeName);
     if (groups == null) {
@@ -352,7 +403,7 @@ public class SamlSecurityRealm extends SecurityRealm {
    * @param saml2Profile user profile
    * @return the username or if it is not possible to get the attribute the profile ID
    */
-  private String getUsernameFromProfile(Saml2Profile saml2Profile) {
+  private String getUsernameFromProfile(SAML2Profile saml2Profile) {
     if (usernameAttributeName != null) {
       Object attribute = saml2Profile.getAttribute(usernameAttributeName);
       if (attribute instanceof String) {
@@ -374,22 +425,27 @@ public class SamlSecurityRealm extends SecurityRealm {
    * they can configure their IdP.
    */
   public HttpResponse doMetadata(StaplerRequest request, StaplerResponse response) {
-    Saml2Client client = newClient();
+    final SAML2Client client = newClient(request,response);
 
-    return HttpResponses.plainText(client.printClientMetadata());
+    return HttpResponses.plainText(client.getServiceProviderMetadataResolver().getMetadata());
   }
 
-  private Saml2Client newClient() {
+  private SAML2Client newClient(StaplerRequest request, StaplerResponse response) {
     Preconditions.checkNotNull(idpMetadata);
+    final SAML2ClientConfiguration client = new SAML2ClientConfiguration();
+    client.setIdentityProviderMetadataResource(new RewriteableStringResource(idpMetadata));
+    client.setServiceProviderMetadataResource(new RewriteableStringResource());
 
-    Saml2Client client = new Saml2Client();
-    client.setIdpMetadata(idpMetadata);
-    client.setCallbackUrl(getConsumerServiceUrl());
-    client.setDestinationBindingType(SAMLConstants.SAML2_REDIRECT_BINDING_URI);
     if (getEncryptionData() != null) {
-      client.setKeystorePath(getKeystorePath());
-      client.setKeystorePassword(getKeystorePassword());
-      client.setPrivateKeyPassword(getPrivateKeyPassword());
+      client.setKeystorePath(getEncryptionData().getKeystorePath());
+      client.setKeystorePassword(getEncryptionData().getKeystorePassword());
+      client.setPrivateKeyPassword(getEncryptionData().getPrivateKeyPassword());
+    } else {
+      // Signed authentication requests are mandatory now
+      // users should define own keystore...
+      client.setKeystorePath("resource:samlKeystore.jks");
+      client.setKeystorePassword("pac4j-demo-passwd");
+      client.setPrivateKeyPassword("pac4j-demo-passwd");
     }
 
     client.setMaximumAuthenticationLifetime(this.maximumAuthenticationLifetime);
@@ -401,7 +457,7 @@ public class SamlSecurityRealm extends SecurityRealm {
 
       // override the default EntityId for this SP, if one is set
       if (getSpEntityId() != null) {
-        client.setSpEntityId(getSpEntityId());
+        client.setServiceProviderEntityId(getSpEntityId());
       }
 
       // if a specific authentication type (authentication context class
@@ -412,10 +468,13 @@ public class SamlSecurityRealm extends SecurityRealm {
         client.setComparisonType("exact");
       }
     }
+    final SAML2Client saml2Client = new SAML2Client(client);
+    saml2Client.setCallbackUrl(getConsumerServiceUrl());
+    saml2Client.init(newWebContext(request, response));
     if (LOG.isLoggable(Level.FINE)) {
-      LOG.fine(client.printClientMetadata());
+      LOG.fine(saml2Client.getServiceProviderMetadataResolver().getMetadata());
     }
-    return client;
+    return saml2Client;
   }
 
   /**
@@ -436,9 +495,9 @@ public class SamlSecurityRealm extends SecurityRealm {
 
   @Override
   public void doLogout(StaplerRequest req, StaplerResponse rsp) throws IOException, javax.servlet.ServletException {
-    super.doLogout(req,rsp);
-      LOG.log(Level.FINEST,"Here we could do the SAML Single Logout");
-      //TODO JENKINS-42448
+    super.doLogout(req, rsp);
+    LOG.log(Level.FINEST, "Here we could do the SAML Single Logout");
+    //TODO JENKINS-42448
   }
 
   private String baseUrl() {
@@ -457,10 +516,6 @@ public class SamlSecurityRealm extends SecurityRealm {
     return usernameAttributeName;
   }
 
-
-  public String getSpMetadata() {
-    return newClient().printClientMetadata();
-  }
 
   public String getDisplayNameAttributeName() {
     return displayNameAttributeName;
