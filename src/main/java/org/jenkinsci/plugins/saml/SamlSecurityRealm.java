@@ -53,6 +53,8 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
+import java.util.concurrent.ConcurrentSkipListSet;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -448,7 +450,12 @@ public class SamlSecurityRealm extends SecurityRealm {
 
   @Override
   public GroupDetails loadGroupByGroupname(String groupname) throws UsernameNotFoundException, DataAccessException {
-    return new SamlGroupDetails(groupname);
+    GroupDetails dg =  new SamlGroupDetails(groupname);
+
+    if(dg.getMembers().isEmpty()){
+      throw new UserMayOrMayNotExistException(groupname);
+    }
+    return dg;
   }
 
   @Override

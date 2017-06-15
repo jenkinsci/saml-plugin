@@ -32,6 +32,7 @@ import java.util.Set;
 public class SamlGroupDetails extends GroupDetails {
 
     private final String name;
+    private final Set<String> members = new java.util.HashSet<String>();
 
     public SamlGroupDetails(String name){
         this.name = name;
@@ -47,11 +48,12 @@ public class SamlGroupDetails extends GroupDetails {
     }
 
     public Set<String> getMembers() {
-        Set<String> members = new java.util.HashSet<String>();
-        for (User u :User.getAll()){
-            LastGrantedAuthoritiesProperty prop = u.getProperty(LastGrantedAuthoritiesProperty.class);
-            if(hasGroupOnAuthorities(prop)){
-                members.add(u.getId());
+        if(members.isEmpty()) {
+            for (User u : User.getAll()) {
+                LastGrantedAuthoritiesProperty prop = u.getProperty(LastGrantedAuthoritiesProperty.class);
+                if (hasGroupOnAuthorities(prop)) {
+                    members.add(u.getId());
+                }
             }
         }
         return members;
