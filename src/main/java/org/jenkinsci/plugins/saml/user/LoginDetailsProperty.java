@@ -24,6 +24,9 @@ import hudson.model.UserPropertyDescriptor;
 import net.sf.json.JSONObject;
 import org.acegisecurity.GrantedAuthority;
 import org.apache.commons.lang.time.FastDateFormat;
+import hudson.security.SecurityRealm;
+import jenkins.model.Jenkins;
+import org.jenkinsci.plugins.saml.SamlSecurityRealm;
 import org.kohsuke.stapler.DataBoundConstructor;
 import org.kohsuke.stapler.StaplerRequest;
 
@@ -125,20 +128,27 @@ public class LoginDetailsProperty extends UserProperty {
     public static class SecurityListenerImpl extends jenkins.security.SecurityListener {
         @Override
         protected void authenticated(@javax.annotation.Nonnull org.acegisecurity.userdetails.UserDetails details) {
+            //NOOP
         }
 
         @Override
         protected void failedToAuthenticate(@javax.annotation.Nonnull String username) {
+            //NOOP
         }
 
         @Override
         protected void loggedIn(@javax.annotation.Nonnull String username) {
+            SecurityRealm realm = Jenkins.getActiveInstance().getSecurityRealm();
+            if(!(realm instanceof SamlSecurityRealm)) {
+                return;
+            }
+
             try {
                 User u = User.get(username);
                 LoginDetailsProperty o = u.getProperty(LoginDetailsProperty.class);
                 if (o==null)
                     u.addProperty(o=new LoginDetailsProperty());
-                org.acegisecurity.Authentication a = jenkins.model.Jenkins.getAuthentication();
+                org.acegisecurity.Authentication a = Jenkins.getAuthentication();
                 if (a!=null && a.getName().equals(username))
                     o.update();    // just for defensive sanity checking
             } catch (java.io.IOException e) {
