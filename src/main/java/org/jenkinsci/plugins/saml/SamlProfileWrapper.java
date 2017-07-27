@@ -20,7 +20,7 @@ package org.jenkinsci.plugins.saml;
 import org.kohsuke.stapler.StaplerRequest;
 import org.kohsuke.stapler.StaplerResponse;
 import org.pac4j.core.context.WebContext;
-import org.pac4j.core.exception.RequiresHttpAction;
+import org.pac4j.core.exception.HttpAction;
 import org.pac4j.saml.client.SAML2Client;
 import org.pac4j.saml.credentials.SAML2Credentials;
 import org.pac4j.saml.profile.SAML2Profile;
@@ -54,7 +54,7 @@ public class SamlProfileWrapper extends OpenSAMLWrapper<SAML2Profile> {
             final WebContext context = createWebContext();
             credentials = client.getCredentials(context);
             saml2Profile = client.getUserProfile(credentials, context);
-        } catch (RequiresHttpAction e) {
+        } catch (HttpAction e) {
             throw new IllegalStateException(e);
         }
 

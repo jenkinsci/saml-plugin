@@ -27,43 +27,43 @@ import org.kohsuke.stapler.DataBoundConstructor;
  * of the plugin's configuration page
  */
 public class SamlAdvancedConfiguration {
-  private final Boolean forceAuthn;
-  private final String  authnContextClassRef;
-  private final String  spEntityId;
-  private final Integer maximumSessionLifetime;
-  
-  @DataBoundConstructor
-  public SamlAdvancedConfiguration(Boolean forceAuthn, String authnContextClassRef, String spEntityId, Integer maximumSessionLifetime) {
-    this.forceAuthn = (forceAuthn != null) ? forceAuthn : false;
-    this.authnContextClassRef = Util.fixEmptyAndTrim(authnContextClassRef);
-    this.spEntityId = Util.fixEmptyAndTrim(spEntityId);
-    this.maximumSessionLifetime = maximumSessionLifetime;
-  }
+    private final Boolean forceAuthn;
+    private final String authnContextClassRef;
+    private final String spEntityId;
+    private final Integer maximumSessionLifetime;
 
-  public Boolean getForceAuthn() {
-    return forceAuthn;
-  }
+    @DataBoundConstructor
+    public SamlAdvancedConfiguration(Boolean forceAuthn, String authnContextClassRef, String spEntityId, Integer maximumSessionLifetime) {
+        this.forceAuthn = (forceAuthn != null) ? forceAuthn : false;
+        this.authnContextClassRef = Util.fixEmptyAndTrim(authnContextClassRef);
+        this.spEntityId = Util.fixEmptyAndTrim(spEntityId);
+        this.maximumSessionLifetime = maximumSessionLifetime;
+    }
 
-  public String getAuthnContextClassRef() {
-    return authnContextClassRef;
-  }
+    public Boolean getForceAuthn() {
+        return forceAuthn;
+    }
 
-  public String getSpEntityId() {
-    return spEntityId;
-  }
+    public String getAuthnContextClassRef() {
+        return authnContextClassRef;
+    }
 
-  public Integer getMaximumSessionLifetime() {
-    return maximumSessionLifetime;
-  }
+    public String getSpEntityId() {
+        return spEntityId;
+    }
 
-  @Override
-  public String toString() {
-    final StringBuffer sb = new StringBuffer("SamlAdvancedConfiguration{");
-    sb.append("forceAuthn=").append(forceAuthn);
-    sb.append(", authnContextClassRef='").append(StringUtils.defaultIfBlank(authnContextClassRef,"none")).append('\'');
-    sb.append(", spEntityId='").append(StringUtils.defaultIfBlank(spEntityId,"none")).append('\'');
-    sb.append(", maximumSessionLifetime=").append(maximumSessionLifetime != null ? maximumSessionLifetime : "none");
-    sb.append('}');
-    return sb.toString();
-  }
+    public Integer getMaximumSessionLifetime() {
+        return maximumSessionLifetime;
+    }
+
+    @Override
+    public String toString() {
+        final StringBuffer sb = new StringBuffer("SamlAdvancedConfiguration{");
+        sb.append("forceAuthn=").append(forceAuthn);
+        sb.append(", authnContextClassRef='").append(StringUtils.defaultIfBlank(authnContextClassRef, "none")).append('\'');
+        sb.append(", spEntityId='").append(StringUtils.defaultIfBlank(spEntityId, "none")).append('\'');
+        sb.append(", maximumSessionLifetime=").append(maximumSessionLifetime != null ? maximumSessionLifetime : "none");
+        sb.append('}');
+        return sb.toString();
+    }
 }

@@ -17,12 +17,19 @@ under the License. */
 
 package org.jenkinsci.plugins.saml;
 
-import java.io.*;
-import java.nio.charset.Charset;
+import org.apache.commons.io.FileUtils;
+import org.pac4j.core.io.WritableResource;
+
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.io.UnsupportedEncodingException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-class RewriteableStringResource implements org.pac4j.core.io.WritableResource {
+class RewriteableStringResource implements WritableResource {
 
   private static final Logger LOG = Logger.getLogger(RewriteableStringResource.class.getName());
 
@@ -32,7 +39,7 @@ class RewriteableStringResource implements org.pac4j.core.io.WritableResource {
 
   public RewriteableStringResource(String string, String name) {
     try {
-      //FIXME [kuisatahverat] assume UTF-8 file, it could not be UTF-8
+      //FIXME [kuisatahverat] assume UTF-8 file, it could not be UTF-8, string.getBytes() uses the platform encoding maybe is better.
       this.string = string != null ? string.getBytes("UTF-8") : null;
     } catch (UnsupportedEncodingException e) {
       LOG.log(Level.SEVERE, "Could not get string bytes.", e);
@@ -59,11 +66,22 @@ class RewriteableStringResource implements org.pac4j.core.io.WritableResource {
   }
 
   @Override
-  public InputStream getInputStream() throws IOException {
+  public java.io.InputStream getInputStream() throws IOException {
     if (string == null) {
       throw new IOException("no data");
     }
     return new ByteArrayInputStream(string);
+  }
+
+  @Override
+  public File getFile() {
+    try {
+      File temp = File.createTempFile("jenkins-saml-",".bin");
+      FileUtils.writeByteArrayToFile(temp, string);
+    } catch (IOException e) {
+      LOG.log(Level.SEVERE,"Is not possible to create a temp file",e);
+    }
+    return null;
   }
 
   @Override
