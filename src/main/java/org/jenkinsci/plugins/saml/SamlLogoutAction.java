@@ -62,7 +62,7 @@ public class SamlLogoutAction implements UnprotectedRootAction {
         SecurityRealm r = Jenkins.getActiveInstance().getSecurityRealm();
         if (r instanceof SamlSecurityRealm) {
             SamlSecurityRealm smlsr = (SamlSecurityRealm) r;
-            return smlsr.getIdpMetadata();
+            return smlsr.getSamlPluginConfig().getIdpMetadata();
         }
         // only called from the Jelly if the SamlSecurityRealm is set...
         return "";

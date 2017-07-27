@@ -41,13 +41,14 @@ public class SamlSecurityRealmTest {
 
         if (securityRealm instanceof SamlSecurityRealm) {
             SamlSecurityRealm samlSecurityRealm = (SamlSecurityRealm) securityRealm;
-            assertEquals("urn:mace:dir:attribute-def:displayName", samlSecurityRealm.getDisplayNameAttributeName());
-            assertEquals("urn:mace:dir:attribute-def:groups", samlSecurityRealm.getGroupsAttributeName());
-            assertEquals(86400, samlSecurityRealm.getMaximumAuthenticationLifetime().longValue());
-            assertEquals("none", samlSecurityRealm.getUsernameCaseConversion());
-            assertEquals("urn:mace:dir:attribute-def:mail", samlSecurityRealm.getEmailAttributeName());
-            assertEquals("urn:mace:dir:attribute-def:uid", samlSecurityRealm.getUsernameAttributeName());
-            assertEquals(true, samlSecurityRealm.getIdpMetadata().startsWith("<?xml version"));
+            org.jenkinsci.plugins.saml.SamlPluginConfig samlPluginConfig = samlSecurityRealm.getSamlPluginConfig();
+            assertEquals("urn:mace:dir:attribute-def:displayName", samlPluginConfig.getDisplayNameAttributeName());
+            assertEquals("urn:mace:dir:attribute-def:groups", samlPluginConfig.getGroupsAttributeName());
+            assertEquals(86400, samlPluginConfig.getMaximumAuthenticationLifetime().longValue());
+            assertEquals("none", samlPluginConfig.getUsernameCaseConversion());
+            assertEquals("urn:mace:dir:attribute-def:mail", samlPluginConfig.getEmailAttributeName());
+            assertEquals("urn:mace:dir:attribute-def:uid", samlPluginConfig.getUsernameAttributeName());
+            assertEquals(true, samlPluginConfig.getIdpMetadata().startsWith("<?xml version"));
         }
     }
 
@@ -59,12 +60,13 @@ public class SamlSecurityRealmTest {
 
         if (securityRealm instanceof SamlSecurityRealm) {
             SamlSecurityRealm samlSecurityRealm = (SamlSecurityRealm) securityRealm;
-            assertEquals("urn:mace:dir:attribute-def:displayName", samlSecurityRealm.getDisplayNameAttributeName());
-            assertEquals("urn:mace:dir:attribute-def:groups", samlSecurityRealm.getGroupsAttributeName());
-            assertEquals(86400, samlSecurityRealm.getMaximumAuthenticationLifetime().longValue());
-            assertEquals("lowercase", samlSecurityRealm.getUsernameCaseConversion());
-            assertEquals("urn:mace:dir:attribute-def:uid", samlSecurityRealm.getUsernameAttributeName());
-            assertEquals(true, samlSecurityRealm.getIdpMetadata().startsWith("<?xml version"));
+            org.jenkinsci.plugins.saml.SamlPluginConfig samlPluginConfig = samlSecurityRealm.getSamlPluginConfig();
+            assertEquals("urn:mace:dir:attribute-def:displayName", samlPluginConfig.getDisplayNameAttributeName());
+            assertEquals("urn:mace:dir:attribute-def:groups", samlPluginConfig.getGroupsAttributeName());
+            assertEquals(86400, samlPluginConfig.getMaximumAuthenticationLifetime().longValue());
+            assertEquals("lowercase", samlPluginConfig.getUsernameCaseConversion());
+            assertEquals("urn:mace:dir:attribute-def:uid", samlPluginConfig.getUsernameAttributeName());
+            assertEquals(true, samlPluginConfig.getIdpMetadata().startsWith("<?xml version"));
         }
     }
 
@@ -76,12 +78,13 @@ public class SamlSecurityRealmTest {
 
         if (securityRealm instanceof SamlSecurityRealm) {
             SamlSecurityRealm samlSecurityRealm = (SamlSecurityRealm) securityRealm;
-            assertEquals("urn:mace:dir:attribute-def:displayName", samlSecurityRealm.getDisplayNameAttributeName());
-            assertEquals("urn:mace:dir:attribute-def:groups", samlSecurityRealm.getGroupsAttributeName());
-            assertEquals(86400, samlSecurityRealm.getMaximumAuthenticationLifetime().longValue());
-            assertEquals("uppercase", samlSecurityRealm.getUsernameCaseConversion());
-            assertEquals("urn:mace:dir:attribute-def:uid", samlSecurityRealm.getUsernameAttributeName());
-            assertEquals(true, samlSecurityRealm.getIdpMetadata().startsWith("<?xml version"));
+            org.jenkinsci.plugins.saml.SamlPluginConfig samlPluginConfig = samlSecurityRealm.getSamlPluginConfig();
+            assertEquals("urn:mace:dir:attribute-def:displayName", samlPluginConfig.getDisplayNameAttributeName());
+            assertEquals("urn:mace:dir:attribute-def:groups", samlPluginConfig.getGroupsAttributeName());
+            assertEquals(86400, samlPluginConfig.getMaximumAuthenticationLifetime().longValue());
+            assertEquals("uppercase", samlPluginConfig.getUsernameCaseConversion());
+            assertEquals("urn:mace:dir:attribute-def:uid", samlPluginConfig.getUsernameAttributeName());
+            assertEquals(true, samlPluginConfig.getIdpMetadata().startsWith("<?xml version"));
         }
     }
 
@@ -93,15 +96,16 @@ public class SamlSecurityRealmTest {
 
         if (securityRealm instanceof SamlSecurityRealm) {
             SamlSecurityRealm samlSecurityRealm = (SamlSecurityRealm) securityRealm;
-            assertEquals("urn:mace:dir:attribute-def:displayName", samlSecurityRealm.getDisplayNameAttributeName());
-            assertEquals("urn:mace:dir:attribute-def:groups", samlSecurityRealm.getGroupsAttributeName());
-            assertEquals(86400, samlSecurityRealm.getMaximumAuthenticationLifetime().longValue());
-            assertEquals("none", samlSecurityRealm.getUsernameCaseConversion());
-            assertEquals("urn:mace:dir:attribute-def:uid", samlSecurityRealm.getUsernameAttributeName());
-            assertEquals(true, samlSecurityRealm.getIdpMetadata().startsWith("<?xml version"));
-            assertEquals("/home/jdk/keystore", samlSecurityRealm.getKeystorePath());
-            assertEquals("changeit", samlSecurityRealm.getKeystorePassword());
-            assertEquals("changeit", samlSecurityRealm.getPrivateKeyPassword());
+            org.jenkinsci.plugins.saml.SamlPluginConfig samlPluginConfig = samlSecurityRealm.getSamlPluginConfig();
+            assertEquals("urn:mace:dir:attribute-def:displayName", samlPluginConfig.getDisplayNameAttributeName());
+            assertEquals("urn:mace:dir:attribute-def:groups", samlPluginConfig.getGroupsAttributeName());
+            assertEquals(86400, samlPluginConfig.getMaximumAuthenticationLifetime().longValue());
+            assertEquals("none", samlPluginConfig.getUsernameCaseConversion());
+            assertEquals("urn:mace:dir:attribute-def:uid", samlPluginConfig.getUsernameAttributeName());
+            assertEquals(true, samlPluginConfig.getIdpMetadata().startsWith("<?xml version"));
+            assertEquals("/home/jdk/keystore", samlPluginConfig.getKeystorePath());
+            assertEquals("changeit", samlPluginConfig.getKeystorePassword());
+            assertEquals("changeit", samlPluginConfig.getPrivateKeyPassword());
 
         }
     }
@@ -114,19 +118,20 @@ public class SamlSecurityRealmTest {
 
         if (securityRealm instanceof SamlSecurityRealm) {
             SamlSecurityRealm samlSecurityRealm = (SamlSecurityRealm) securityRealm;
-            assertEquals("urn:mace:dir:attribute-def:displayName", samlSecurityRealm.getDisplayNameAttributeName());
-            assertEquals("urn:mace:dir:attribute-def:groups", samlSecurityRealm.getGroupsAttributeName());
-            assertEquals(86400, samlSecurityRealm.getMaximumAuthenticationLifetime().longValue());
-            assertEquals("none", samlSecurityRealm.getUsernameCaseConversion());
-            assertEquals("urn:mace:dir:attribute-def:uid", samlSecurityRealm.getUsernameAttributeName());
-            assertEquals(true, samlSecurityRealm.getIdpMetadata().startsWith("<?xml version"));
-            assertEquals("/home/jdk/keystore", samlSecurityRealm.getKeystorePath());
-            assertEquals("changeit", samlSecurityRealm.getKeystorePassword());
-            assertEquals("changeit", samlSecurityRealm.getPrivateKeyPassword());
-            assertEquals(true, samlSecurityRealm.getForceAuthn());
-            assertEquals("anotherContext", samlSecurityRealm.getAuthnContextClassRef());
-            assertEquals("spEntityId", samlSecurityRealm.getSpEntityId());
-            assertEquals(86400, samlSecurityRealm.getMaximumSessionLifetime().longValue());
+            org.jenkinsci.plugins.saml.SamlPluginConfig samlPluginConfig = samlSecurityRealm.getSamlPluginConfig();
+            assertEquals("urn:mace:dir:attribute-def:displayName", samlPluginConfig.getDisplayNameAttributeName());
+            assertEquals("urn:mace:dir:attribute-def:groups", samlPluginConfig.getGroupsAttributeName());
+            assertEquals(86400, samlPluginConfig.getMaximumAuthenticationLifetime().longValue());
+            assertEquals("none", samlPluginConfig.getUsernameCaseConversion());
+            assertEquals("urn:mace:dir:attribute-def:uid", samlPluginConfig.getUsernameAttributeName());
+            assertEquals(true, samlPluginConfig.getIdpMetadata().startsWith("<?xml version"));
+            assertEquals("/home/jdk/keystore", samlPluginConfig.getKeystorePath());
+            assertEquals("changeit", samlPluginConfig.getKeystorePassword());
+            assertEquals("changeit", samlPluginConfig.getPrivateKeyPassword());
+            assertEquals(true, samlPluginConfig.getForceAuthn());
+            assertEquals("anotherContext", samlPluginConfig.getAuthnContextClassRef());
+            assertEquals("spEntityId", samlPluginConfig.getSpEntityId());
+            assertEquals(86400, samlPluginConfig.getMaximumSessionLifetime().longValue());
         }
     }
 }
