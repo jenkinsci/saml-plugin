@@ -54,6 +54,11 @@ import java.util.logging.Logger;
  * @see SecurityRealm
  */
 public class SamlSecurityRealm extends SecurityRealm {
+    public static final String DEFAULT_DISPLAY_NAME_ATTRIBUTE_NAME = "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name";
+    public static final String DEFAULT_GROUPS_ATTRIBUTE_NAME = "http://schemas.xmlsoap.org/claims/Group";
+    public static final int DEFAULT_MAXIMUM_AUTHENTICATION_LIFETIME = 24 * 60 * 60; // 24h
+    public static final String DEFAULT_USERNAME_CASE_CONVERSION = "none";
+
     /**
      * URL to process the SAML answers
      */
@@ -63,7 +68,21 @@ public class SamlSecurityRealm extends SecurityRealm {
     private static final Logger LOG = Logger.getLogger(SamlSecurityRealm.class.getName());
     private static final String REFERER_ATTRIBUTE = SamlSecurityRealm.class.getName() + ".referer";
 
-    private final SamlPluginConfig samlPluginConfig;
+    /**
+     * configuration settings.
+     */
+    private String displayNameAttributeName;
+    private String groupsAttributeName;
+    private int maximumAuthenticationLifetime;
+    private String emailAttributeName;
+
+    private final String idpMetadata;
+    private final String usernameCaseConversion;
+    private final String usernameAttributeName;
+    private final String logoutUrl;
+
+    private SamlEncryptionData encryptionData;
+    private SamlAdvancedConfiguration advancedConfiguration;
 
     /**
      * Jenkins passes these parameters in when you update the settings.
@@ -83,13 +102,29 @@ public class SamlSecurityRealm extends SecurityRealm {
     @DataBoundConstructor
     public SamlSecurityRealm(String idpMetadata, String displayNameAttributeName, String groupsAttributeName, Integer maximumAuthenticationLifetime, String usernameAttributeName, String emailAttributeName, String logoutUrl, SamlAdvancedConfiguration advancedConfiguration, SamlEncryptionData encryptionData, String usernameCaseConversion) {
         super();
-        this.samlPluginConfig = new SamlPluginConfig(idpMetadata, usernameCaseConversion, usernameAttributeName, logoutUrl);
-        getSamlPluginConfig().setDisplayNameAttributeName(displayNameAttributeName);
-        getSamlPluginConfig().setGroupsAttributeName(groupsAttributeName);
-        getSamlPluginConfig().setMaximumAuthenticationLifetime(maximumAuthenticationLifetime);
-        getSamlPluginConfig().setAdvancedConfiguration(advancedConfiguration);
-        getSamlPluginConfig().setEncryptionData(encryptionData);
-        getSamlPluginConfig().setEmailAttributeName(emailAttributeName);
+
+        this.idpMetadata = hudson.Util.fixEmptyAndTrim(idpMetadata);
+        this.usernameAttributeName = hudson.Util.fixEmptyAndTrim(usernameAttributeName);
+        this.usernameCaseConversion = org.apache.commons.lang.StringUtils.defaultIfBlank(usernameCaseConversion, DEFAULT_USERNAME_CASE_CONVERSION);
+        this.logoutUrl = hudson.Util.fixEmptyAndTrim(logoutUrl);
+        this.displayNameAttributeName = DEFAULT_DISPLAY_NAME_ATTRIBUTE_NAME;
+        this.groupsAttributeName = DEFAULT_GROUPS_ATTRIBUTE_NAME;
+        this.maximumAuthenticationLifetime = DEFAULT_MAXIMUM_AUTHENTICATION_LIFETIME;
+        if (displayNameAttributeName != null && !displayNameAttributeName.isEmpty()) {
+            this.displayNameAttributeName = displayNameAttributeName;
+        }
+        if (groupsAttributeName != null && !groupsAttributeName.isEmpty()) {
+            this.groupsAttributeName = groupsAttributeName;
+        }
+        if (maximumAuthenticationLifetime != null && maximumAuthenticationLifetime > 0) {
+            this.maximumAuthenticationLifetime = maximumAuthenticationLifetime;
+        }
+        if (org.apache.commons.lang.StringUtils.isNotBlank(emailAttributeName)) {
+            this.emailAttributeName = hudson.Util.fixEmptyAndTrim(emailAttributeName);
+        }
+        this.advancedConfiguration = advancedConfiguration;
+        this.encryptionData = encryptionData;
+
         LOG.finer(this.toString());
     }
 
@@ -124,6 +159,11 @@ public class SamlSecurityRealm extends SecurityRealm {
 
     /**
      * /securityRealm/commenceLogin
+     *
+     * @param request  http request.
+     * @param response http response.
+     * @param referer  referer.
+     * @return the http response.
      */
     public HttpResponse doCommenceLogin(final StaplerRequest request, final StaplerResponse response, @Header("Referer") final String referer) {
         LOG.fine("SamlSecurityRealm.doCommenceLogin called. Using consumerServiceUrl " + getSamlPluginConfig().getConsumerServiceUrl());
@@ -143,6 +183,10 @@ public class SamlSecurityRealm extends SecurityRealm {
 
     /**
      * /securityRealm/finishLogin
+     *
+     * @param request  http request.
+     * @param response http response.
+     * @return the http response.
      */
     public HttpResponse doFinishLogin(final StaplerRequest request, final StaplerResponse response) {
         LOG.finer("SamlSecurityRealm.doFinishLogin called");
@@ -159,10 +203,10 @@ public class SamlSecurityRealm extends SecurityRealm {
         SamlUserDetails userDetails = new SamlUserDetails(username, authorities.toArray(new GrantedAuthority[authorities.size()]));
         // set session expiration, if needed.
 
-        if (getSamlPluginConfig().getMaximumSessionLifetime() != null) {
+        if (getMaximumSessionLifetime() != null) {
             request.getSession().setAttribute(
                     EXPIRATION_ATTRIBUTE,
-                    System.currentTimeMillis() + 1000 * getSamlPluginConfig().getMaximumSessionLifetime()
+                    System.currentTimeMillis() + 1000 * getMaximumSessionLifetime()
             );
         }
 
@@ -177,7 +221,7 @@ public class SamlSecurityRealm extends SecurityRealm {
 
 
         //retrieve user email
-        saveUser |= modifyUserEmail(user, (List<?>) saml2Profile.getAttribute(getSamlPluginConfig().getEmailAttributeName()));
+        saveUser |= modifyUserEmail(user, (List<?>) saml2Profile.getAttribute(getEmailAttributeName()));
 
         try {
             if (user != null && saveUser) {
@@ -208,9 +252,9 @@ public class SamlSecurityRealm extends SecurityRealm {
      */
     private String loadUserName(SAML2Profile saml2Profile) {
         String username = getUsernameFromProfile(saml2Profile);
-        if ("lowercase".compareTo(getSamlPluginConfig().getUsernameCaseConversion()) == 0) {
+        if ("lowercase".compareTo(getUsernameCaseConversion()) == 0) {
             username = username.toLowerCase();
-        } else if ("uppercase".compareTo(getSamlPluginConfig().getUsernameCaseConversion()) == 0) {
+        } else if ("uppercase".compareTo(getUsernameCaseConversion()) == 0) {
             username = username.toUpperCase();
         }
         return username;
@@ -227,7 +271,7 @@ public class SamlSecurityRealm extends SecurityRealm {
         boolean saveUser = false;
         // retrieve user display name
         String userFullName = null;
-        List<?> names = (List<?>) saml2Profile.getAttribute(getSamlPluginConfig().getDisplayNameAttributeName());
+        List<?> names = (List<?>) saml2Profile.getAttribute(getDisplayNameAttributeName());
         if (names != null && !names.isEmpty()) {
             userFullName = (String) names.get(0);
         }
@@ -250,7 +294,7 @@ public class SamlSecurityRealm extends SecurityRealm {
      */
     private List<GrantedAuthority> loadGrantedAuthorities(SAML2Profile saml2Profile) {
         // prepare list of groups
-        List<?> groups = (List<?>) saml2Profile.getAttribute(getSamlPluginConfig().getGroupsAttributeName());
+        List<?> groups = (List<?>) saml2Profile.getAttribute(getGroupsAttributeName());
         if (groups == null) {
             groups = new ArrayList<String>();
         }
@@ -305,8 +349,8 @@ public class SamlSecurityRealm extends SecurityRealm {
      * @return the username or if it is not possible to get the attribute the profile ID
      */
     private String getUsernameFromProfile(SAML2Profile saml2Profile) {
-        if (getSamlPluginConfig().getUsernameAttributeName() != null) {
-            Object attribute = saml2Profile.getAttribute(getSamlPluginConfig().getUsernameAttributeName() );
+        if (getUsernameAttributeName() != null) {
+            Object attribute = saml2Profile.getAttribute(getUsernameAttributeName());
             if (attribute instanceof String) {
                 return (String) attribute;
             }
@@ -314,7 +358,7 @@ public class SamlSecurityRealm extends SecurityRealm {
                 return (String) ((List<?>) attribute).get(0);
             }
             LOG.log(Level.SEVERE, "Unable to get username from attribute {0} value {1}, Saml Profile {2}",
-                    new Object[]{getSamlPluginConfig().getUsernameAttributeName() , attribute, saml2Profile});
+                    new Object[]{getUsernameAttributeName(), attribute, saml2Profile});
             LOG.log(Level.SEVERE, "Falling back to NameId {0}", saml2Profile.getId());
         }
         return saml2Profile.getId();
@@ -325,6 +369,10 @@ public class SamlSecurityRealm extends SecurityRealm {
      * <p>
      * URL request service method to expose the SP metadata to the user so that
      * they can configure their IdP.
+     *
+     * @param request  http request.
+     * @param response http response.
+     * @return the http response.
      */
     public HttpResponse doMetadata(StaplerRequest request, StaplerResponse response) {
         return new SamlSPMetadataWrapper(getSamlPluginConfig(), request, response).get();
@@ -340,10 +388,10 @@ public class SamlSecurityRealm extends SecurityRealm {
         LOG.log(Level.FINE, "Doing Logout {}", auth.getPrincipal());
         // if we just redirect to the root and anonymous does not have Overall read then we will start a login all over again.
         // we are actually anonymous here as the security context has been cleared
-        if (Jenkins.getActiveInstance().hasPermission(Jenkins.READ) && StringUtils.isBlank(getSamlPluginConfig().getLogoutUrl())) {
+        if (Jenkins.getActiveInstance().hasPermission(Jenkins.READ) && StringUtils.isBlank(getLogoutUrl())) {
             return super.getPostLogOutUrl(req, auth);
         }
-        return StringUtils.isNotBlank(getSamlPluginConfig().getLogoutUrl()) ? getSamlPluginConfig().getLogoutUrl() : Jenkins.getActiveInstance().getRootUrl() + SamlLogoutAction.POST_LOGOUT_URL;
+        return StringUtils.isNotBlank(getLogoutUrl()) ? getLogoutUrl() : Jenkins.getActiveInstance().getRootUrl() + SamlLogoutAction.POST_LOGOUT_URL;
     }
 
     @Override
@@ -374,9 +422,12 @@ public class SamlSecurityRealm extends SecurityRealm {
     }
 
     /**
-     * plugin configuration parameters
+     * @return plugin configuration parameters.
      */
     public SamlPluginConfig getSamlPluginConfig() {
+        SamlPluginConfig samlPluginConfig = new SamlPluginConfig(displayNameAttributeName, groupsAttributeName,
+                maximumAuthenticationLifetime, emailAttributeName, idpMetadata, usernameCaseConversion,
+                usernameAttributeName, logoutUrl, encryptionData, advancedConfiguration);
         return samlPluginConfig;
     }
 
@@ -410,11 +461,79 @@ public class SamlSecurityRealm extends SecurityRealm {
         return FormValidation.ok();
     }
 
+    public String getIdpMetadata() {
+        return idpMetadata;
+    }
+
+    public String getUsernameAttributeName() {
+        return usernameAttributeName;
+    }
+
+    public String getDisplayNameAttributeName() {
+        return displayNameAttributeName;
+    }
+
+    public String getGroupsAttributeName() {
+        return groupsAttributeName;
+    }
+
+    public Integer getMaximumAuthenticationLifetime() {
+        return maximumAuthenticationLifetime;
+    }
+
+    public SamlAdvancedConfiguration getAdvancedConfiguration() {
+        return advancedConfiguration;
+    }
+
+    public Boolean getForceAuthn() {
+        return getAdvancedConfiguration() != null ? getAdvancedConfiguration().getForceAuthn() : Boolean.FALSE;
+    }
+
+    public String getAuthnContextClassRef() {
+        return getAdvancedConfiguration() != null ? getAdvancedConfiguration().getAuthnContextClassRef() : null;
+    }
+
+    public String getSpEntityId() {
+        return getAdvancedConfiguration() != null ? getAdvancedConfiguration().getSpEntityId() : null;
+    }
+
+    public Integer getMaximumSessionLifetime() {
+        return getAdvancedConfiguration() != null ? getAdvancedConfiguration().getMaximumSessionLifetime() : null;
+    }
+
+    public SamlEncryptionData getEncryptionData() {
+        return encryptionData;
+    }
+
+    public String getKeystorePath() {
+        return getEncryptionData() != null ? getEncryptionData().getKeystorePath() : null;
+    }
+
+    public String getKeystorePassword() {
+        return getEncryptionData() != null ? getEncryptionData().getKeystorePassword() : null;
+    }
+
+    public String getPrivateKeyPassword() {
+        return getEncryptionData() != null ? getEncryptionData().getPrivateKeyPassword() : null;
+    }
+
+    public String getUsernameCaseConversion() {
+        return usernameCaseConversion;
+    }
+
+    public String getEmailAttributeName() {
+        return emailAttributeName;
+    }
+
+    public String getLogoutUrl() {
+        return logoutUrl;
+    }
+
 
     @Override
     public String toString() {
         final StringBuffer sb = new StringBuffer("SamlSecurityRealm{");
-        sb.append(getSamlPluginConfig()!= null ? getSamlPluginConfig().toString() : "");
+        sb.append(getSamlPluginConfig() != null ? getSamlPluginConfig().toString() : "");
         sb.append('}');
         return sb.toString();
     }

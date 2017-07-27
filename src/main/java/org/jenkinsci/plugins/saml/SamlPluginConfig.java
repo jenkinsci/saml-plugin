@@ -18,19 +18,15 @@ under the License. */
 package org.jenkinsci.plugins.saml;
 
 import jenkins.model.Jenkins;
+import org.apache.commons.lang.StringUtils;
 
 import static org.jenkinsci.plugins.saml.SamlSecurityRealm.CONSUMER_SERVICE_URL_PATH;
+import static org.jenkinsci.plugins.saml.SamlSecurityRealm.DEFAULT_USERNAME_CASE_CONVERSION;
 
 /**
  * contains all the Jenkins SAML Plugin settings
  */
 public class SamlPluginConfig {
-    private static final String DEFAULT_DISPLAY_NAME_ATTRIBUTE_NAME = "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name";
-    private static final String DEFAULT_GROUPS_ATTRIBUTE_NAME = "http://schemas.xmlsoap.org/claims/Group";
-    private static final int DEFAULT_MAXIMUM_AUTHENTICATION_LIFETIME = 24 * 60 * 60; // 24h
-    private static final String DEFAULT_USERNAME_CASE_CONVERSION = "none";
-    private static final String DEFAULT_EMAIL_ATTRIBUTE_NAME = "email";
-
     private String displayNameAttributeName;
     private String groupsAttributeName;
     private int maximumAuthenticationLifetime;
@@ -41,17 +37,20 @@ public class SamlPluginConfig {
     private final String usernameAttributeName;
     private final String logoutUrl;
 
-    private org.jenkinsci.plugins.saml.SamlEncryptionData encryptionData;
-    private org.jenkinsci.plugins.saml.SamlAdvancedConfiguration advancedConfiguration;
+    private SamlEncryptionData encryptionData;
+    private SamlAdvancedConfiguration advancedConfiguration;
 
-    public SamlPluginConfig(String idpMetadata, String usernameCaseConversion, String usernameAttributeName, String logoutUrl) {
-        this.idpMetadata = hudson.Util.fixEmptyAndTrim(idpMetadata);
-        this.usernameAttributeName = hudson.Util.fixEmptyAndTrim(usernameAttributeName);
-        this.usernameCaseConversion = org.apache.commons.lang.StringUtils.defaultIfBlank(usernameCaseConversion, DEFAULT_USERNAME_CASE_CONVERSION);
-        this.logoutUrl = hudson.Util.fixEmptyAndTrim(logoutUrl);
-        this.displayNameAttributeName = DEFAULT_DISPLAY_NAME_ATTRIBUTE_NAME;
-        this.groupsAttributeName = DEFAULT_GROUPS_ATTRIBUTE_NAME;
-        this.maximumAuthenticationLifetime = DEFAULT_MAXIMUM_AUTHENTICATION_LIFETIME;
+    public SamlPluginConfig(String displayNameAttributeName, String groupsAttributeName, int maximumAuthenticationLifetime, String emailAttributeName, String idpMetadata, String usernameCaseConversion, String usernameAttributeName, String logoutUrl, org.jenkinsci.plugins.saml.SamlEncryptionData encryptionData, org.jenkinsci.plugins.saml.SamlAdvancedConfiguration advancedConfiguration) {
+        this.displayNameAttributeName = displayNameAttributeName;
+        this.groupsAttributeName = groupsAttributeName;
+        this.maximumAuthenticationLifetime = maximumAuthenticationLifetime;
+        this.emailAttributeName = emailAttributeName;
+        this.idpMetadata = hudson.Util.fixEmptyAndTrim(idpMetadata);;
+        this.usernameCaseConversion = StringUtils.defaultIfBlank(usernameCaseConversion, DEFAULT_USERNAME_CASE_CONVERSION);;
+        this.usernameAttributeName = hudson.Util.fixEmptyAndTrim(usernameAttributeName);;
+        this.logoutUrl = logoutUrl;
+        this.encryptionData = encryptionData;
+        this.advancedConfiguration = advancedConfiguration;
     }
 
     public String getIdpMetadata() {
@@ -75,7 +74,7 @@ public class SamlPluginConfig {
         return maximumAuthenticationLifetime;
     }
 
-    public org.jenkinsci.plugins.saml.SamlAdvancedConfiguration getAdvancedConfiguration() {
+    public SamlAdvancedConfiguration getAdvancedConfiguration() {
         return advancedConfiguration;
     }
 
@@ -95,7 +94,7 @@ public class SamlPluginConfig {
         return getAdvancedConfiguration() != null ? getAdvancedConfiguration().getMaximumSessionLifetime() : null;
     }
 
-    public org.jenkinsci.plugins.saml.SamlEncryptionData getEncryptionData() {
+    public SamlEncryptionData getEncryptionData() {
         return encryptionData;
     }
 
@@ -142,16 +141,16 @@ public class SamlPluginConfig {
     }
 
     public void setEmailAttributeName(String emailAttributeName) {
-        if (org.apache.commons.lang.StringUtils.isNotBlank(emailAttributeName)) {
+        if (StringUtils.isNotBlank(emailAttributeName)) {
             this.emailAttributeName = hudson.Util.fixEmptyAndTrim(emailAttributeName);
         }
     }
 
-    public void setEncryptionData(org.jenkinsci.plugins.saml.SamlEncryptionData encryptionData) {
+    public void setEncryptionData(SamlEncryptionData encryptionData) {
         this.encryptionData = encryptionData;
     }
 
-    public void setAdvancedConfiguration(org.jenkinsci.plugins.saml.SamlAdvancedConfiguration advancedConfiguration) {
+    public void setAdvancedConfiguration(SamlAdvancedConfiguration advancedConfiguration) {
         this.advancedConfiguration = advancedConfiguration;
     }
 

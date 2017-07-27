@@ -4,56 +4,56 @@
 <?jelly escape-by-default='true'?>
 <j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:d="jelly:define" xmlns:l="/lib/layout" xmlns:t="/lib/hudson" xmlns:f="/lib/form">
   <f:section title="SAML Identity Provider Settings" >
-    <f:entry title="IdP Metadata" field="samlPluginConfig.idpMetadata" help="/plugin/saml/help/metadata.html">
+    <f:entry title="IdP Metadata" field="idpMetadata" help="/plugin/saml/help/metadata.html">
       <f:textarea />
     </f:entry>
-    <f:entry title="Display Name Attribute" field="samlPluginConfig.displayNameAttributeName" help="/plugin/saml/help/displayNameAttributeName.html">
+    <f:entry title="Display Name Attribute" field="displayNameAttributeName" help="/plugin/saml/help/displayNameAttributeName.html">
       <f:textbox default="http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name" />
     </f:entry>
-    <f:entry title="Group Attribute" field="samlPluginConfig.groupsAttributeName" help="/plugin/saml/help/groupsAttributeName.html">
+    <f:entry title="Group Attribute" field="groupsAttributeName" help="/plugin/saml/help/groupsAttributeName.html">
       <f:textbox default="http://schemas.xmlsoap.org/claims/Group" />
     </f:entry>
-    <f:entry title="Maximum Authentication Lifetime" field="samlPluginConfig.maximumAuthenticationLifetime" help="/plugin/saml/help/maximumAuthenticationLifetime.html">
+    <f:entry title="Maximum Authentication Lifetime" field="maximumAuthenticationLifetime" help="/plugin/saml/help/maximumAuthenticationLifetime.html">
       <f:textbox default="86400" />
     </f:entry>
-    <f:entry title="Username Attribute"  field="samlPluginConfig.usernameAttributeName"
+    <f:entry title="Username Attribute"  field="usernameAttributeName"
              help="/plugin/saml/help/usernameAttributeName.html">
       <f:textbox />
     </f:entry>
-    <f:entry title="Email Attribute"  field="samlPluginConfig.emailAttributeName"
+    <f:entry title="Email Attribute"  field="emailAttributeName"
              help="/plugin/saml/help/emailAttributeName.html">
       <f:textbox />
     </f:entry>
-    <f:entry title="Username Case Conversion" field="samlPluginConfig.usernameCaseConversion" help="/plugin/saml/help/usernameCaseConversion.html">
+    <f:entry title="Username Case Conversion" field="usernameCaseConversion" help="/plugin/saml/help/usernameCaseConversion.html">
       <select name="usernameCaseConversion">
-        <f:option value="none" selected="${instance.samlPluginConfig.usernameCaseConversion == 'none'}">None</f:option>
-        <f:option value="lowercase" selected="${instance.samlPluginConfig.usernameCaseConversion == 'lowercase'}">Lowercase</f:option>
-        <f:option value="uppercase" selected="${instance.samlPluginConfig.usernameCaseConversion == 'uppercase'}">Uppercase</f:option>
+        <f:option value="none" selected="${instance.usernameCaseConversion == 'none'}">None</f:option>
+        <f:option value="lowercase" selected="${instance.usernameCaseConversion == 'lowercase'}">Lowercase</f:option>
+        <f:option value="uppercase" selected="${instance.usernameCaseConversion == 'uppercase'}">Uppercase</f:option>
       </select>
     </f:entry>
 
-    <f:entry title="Logout URL"  field="samlPluginConfig.logoutUrl" help="/plugin/saml/help/logoutUrl.html">
+    <f:entry title="Logout URL"  field="logoutUrl" help="/plugin/saml/help/logoutUrl.html">
       <f:textbox />
     </f:entry>
 
     <f:entry>
       <table>
-        <f:optionalBlock title="Advanced Configuration" field="samlPluginConfig.advancedConfiguration"
-                         checked="${instance.samlPluginConfig.advancedConfiguration != null}" help="/plugin/saml/help/advancedConfiguration.html">
+        <f:optionalBlock title="Advanced Configuration" field="advancedConfiguration"
+                         checked="${instance.advancedConfiguration != null}" help="/plugin/saml/help/advancedConfiguration.html">
 
-          <f:entry title="Force Authentication" field="samlPluginConfig.forceAuthn" help="/plugin/saml/help/forceAuthn.html">
+          <f:entry title="Force Authentication" field="forceAuthn" help="/plugin/saml/help/forceAuthn.html">
             <f:checkbox />
           </f:entry>
 
-          <f:entry title="Authentication Context" field="samlPluginConfig.authnContextClassRef" help="/plugin/saml/help/authnContextClassRef.html">
+          <f:entry title="Authentication Context" field="authnContextClassRef" help="/plugin/saml/help/authnContextClassRef.html">
             <f:textbox />
           </f:entry>
 
-          <f:entry title="SP Entity ID" field="samlPluginConfig.spEntityId" help="/plugin/saml/help/spEntityId.html">
+          <f:entry title="SP Entity ID" field="spEntityId" help="/plugin/saml/help/spEntityId.html">
             <f:textbox />
           </f:entry>
 
-          <f:entry title="Maximum Session Lifetime" field="samlPluginConfig.maximumSessionLifetime" help="/plugin/saml/help/maximumSessionLifetime.html">
+          <f:entry title="Maximum Session Lifetime" field="maximumSessionLifetime" help="/plugin/saml/help/maximumSessionLifetime.html">
             <f:textbox default="86400" />
           </f:entry>
 
@@ -61,28 +61,28 @@
       </table>
     </f:entry>
 
-    <f:entry> 
+    <f:entry>
       <table>
-        <f:optionalBlock title="Use Encryption" field="samlPluginConfig.encryptionData"
+        <f:optionalBlock title="Use Encryption" field="encryptionData"
                          checked="${instance.encryptionData != null}"
                          help="/plugin/saml/help/encryption.html">
-          <f:entry title="Keystore path"  field="samlPluginConfig.keystorePath" help="/plugin/saml/help/keystorePath.html">
+          <f:entry title="Keystore path"  field="keystorePath" help="/plugin/saml/help/keystorePath.html">
             <f:textbox />
           </f:entry>
-          <f:entry title="Keystore password"  field="samlPluginConfig.keystorePassword" help="/plugin/saml/help/keystorePassword.html">
-             <f:textbox />
-           </f:entry>
-           <f:entry title="Private Key password"  field="samlPluginConfig.privateKeyPassword" help="/plugin/saml/help/keyPassword.html">
-             <f:textbox />
-           </f:entry>
-         </f:optionalBlock>
-      </table> 
+          <f:entry title="Keystore password"  field="keystorePassword" help="/plugin/saml/help/keystorePassword.html">
+            <f:textbox />
+          </f:entry>
+          <f:entry title="Private Key password"  field="privateKeyPassword" help="/plugin/saml/help/keyPassword.html">
+            <f:textbox />
+          </f:entry>
+        </f:optionalBlock>
+      </table>
     </f:entry>
-    
+
     <f:entry>
       <block>
-        <a href="../securityRealm/metadata">Service Provider Metadata</a> 
-        which may be required to configure your Identity Provider 
+        <a href="../securityRealm/metadata">Service Provider Metadata</a>
+        which may be required to configure your Identity Provider
         (based on last saved settings).
       </block>
     </f:entry>
