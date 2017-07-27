@@ -28,30 +28,36 @@ import org.apache.commons.lang.StringUtils;
  * of the plugin's configuration page
  */
 public class SamlEncryptionData {
-  private final String keystorePath;
-  private final String keystorePassword;
-  private final String privateKeyPassword;
+    private final String keystorePath;
+    private final String keystorePassword;
+    private final String privateKeyPassword;
 
-  @DataBoundConstructor
-  public SamlEncryptionData(String keystorePath, String keystorePassword, String privateKeyPassword) {
-    this.keystorePath = Util.fixEmptyAndTrim(keystorePath);
-    this.keystorePassword = Util.fixEmptyAndTrim(keystorePassword);
-    this.privateKeyPassword = Util.fixEmptyAndTrim(privateKeyPassword);
-  }
+    @DataBoundConstructor
+    public SamlEncryptionData(String keystorePath, String keystorePassword, String privateKeyPassword) {
+        this.keystorePath = Util.fixEmptyAndTrim(keystorePath);
+        this.keystorePassword = Util.fixEmptyAndTrim(keystorePassword);
+        this.privateKeyPassword = Util.fixEmptyAndTrim(privateKeyPassword);
+    }
 
-  public String getKeystorePath() { return keystorePath; }
+    public String getKeystorePath() {
+        return keystorePath;
+    }
 
-  public String getKeystorePassword() { return keystorePassword; }
+    public String getKeystorePassword() {
+        return keystorePassword;
+    }
 
-  public String getPrivateKeyPassword() { return privateKeyPassword; }
+    public String getPrivateKeyPassword() {
+        return privateKeyPassword;
+    }
 
-  @Override
-  public String toString() {
-    final StringBuffer sb = new StringBuffer("SamlEncryptionData{");
-    sb.append("keystorePath='").append(StringUtils.defaultIfBlank(keystorePath,"none")).append('\'');
-    sb.append(", keystorePassword is NOT empty='").append(StringUtils.isNotEmpty(keystorePassword)).append('\'');
-    sb.append(", privateKeyPassword is NOT empty='").append(StringUtils.isNotEmpty(privateKeyPassword)).append('\'');
-    sb.append('}');
-    return sb.toString();
-  }
+    @Override
+    public String toString() {
+        final StringBuffer sb = new StringBuffer("SamlEncryptionData{");
+        sb.append("keystorePath='").append(StringUtils.defaultIfBlank(keystorePath, "none")).append('\'');
+        sb.append(", keystorePassword is NOT empty='").append(StringUtils.isNotEmpty(keystorePassword)).append('\'');
+        sb.append(", privateKeyPassword is NOT empty='").append(StringUtils.isNotEmpty(privateKeyPassword)).append('\'');
+        sb.append('}');
+        return sb.toString();
+    }
 }

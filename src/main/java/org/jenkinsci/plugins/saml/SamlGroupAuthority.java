@@ -26,18 +26,18 @@ import org.acegisecurity.GrantedAuthority;
  */
 public class SamlGroupAuthority implements GrantedAuthority {
 
-  private final String group;
+    private final String group;
 
-  public SamlGroupAuthority(String group) {
-    this.group = group;
-  }
+    public SamlGroupAuthority(String group) {
+        this.group = group;
+    }
 
-  public String getAuthority() {
-    return this.group;
-  }
+    public String getAuthority() {
+        return this.group;
+    }
 
-  @Override
-  public String toString() {
-    return this.group;
-  }
+    @Override
+    public String toString() {
+        return this.group;
+    }
 }

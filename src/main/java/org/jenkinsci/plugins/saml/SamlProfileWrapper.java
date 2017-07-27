@@ -29,7 +29,6 @@ import java.util.logging.Logger;
 
 /**
  * Process to response from the IdP to obtain the SAML2Profile of the user.
- *
  */
 public class SamlProfileWrapper extends OpenSAMLWrapper<SAML2Profile> {
     private static final Logger LOG = Logger.getLogger(SamlProfileWrapper.class.getName());
@@ -42,7 +41,6 @@ public class SamlProfileWrapper extends OpenSAMLWrapper<SAML2Profile> {
     }
 
     /**
-     *
      * @return the SAML2Profile of the user returned by the IdP.
      */
     @Override

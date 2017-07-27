@@ -24,7 +24,7 @@ public class SamlCrumbExclusion extends CrumbExclusion {
     public boolean process(HttpServletRequest request, HttpServletResponse response, FilterChain chain)
             throws IOException, ServletException {
         String pathInfo = request.getPathInfo();
-        if(shouldExclude(pathInfo)) {
+        if (shouldExclude(pathInfo)) {
             chain.doFilter(request, response);
             return true;
         }
@@ -32,11 +32,11 @@ public class SamlCrumbExclusion extends CrumbExclusion {
     }
 
     private static boolean shouldExclude(String pathInfo) {
-        if(pathInfo == null) {
+        if (pathInfo == null) {
             LOG.fine("SamlCrumbExclusion.shouldExclude empty");
             return false;
         }
-        if(pathInfo.indexOf(SamlSecurityRealm.CONSUMER_SERVICE_URL_PATH) == 1) {
+        if (pathInfo.indexOf(SamlSecurityRealm.CONSUMER_SERVICE_URL_PATH) == 1) {
             LOG.fine("SamlCrumbExclusion.shouldExclude excluding '" + pathInfo + "'");
             return true;
         } else {

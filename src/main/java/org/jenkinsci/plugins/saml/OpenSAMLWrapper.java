@@ -32,7 +32,7 @@ import static org.opensaml.saml.common.xml.SAMLConstants.SAML2_REDIRECT_BINDING_
 
 /**
  * Overall wrapper to all operation using OpenSAML library, this allow to load the Service Loaders properly
- *
+ * <p>
  * https://wiki.shibboleth.net/confluence/display/OS30/Initialization+and+Configuration
  * http://docs.oracle.com/javase/6/docs/api/java/util/ServiceLoader.html
  * https://stackoverflow.com/questions/37948303/opensaml3-resource-not-found-default-config-xml-in-osgi-container/39004323#39004323
@@ -79,7 +79,6 @@ public abstract class OpenSAMLWrapper<T> {
     abstract T process();
 
     /**
-     *
      * @return J2E Context from the current HTTP request and response.
      */
     protected WebContext createWebContext() {
@@ -88,7 +87,6 @@ public abstract class OpenSAMLWrapper<T> {
 
 
     /**
-     *
      * @return a SAML2Client object to interact with the IdP service.
      */
     protected SAML2Client createSAML2Client() {

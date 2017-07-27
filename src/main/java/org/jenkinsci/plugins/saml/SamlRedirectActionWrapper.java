@@ -36,7 +36,6 @@ public class SamlRedirectActionWrapper extends OpenSAMLWrapper<RedirectAction> {
     }
 
     /**
-     *
      * @return the redirection URL to the IdP.
      * @throws IllegalStateException if something goes wrong.
      */

@@ -29,54 +29,55 @@ import java.util.Arrays;
  */
 public class SamlUserDetails implements UserDetails {
 
-  private static final long serialVersionUID = 2L;
+    private static final long serialVersionUID = 2L;
 
-  private final String username;
-  private final GrantedAuthority[] authorities;
-  
-  public SamlUserDetails(@Nonnull String username, GrantedAuthority[] authorities) {
-    this.username = username;
-    this.authorities = Arrays.copyOf(authorities, authorities.length);
-  }
+    private final String username;
+    private final GrantedAuthority[] authorities;
 
-  public GrantedAuthority[] getAuthorities() {
-    return Arrays.copyOf(authorities, authorities.length);
-  }
+    public SamlUserDetails(@Nonnull String username, GrantedAuthority[] authorities) {
+        this.username = username;
+        this.authorities = Arrays.copyOf(authorities, authorities.length);
+    }
 
-  public String getPassword() {
-    return null;
-  }
+    public GrantedAuthority[] getAuthorities() {
+        return Arrays.copyOf(authorities, authorities.length);
+    }
 
-  public String getUsername() {
-    return username;
-  }
+    public String getPassword() {
+        return null;
+    }
 
-  public boolean isAccountNonExpired() {
-    return true;
-  }
+    public String getUsername() {
+        return username;
+    }
 
-  public boolean isAccountNonLocked() {
-    return true;
-  }
+    public boolean isAccountNonExpired() {
+        return true;
+    }
 
-  public boolean isCredentialsNonExpired() {
-    return true;
-  }
+    public boolean isAccountNonLocked() {
+        return true;
+    }
 
-  public boolean isEnabled() {
-    return true;
-  }
+    public boolean isCredentialsNonExpired() {
+        return true;
+    }
 
-  @Override
-  public String toString() {
-    final StringBuffer sb = new StringBuffer("SamlUserDetails{");
-    sb.append("username='").append(username).append('\'');
-    sb.append(", authorities=").append(authorities == null ? "null" : java.util.Arrays.asList(authorities).toString()).append('\'');;
-    sb.append(", isAccountNonExpired='").append(isAccountNonExpired()).append('\'');
-    sb.append(", isAccountNonLocked='").append(isAccountNonLocked()).append('\'');
-    sb.append(", isCredentialsNonExpired='").append(isCredentialsNonExpired()).append('\'');
-    sb.append(", isEnabled='").append(isEnabled());
-    sb.append('}');
-    return sb.toString();
-  }
+    public boolean isEnabled() {
+        return true;
+    }
+
+    @Override
+    public String toString() {
+        final StringBuffer sb = new StringBuffer("SamlUserDetails{");
+        sb.append("username='").append(username).append('\'');
+        sb.append(", authorities=").append(authorities == null ? "null" : java.util.Arrays.asList(authorities).toString()).append('\'');
+        ;
+        sb.append(", isAccountNonExpired='").append(isAccountNonExpired()).append('\'');
+        sb.append(", isAccountNonLocked='").append(isAccountNonLocked()).append('\'');
+        sb.append(", isCredentialsNonExpired='").append(isCredentialsNonExpired()).append('\'');
+        sb.append(", isEnabled='").append(isEnabled());
+        sb.append('}');
+        return sb.toString();
+    }
 }

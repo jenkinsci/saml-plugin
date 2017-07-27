@@ -40,14 +40,17 @@ public class SamlPluginConfig {
     private SamlEncryptionData encryptionData;
     private SamlAdvancedConfiguration advancedConfiguration;
 
-    public SamlPluginConfig(String displayNameAttributeName, String groupsAttributeName, int maximumAuthenticationLifetime, String emailAttributeName, String idpMetadata, String usernameCaseConversion, String usernameAttributeName, String logoutUrl, org.jenkinsci.plugins.saml.SamlEncryptionData encryptionData, org.jenkinsci.plugins.saml.SamlAdvancedConfiguration advancedConfiguration) {
+    public SamlPluginConfig(String displayNameAttributeName, String groupsAttributeName,
+                            int maximumAuthenticationLifetime, String emailAttributeName, String idpMetadata,
+                            String usernameCaseConversion, String usernameAttributeName, String logoutUrl,
+                            SamlEncryptionData encryptionData, SamlAdvancedConfiguration advancedConfiguration) {
         this.displayNameAttributeName = displayNameAttributeName;
         this.groupsAttributeName = groupsAttributeName;
         this.maximumAuthenticationLifetime = maximumAuthenticationLifetime;
         this.emailAttributeName = emailAttributeName;
-        this.idpMetadata = hudson.Util.fixEmptyAndTrim(idpMetadata);;
-        this.usernameCaseConversion = StringUtils.defaultIfBlank(usernameCaseConversion, DEFAULT_USERNAME_CASE_CONVERSION);;
-        this.usernameAttributeName = hudson.Util.fixEmptyAndTrim(usernameAttributeName);;
+        this.idpMetadata = hudson.Util.fixEmptyAndTrim(idpMetadata);
+        this.usernameCaseConversion = StringUtils.defaultIfBlank(usernameCaseConversion, DEFAULT_USERNAME_CASE_CONVERSION);
+        this.usernameAttributeName = hudson.Util.fixEmptyAndTrim(usernameAttributeName);
         this.logoutUrl = logoutUrl;
         this.encryptionData = encryptionData;
         this.advancedConfiguration = advancedConfiguration;

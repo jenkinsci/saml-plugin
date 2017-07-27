@@ -46,40 +46,40 @@ public class LoginDetailsProperty extends UserProperty {
     private long lastLoginTimestamp;
     private long loginCount;
 
-    
+
     @DataBoundConstructor
     public LoginDetailsProperty() {
     }
 
-    public static LoginDetailsProperty currentUserLoginDetails(){
+    public static LoginDetailsProperty currentUserLoginDetails() {
         User user = User.current();
         LoginDetailsProperty loginDetails = null;
-        if(user!=null && user.getProperty(LoginDetailsProperty.class) != null){
+        if (user != null && user.getProperty(LoginDetailsProperty.class) != null) {
             loginDetails = user.getProperty(LoginDetailsProperty.class);
         }
         return loginDetails;
     }
 
-    public static void currentUserSetLoginDetails(){
+    public static void currentUserSetLoginDetails() {
         User user = User.current();
-        if(user!=null && user.getProperty(LoginDetailsProperty.class) != null){
+        if (user != null && user.getProperty(LoginDetailsProperty.class) != null) {
             LoginDetailsProperty loginDetails = user.getProperty(LoginDetailsProperty.class);
             loginDetails.update();
         }
     }
 
-    public void update(){
+    public void update() {
         long now = System.currentTimeMillis();
-        if(getCreateTimestamp() == 0){
+        if (getCreateTimestamp() == 0) {
             setCreateTimestamp(now);
         }
 
         setLastLoginTimestamp(now);
-        setLoginCount(getLoginCount()+1);
+        setLoginCount(getLoginCount() + 1);
         try {
             user.save();
         } catch (java.io.IOException e) {
-            LOG.log(Level.WARNING,e.getMessage(),e);
+            LOG.log(Level.WARNING, e.getMessage(), e);
         }
     }
 
@@ -139,20 +139,20 @@ public class LoginDetailsProperty extends UserProperty {
         @Override
         protected void loggedIn(@javax.annotation.Nonnull String username) {
             SecurityRealm realm = Jenkins.getActiveInstance().getSecurityRealm();
-            if(!(realm instanceof SamlSecurityRealm)) {
+            if (!(realm instanceof SamlSecurityRealm)) {
                 return;
             }
 
             try {
                 User u = User.get(username);
                 LoginDetailsProperty o = u.getProperty(LoginDetailsProperty.class);
-                if (o==null)
-                    u.addProperty(o=new LoginDetailsProperty());
+                if (o == null)
+                    u.addProperty(o = new LoginDetailsProperty());
                 org.acegisecurity.Authentication a = Jenkins.getAuthentication();
-                if (a!=null && a.getName().equals(username))
+                if (a != null && a.getName().equals(username))
                     o.update();    // just for defensive sanity checking
             } catch (java.io.IOException e) {
-                LOG.log(Level.WARNING, "Failed to record granted authorities",e);
+                LOG.log(Level.WARNING, "Failed to record granted authorities", e);
             }
         }
 

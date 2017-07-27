@@ -34,37 +34,37 @@ import javax.annotation.Nonnull;
  */
 public final class SamlAuthenticationToken extends AbstractAuthenticationToken {
 
-  private static final long serialVersionUID = 2L;
+    private static final long serialVersionUID = 2L;
 
-  private final SamlUserDetails userDetails;
-  private final transient HttpSession session;
-  private final Long expiration;
+    private final SamlUserDetails userDetails;
+    private final transient HttpSession session;
+    private final Long expiration;
 
-  public SamlAuthenticationToken(@Nonnull SamlUserDetails userDetails,@Nonnull HttpSession session) {
-    super(userDetails.getAuthorities());
-    this.userDetails = userDetails;
-    this.setDetails(userDetails);
-    this.setAuthenticated(true);
-    this.session = session;
-    this.expiration = (Long)session.getAttribute(SamlSecurityRealm.EXPIRATION_ATTRIBUTE);
-  }
-
-  public SamlUserDetails getPrincipal() {
-    // check if session should have expired
-    if (expiration != null &&
-            System.currentTimeMillis() > expiration.longValue()) {
-      // log the current user out and invalidate this session
-      this.setAuthenticated(false);
-      session.invalidate();
-      SecurityContextHolder.clearContext();
-      SecurityListener.fireLoggedOut(userDetails.getUsername());
+    public SamlAuthenticationToken(@Nonnull SamlUserDetails userDetails, @Nonnull HttpSession session) {
+        super(userDetails.getAuthorities());
+        this.userDetails = userDetails;
+        this.setDetails(userDetails);
+        this.setAuthenticated(true);
+        this.session = session;
+        this.expiration = (Long) session.getAttribute(SamlSecurityRealm.EXPIRATION_ATTRIBUTE);
     }
 
-    return userDetails;
-  }
+    public SamlUserDetails getPrincipal() {
+        // check if session should have expired
+        if (expiration != null &&
+                System.currentTimeMillis() > expiration.longValue()) {
+            // log the current user out and invalidate this session
+            this.setAuthenticated(false);
+            session.invalidate();
+            SecurityContextHolder.clearContext();
+            SecurityListener.fireLoggedOut(userDetails.getUsername());
+        }
 
-  public String getCredentials() {
-    return "SAML does not use passwords";
-  }
+        return userDetails;
+    }
+
+    public String getCredentials() {
+        return "SAML does not use passwords";
+    }
 
 }

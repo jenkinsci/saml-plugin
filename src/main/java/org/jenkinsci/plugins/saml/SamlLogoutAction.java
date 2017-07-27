@@ -38,7 +38,9 @@ import jenkins.model.Jenkins;
 @Extension
 public class SamlLogoutAction implements UnprotectedRootAction {
 
-    /** The URL of the action. */
+    /**
+     * The URL of the action.
+     */
     static final String POST_LOGOUT_URL = "samlLogout";
 
     @Override

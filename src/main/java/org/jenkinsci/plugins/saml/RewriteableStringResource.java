@@ -31,67 +31,67 @@ import java.util.logging.Logger;
 
 class RewriteableStringResource implements WritableResource {
 
-  private static final Logger LOG = Logger.getLogger(RewriteableStringResource.class.getName());
+    private static final Logger LOG = Logger.getLogger(RewriteableStringResource.class.getName());
 
-  private final String name;
+    private final String name;
 
-  private byte[] string;
+    private byte[] string;
 
-  public RewriteableStringResource(String string, String name) {
-    try {
-      //FIXME [kuisatahverat] assume UTF-8 file, it could not be UTF-8, string.getBytes() uses the platform encoding maybe is better.
-      this.string = string != null ? string.getBytes("UTF-8") : null;
-    } catch (UnsupportedEncodingException e) {
-      LOG.log(Level.SEVERE, "Could not get string bytes.", e);
+    public RewriteableStringResource(String string, String name) {
+        try {
+            //FIXME [kuisatahverat] assume UTF-8 file, it could not be UTF-8, string.getBytes() uses the platform encoding maybe is better.
+            this.string = string != null ? string.getBytes("UTF-8") : null;
+        } catch (UnsupportedEncodingException e) {
+            LOG.log(Level.SEVERE, "Could not get string bytes.", e);
+        }
+        this.name = name;
     }
-    this.name = name;
-  }
 
-  public RewriteableStringResource(String string) {
-    this(string, "");
-  }
-
-  public RewriteableStringResource() {
-    this(null, "");
-  }
-
-  @Override
-  public boolean exists() {
-    return string != null;
-  }
-
-  @Override
-  public String getFilename() {
-    return name;
-  }
-
-  @Override
-  public java.io.InputStream getInputStream() throws IOException {
-    if (string == null) {
-      throw new IOException("no data");
+    public RewriteableStringResource(String string) {
+        this(string, "");
     }
-    return new ByteArrayInputStream(string);
-  }
 
-  @Override
-  public File getFile() {
-    try {
-      File temp = File.createTempFile("jenkins-saml-",".bin");
-      FileUtils.writeByteArrayToFile(temp, string);
-    } catch (IOException e) {
-      LOG.log(Level.SEVERE,"Is not possible to create a temp file",e);
+    public RewriteableStringResource() {
+        this(null, "");
     }
-    return null;
-  }
 
-  @Override
-  public OutputStream getOutputStream() throws IOException {
-    return new ByteArrayOutputStream() {
-      @Override
-      public void close() throws IOException {
-        super.close();
-        string = toByteArray();
-      }
-    };
-  }
+    @Override
+    public boolean exists() {
+        return string != null;
+    }
+
+    @Override
+    public String getFilename() {
+        return name;
+    }
+
+    @Override
+    public java.io.InputStream getInputStream() throws IOException {
+        if (string == null) {
+            throw new IOException("no data");
+        }
+        return new ByteArrayInputStream(string);
+    }
+
+    @Override
+    public File getFile() {
+        try {
+            File temp = File.createTempFile("jenkins-saml-", ".bin");
+            FileUtils.writeByteArrayToFile(temp, string);
+        } catch (IOException e) {
+            LOG.log(Level.SEVERE, "Is not possible to create a temp file", e);
+        }
+        return null;
+    }
+
+    @Override
+    public OutputStream getOutputStream() throws IOException {
+        return new ByteArrayOutputStream() {
+            @Override
+            public void close() throws IOException {
+                super.close();
+                string = toByteArray();
+            }
+        };
+    }
 }

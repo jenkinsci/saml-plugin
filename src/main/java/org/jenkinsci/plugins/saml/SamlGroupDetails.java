@@ -26,7 +26,7 @@ import java.util.Set;
 
 /**
  * Created by kuisathaverat on 03/05/2017.
- *
+ * <p>
  * SAML Group details return the details of a group based on login details of users
  */
 public class SamlGroupDetails extends GroupDetails {
@@ -34,7 +34,7 @@ public class SamlGroupDetails extends GroupDetails {
     private final String name;
     private final Set<String> members = new java.util.HashSet<String>();
 
-    public SamlGroupDetails(String name){
+    public SamlGroupDetails(String name) {
         this.name = name;
     }
 
@@ -48,7 +48,7 @@ public class SamlGroupDetails extends GroupDetails {
     }
 
     public Set<String> getMembers() {
-        if(members.isEmpty()) {
+        if (members.isEmpty()) {
             for (User u : User.getAll()) {
                 LastGrantedAuthoritiesProperty prop = u.getProperty(LastGrantedAuthoritiesProperty.class);
                 if (hasGroupOnAuthorities(prop)) {
@@ -60,9 +60,9 @@ public class SamlGroupDetails extends GroupDetails {
     }
 
     private boolean hasGroupOnAuthorities(LastGrantedAuthoritiesProperty prop) {
-        if(prop != null){
-            for(GrantedAuthority a : prop.getAuthorities()){
-                if(name.equals(a.getAuthority())){
+        if (prop != null) {
+            for (GrantedAuthority a : prop.getAuthorities()) {
+                if (name.equals(a.getAuthority())) {
                     return true;
                 }
             }

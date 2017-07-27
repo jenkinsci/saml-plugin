@@ -35,7 +35,6 @@ public class SamlSPMetadataWrapper extends OpenSAMLWrapper<HttpResponse> {
     }
 
     /**
-     *
      * @return the metadata of the SP.
      * @throws IllegalStateException if something goes wrong.
      */

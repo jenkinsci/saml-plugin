@@ -39,36 +39,36 @@ import java.util.List;
  */
 public class SamlUserDetailsService implements UserDetailsService {
 
-  public SamlUserDetails loadUserByUsername(@Nonnull String username) throws UsernameNotFoundException, DataAccessException {
+    public SamlUserDetails loadUserByUsername(@Nonnull String username) throws UsernameNotFoundException, DataAccessException {
 
-    // try to obtain user details from current authentication details
-    Authentication auth = Jenkins.getAuthentication();
-    if (auth != null && username.compareTo(auth.getName()) == 0 && auth instanceof SamlAuthenticationToken) {
-      return (SamlUserDetails) auth.getDetails();
-    }
-
-    // try to rebuild authentication details based on data stored in user storage
-    User user = User.get(username, false, Collections.emptyMap());
-    if (user == null) {
-      throw new UsernameNotFoundException(username);
-    }
-
-    List<GrantedAuthority> authorities = new ArrayList<GrantedAuthority>();
-    authorities.add(SecurityRealm.AUTHENTICATED_AUTHORITY);
-
-    if (username.compareTo(user.getId()) == 0) {
-      LastGrantedAuthoritiesProperty lastGranted = user.getProperty(LastGrantedAuthoritiesProperty.class);
-      if (lastGranted != null) {
-        for (GrantedAuthority a : lastGranted.getAuthorities()) {
-          if (a != SecurityRealm.AUTHENTICATED_AUTHORITY) {
-            SamlGroupAuthority ga = new SamlGroupAuthority(a.getAuthority());
-            authorities.add(ga);
-          }
+        // try to obtain user details from current authentication details
+        Authentication auth = Jenkins.getAuthentication();
+        if (auth != null && username.compareTo(auth.getName()) == 0 && auth instanceof SamlAuthenticationToken) {
+            return (SamlUserDetails) auth.getDetails();
         }
-      }
-    }
 
-    SamlUserDetails userDetails = new SamlUserDetails(user.getId(), authorities.toArray(new GrantedAuthority[0]));
-    return userDetails;
-  }
+        // try to rebuild authentication details based on data stored in user storage
+        User user = User.get(username, false, Collections.emptyMap());
+        if (user == null) {
+            throw new UsernameNotFoundException(username);
+        }
+
+        List<GrantedAuthority> authorities = new ArrayList<GrantedAuthority>();
+        authorities.add(SecurityRealm.AUTHENTICATED_AUTHORITY);
+
+        if (username.compareTo(user.getId()) == 0) {
+            LastGrantedAuthoritiesProperty lastGranted = user.getProperty(LastGrantedAuthoritiesProperty.class);
+            if (lastGranted != null) {
+                for (GrantedAuthority a : lastGranted.getAuthorities()) {
+                    if (a != SecurityRealm.AUTHENTICATED_AUTHORITY) {
+                        SamlGroupAuthority ga = new SamlGroupAuthority(a.getAuthority());
+                        authorities.add(ga);
+                    }
+                }
+            }
+        }
+
+        SamlUserDetails userDetails = new SamlUserDetails(user.getId(), authorities.toArray(new GrantedAuthority[0]));
+        return userDetails;
+    }
 }
