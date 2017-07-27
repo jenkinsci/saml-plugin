@@ -43,6 +43,7 @@ under the License.
 
   <properties>
     <jenkins.version>2.60.1</jenkins.version>
+    <java.level>8</java.level>
   </properties>
 
   <licenses>
@@ -119,41 +120,4 @@ under the License.
       </exclusions>
     </dependency>
   </dependencies>
-<!--
-  <build>
-    <plugins>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-compiler-plugin</artifactId>
-        <configuration>
-          <source>1.8</source>
-          <target>1.8</target>
-        </configuration>
-      </plugin>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-enforcer-plugin</artifactId>
-        <executions>
-          <execution>
-            <id>enforce-banned-dependencies</id>
-            <goals>
-              <goal>enforce</goal>
-            </goals>
-            <configuration>
-              <rules>
-                <bannedDependencies>
-                  <excludes>
-                    <exclude>org.pac4j:pac4j-core:jar:1.9.9</exclude>
-                    <exclude>org.pac4j:pac4j-saml:jar:1.9.9</exclude>
-                  </excludes>
-                </bannedDependencies>
-              </rules>
-              <fail>true</fail>
-            </configuration>
-          </execution>
-        </executions>
-      </plugin>
-    </plugins>
-  </build>
-  -->
 </project>
