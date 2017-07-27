@@ -81,7 +81,7 @@ public class SamlSecurityRealm extends SecurityRealm {
      * @param usernameCaseConversion        username case sensitive settings
      */
     @DataBoundConstructor
-    public SamlSecurityRealm(String signOnUrl, String idpMetadata, String displayNameAttributeName, String groupsAttributeName, Integer maximumAuthenticationLifetime, String usernameAttributeName, String emailAttributeName, String logoutUrl, SamlAdvancedConfiguration advancedConfiguration, SamlEncryptionData encryptionData, String usernameCaseConversion) {
+    public SamlSecurityRealm(String idpMetadata, String displayNameAttributeName, String groupsAttributeName, Integer maximumAuthenticationLifetime, String usernameAttributeName, String emailAttributeName, String logoutUrl, SamlAdvancedConfiguration advancedConfiguration, SamlEncryptionData encryptionData, String usernameCaseConversion) {
         super();
         this.samlPluginConfig = new SamlPluginConfig(idpMetadata, usernameCaseConversion, usernameAttributeName, logoutUrl);
         getSamlPluginConfig().setDisplayNameAttributeName(displayNameAttributeName);
@@ -93,8 +93,8 @@ public class SamlSecurityRealm extends SecurityRealm {
         LOG.finer(this.toString());
     }
 
-    public SamlSecurityRealm(String signOnUrl, String idpMetadata, String displayNameAttributeName, String groupsAttributeName, Integer maximumAuthenticationLifetime, String usernameAttributeName, String emailAttributeName, String logoutUrl, SamlAdvancedConfiguration advancedConfiguration, SamlEncryptionData encryptionData) {
-        this(signOnUrl, idpMetadata, displayNameAttributeName, groupsAttributeName, maximumAuthenticationLifetime, usernameAttributeName, emailAttributeName, logoutUrl, advancedConfiguration, encryptionData, "none");
+    public SamlSecurityRealm(String idpMetadata, String displayNameAttributeName, String groupsAttributeName, Integer maximumAuthenticationLifetime, String usernameAttributeName, String emailAttributeName, String logoutUrl, SamlAdvancedConfiguration advancedConfiguration, SamlEncryptionData encryptionData) {
+        this(idpMetadata, displayNameAttributeName, groupsAttributeName, maximumAuthenticationLifetime, usernameAttributeName, emailAttributeName, logoutUrl, advancedConfiguration, encryptionData, "none");
     }
 
     @Override
