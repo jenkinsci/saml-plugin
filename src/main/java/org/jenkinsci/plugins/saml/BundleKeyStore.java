@@ -38,7 +38,7 @@ import java.util.logging.Logger;
  * the plugin generate an automatic keystore or it it is not possible uses a keystore bundle on the plugin.
  * The generated key is valid for a day, when expires it is generated a new one on the same keystore.
  * A new key store is created when you restart Jenkins or if is not possible to access to the created.
- * http://www.pac4j.org/1.9.x/docs/clients/saml.html
+ * @see <a href="http://www.pac4j.org/1.9.x/docs/clients/saml.html">pac4j - Authentication mechanisms: SAML</a>
  */
 public class BundleKeyStore {
     public static final String PAC4J_DEMO_PASSWD = "pac4j-demo-passwd";
@@ -94,12 +94,12 @@ public class BundleKeyStore {
      *
      * @param keypair key pair origin.
      * @return an array of x509 certificates.
-     * @throws IOException              @IOException
-     * @throws CertificateException     @CertificateException
-     * @throws InvalidKeyException      @InvalidKeyException
-     * @throws SignatureException       @SignatureException
-     * @throws NoSuchAlgorithmException @NoSuchAlgorithmException
-     * @throws NoSuchProviderException  @NoSuchProviderException
+     * @throws IOException              @see IOException
+     * @throws CertificateException     @see CertificateException
+     * @throws InvalidKeyException      @see InvalidKeyException
+     * @throws SignatureException       @see SignatureException
+     * @throws NoSuchAlgorithmException @see NoSuchAlgorithmException
+     * @throws NoSuchProviderException  @see NoSuchProviderException
      */
     private X509Certificate[] createCertificateChain(KeyPair keypair)
             throws IOException, CertificateException, InvalidKeyException, SignatureException,
