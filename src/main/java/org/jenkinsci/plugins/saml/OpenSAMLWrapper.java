@@ -20,11 +20,25 @@ package org.jenkinsci.plugins.saml;
 import com.google.common.base.Preconditions;
 import org.kohsuke.stapler.StaplerRequest;
 import org.kohsuke.stapler.StaplerResponse;
+import org.opensaml.core.config.InitializationException;
+import org.opensaml.core.config.InitializationService;
 import org.pac4j.core.context.J2EContext;
 import org.pac4j.core.context.WebContext;
 import org.pac4j.saml.client.SAML2Client;
 import org.pac4j.saml.client.SAML2ClientConfiguration;
+/*
+import sun.security.tools.keytool.CertAndKeyGen;
+import sun.security.x509.X500Name;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.security.KeyPairGenerator;
+import java.security.KeyStore;
+import java.security.PrivateKey;
+import java.security.SecureRandom;
+import java.security.cert.X509Certificate;
+import java.util.Date;
+*/
 import java.util.logging.Logger;
 
 import static java.util.logging.Level.*;
@@ -41,6 +55,7 @@ import static org.opensaml.saml.common.xml.SAMLConstants.SAML2_REDIRECT_BINDING_
  */
 public abstract class OpenSAMLWrapper<T> {
     private static final Logger LOG = Logger.getLogger(OpenSAMLWrapper.class.getName());
+    private static final BundleKeyStore KS = new BundleKeyStore();
 
     protected SamlPluginConfig samlPluginConfig;
     protected StaplerRequest request;
@@ -52,23 +67,25 @@ public abstract class OpenSAMLWrapper<T> {
      * @return process return object
      */
     public T get() {
+        T ret = null;
         try {
-            // adapt TCCL
+            LOG.finest("adapt TCCL");
             Thread thread = Thread.currentThread();
             ClassLoader loader = thread.getContextClassLoader();
-            thread.setContextClassLoader(org.opensaml.core.config.InitializationService.class.getClassLoader());
+            thread.setContextClassLoader(InitializationService.class.getClassLoader());
             try {
-                org.opensaml.core.config.InitializationService.initialize();
-                return process();
+                InitializationService.initialize();
+                ret = process();
             } finally {
-                // reset TCCL
+                LOG.finest("reset TCCL");
                 thread.setContextClassLoader(loader);
             }
-        } catch (org.opensaml.core.config.InitializationException e) {
+        } catch (InitializationException e) {
             //FIXME [kuisathaverat] throw exception.
             LOG.log(SEVERE, "Could not initialize opensaml service.", e);
             throw new IllegalStateException(e);
         }
+        return ret;
     }
 
     /**
@@ -95,20 +112,30 @@ public abstract class OpenSAMLWrapper<T> {
 
         final SAML2ClientConfiguration config = new SAML2ClientConfiguration();
         config.setIdentityProviderMetadataResource(new RewriteableStringResource(samlPluginConfig.getIdpMetadata()));
-        config.setServiceProviderMetadataResource(new RewriteableStringResource());
         config.setDestinationBindingType(SAML2_REDIRECT_BINDING_URI);
 
+        /* TODO [kuisathaverat] add settings to configure algorithms
+        config.setBlackListedSignatureSigningAlgorithms(...);
+        config.setSignatureAlgorithms(...);
+        config.setSignatureReferenceDigestMethods(...);
+        config.setSignatureCanonicalizationAlgorithm(...);
+        */
+
         if (samlPluginConfig.getEncryptionData() != null) {
+            config.setWantsAssertionsSigned(true);
             config.setKeystorePath(samlPluginConfig.getEncryptionData().getKeystorePath());
             config.setKeystorePassword(samlPluginConfig.getEncryptionData().getKeystorePassword());
             config.setPrivateKeyPassword(samlPluginConfig.getEncryptionData().getPrivateKeyPassword());
         } else {
-            //FIXME [kuisathaverat] really?
-            // Signed authentication requests are mandatory now
-            // users should define own keystore...
-            config.setKeystorePath("resource:samlKeystore.jks");
-            config.setKeystorePassword("pac4j-demo-passwd");
-            config.setPrivateKeyPassword("pac4j-demo-passwd");
+            if (!KS.isValid()) {
+                KS.init();
+            }
+            if (KS.isUsingDemoKeyStore()) {
+                LOG.warning("Using bundled keystore is INSECURE: " + KS.getKeystorePath());
+            }
+            config.setKeystorePath(KS.getKeystorePath());
+            config.setKeystorePassword(KS.getKsPassword());
+            config.setPrivateKeyPassword(KS.getKsPkPassword());
         }
 
         config.setMaximumAuthenticationLifetime(samlPluginConfig.getMaximumAuthenticationLifetime());
@@ -135,7 +162,8 @@ public abstract class OpenSAMLWrapper<T> {
         final SAML2Client saml2Client = new SAML2Client(config);
         saml2Client.setCallbackUrl(samlPluginConfig.getConsumerServiceUrl());
         saml2Client.init(createWebContext());
-
+        String spMetadata = saml2Client.getServiceProviderMetadataResolver().getMetadata();
+        config.setServiceProviderMetadataResource(new RewriteableStringResource(spMetadata));
         if (LOG.isLoggable(FINE)) {
             LOG.fine(saml2Client.getServiceProviderMetadataResolver().getMetadata());
         }
