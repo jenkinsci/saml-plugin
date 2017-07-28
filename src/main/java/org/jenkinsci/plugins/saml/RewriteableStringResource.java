@@ -75,13 +75,14 @@ class RewriteableStringResource implements WritableResource {
 
     @Override
     public File getFile() {
+        File temp = null;
         try {
-            File temp = File.createTempFile("jenkins-saml-", ".bin");
+            temp = File.createTempFile("jenkins-saml-", ".bin");
             FileUtils.writeByteArrayToFile(temp, string);
         } catch (IOException e) {
             LOG.log(Level.SEVERE, "Is not possible to create a temp file", e);
         }
-        return null;
+        return temp;
     }
 
     @Override
