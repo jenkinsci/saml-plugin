@@ -107,19 +107,12 @@ public abstract class OpenSAMLWrapper<T> {
      * @return a SAML2Client object to interact with the IdP service.
      */
     protected SAML2Client createSAML2Client() {
-        //FIXME [kuisathaverat] Throws NPE I do not like it
+        //FIXME [kuisathaverat][JENKINS-40144] Throws NPE I do not like it
         Preconditions.checkNotNull(samlPluginConfig.getIdpMetadata());
 
         final SAML2ClientConfiguration config = new SAML2ClientConfiguration();
         config.setIdentityProviderMetadataResource(new RewriteableStringResource(samlPluginConfig.getIdpMetadata()));
         config.setDestinationBindingType(SAML2_REDIRECT_BINDING_URI);
-
-        /* TODO [kuisathaverat] add settings to configure algorithms
-        config.setBlackListedSignatureSigningAlgorithms(...);
-        config.setSignatureAlgorithms(...);
-        config.setSignatureReferenceDigestMethods(...);
-        config.setSignatureCanonicalizationAlgorithm(...);
-        */
 
         if (samlPluginConfig.getEncryptionData() != null) {
             config.setWantsAssertionsSigned(true);
