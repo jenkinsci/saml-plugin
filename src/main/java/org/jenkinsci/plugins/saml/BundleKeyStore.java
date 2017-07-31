@@ -165,14 +165,9 @@ public class BundleKeyStore {
     private KeyStore loadKeyStore(File keystore, String password)
             throws KeyStoreException, IOException, CertificateException, NoSuchAlgorithmException {
         KeyStore ks = KeyStore.getInstance(KeyStore.getDefaultType());
-        try{
-            InputStream in = new FileInputStream(keystore);
-            try {
-                ks.load(in, password.toCharArray());
-            } finally {
-                in.close();
-            }
-        } catch (Exception e) {
+        try (InputStream in = new FileInputStream(keystore)) {
+            ks.load(in, password.toCharArray());
+        } catch (Exception e) { // better to catch something more specific
             ks = initKeyStore(keystore, password);
         }
         return ks;
