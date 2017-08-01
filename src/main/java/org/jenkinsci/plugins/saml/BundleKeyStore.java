@@ -1,20 +1,26 @@
 package org.jenkinsci.plugins.saml;
 
-import sun.security.x509.AlgorithmId;
-import sun.security.x509.CertificateAlgorithmId;
-import sun.security.x509.CertificateSerialNumber;
-import sun.security.x509.CertificateValidity;
-import sun.security.x509.CertificateVersion;
-import sun.security.x509.CertificateX509Key;
-import sun.security.x509.X500Name;
-import sun.security.x509.X509CertImpl;
-import sun.security.x509.X509CertInfo;
+import org.bouncycastle.asn1.ASN1Encodable;
+import org.bouncycastle.asn1.DERSequence;
+import org.bouncycastle.asn1.x509.Extension;
+import org.bouncycastle.asn1.x509.GeneralName;
+import org.bouncycastle.asn1.x509.GeneralNames;
+import org.bouncycastle.cert.CertIOException;
+import org.bouncycastle.cert.X509CertificateHolder;
+import org.bouncycastle.cert.X509v3CertificateBuilder;
+import org.bouncycastle.cert.jcajce.JcaX509CertificateConverter;
+import org.bouncycastle.cert.jcajce.JcaX509ExtensionUtils;
+import org.bouncycastle.cert.jcajce.JcaX509v3CertificateBuilder;
+import org.bouncycastle.operator.OperatorCreationException;
+import org.bouncycastle.operator.jcajce.JcaContentSignerBuilder;
+import org.bouncycastle.asn1.x500.X500Name;
 
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.math.BigInteger;
 import java.security.InvalidKeyException;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
@@ -24,13 +30,11 @@ import java.security.NoSuchAlgorithmException;
 import java.security.NoSuchProviderException;
 import java.security.SecureRandom;
 import java.security.SignatureException;
-import java.security.cert.CertificateEncodingException;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 import java.util.Base64;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.Random;
 import java.util.logging.Logger;
 
 /**
@@ -38,13 +42,15 @@ import java.util.logging.Logger;
  * the plugin generate an automatic keystore or it it is not possible uses a keystore bundle on the plugin.
  * The generated key is valid for a day, when expires it is generated a new one on the same keystore.
  * A new key store is created when you restart Jenkins or if is not possible to access to the created.
+ *
  * @see <a href="http://www.pac4j.org/1.9.x/docs/clients/saml.html">pac4j - Authentication mechanisms: SAML</a>
  */
 public class BundleKeyStore {
     public static final String PAC4J_DEMO_PASSWD = "pac4j-demo-passwd";
     public static final String PAC4J_DEMO_KEYSTORE = "resource:samlKeystore.jks";
-    public static final String SIG_ALG = "SHA1WithRSA";
     public static final String KEY_ALG = "RSA";
+    public static final String SIGNATURE_ALGORITHM = "SHA256withRSA";
+    public static final String PROVIDER = "BC";
     public static final Long KEY_VALIDITY = 1 * 24L * 60L * 60L;
 
     private static final Logger LOG = Logger.getLogger(BundleKeyStore.class.getName());
@@ -65,12 +71,12 @@ public class BundleKeyStore {
     public synchronized void init() {
         try {
 
-            if(keystore == null){
+            if (keystore == null) {
                 keystore = File.createTempFile("saml-jenkins-keystore-", ".jks");
                 keystorePath = "file:" + keystore.getPath();
             }
 
-            if(PAC4J_DEMO_KEYSTORE.equals(ksPassword)) {
+            if (PAC4J_DEMO_KEYSTORE.equals(ksPassword)) {
                 ksPassword = generatePassword();
                 ksPkPassword = generatePassword();
             }
@@ -103,10 +109,9 @@ public class BundleKeyStore {
      */
     private X509Certificate[] createCertificateChain(KeyPair keypair)
             throws IOException, CertificateException, InvalidKeyException, SignatureException,
-            NoSuchAlgorithmException, NoSuchProviderException {
-        X500Name x500Name = new X500Name("cn=SAML-jenkins");
+            NoSuchAlgorithmException, NoSuchProviderException, OperatorCreationException {
         X509Certificate[] chain = new X509Certificate[1];
-        chain[0] = getSelfCertificate(x500Name, new java.util.Date(), KEY_VALIDITY, keypair);
+        chain[0] = generateCertificate("cn=SAML-jenkins", new java.util.Date(), KEY_VALIDITY, keypair);
         return chain;
     }
 
@@ -192,8 +197,8 @@ public class BundleKeyStore {
      * @throws InvalidKeyException      @see InvalidKeyException
      * @throws NoSuchAlgorithmException @see NoSuchAlgorithmException
      */
-    private KeyPair generate(int keySize) throws InvalidKeyException, NoSuchAlgorithmException {
-        KeyPairGenerator keyGen = KeyPairGenerator.getInstance(KEY_ALG);
+    private KeyPair generate(int keySize) throws InvalidKeyException, NoSuchAlgorithmException, NoSuchProviderException {
+        KeyPairGenerator keyGen = KeyPairGenerator.getInstance(KEY_ALG, PROVIDER);
         SecureRandom prng = new SecureRandom();
         keyGen.initialize(keySize, prng);
         KeyPair keyPair = keyGen.generateKeyPair();
@@ -201,41 +206,47 @@ public class BundleKeyStore {
     }
 
     /**
-     * geerate a x509 certificate from a key pair.
+     * generate a x509 certificate from a key pair.
      *
-     * @param x500Name  general name to the certificate subject and issuer.
-     * @param validFrom date when the validity begins.
+     * @param dnName    domain name to the certificate subject and issuer.
+     * @param notBefore date when the validity begins.
      * @param validity  number of days that it is valid.
      * @param keyPair   key pair to generate the certificate.
      * @return a certificate x509.
-     * @throws CertificateException     @see CertificateException
-     * @throws InvalidKeyException      @see InvalidKeyException
-     * @throws SignatureException       @see SignatureException
-     * @throws NoSuchAlgorithmException @see NoSuchAlgorithmException
-     * @throws NoSuchProviderException  @see NoSuchProviderException
+     * @throws CertIOException           @see CertIOException
+     * @throws OperatorCreationException @see OperatorCreationException
+     * @throws CertificateException      @see CertificateException
+     * @throws NoSuchAlgorithmException  @see NoSuchAlgorithmException
      */
-    private X509Certificate getSelfCertificate(X500Name x500Name, Date validFrom, long validity, KeyPair keyPair)
-            throws CertificateException, InvalidKeyException, SignatureException, NoSuchAlgorithmException, NoSuchProviderException {
-        try {
-            dateValidity = new Date();
-            dateValidity.setTime(validFrom.getTime() + validity * 1000L);
-            CertificateValidity certValidity = new CertificateValidity(validFrom, dateValidity);
-            X509CertInfo certInfo = new X509CertInfo();
-            certInfo.set("version", new CertificateVersion(2));
-            certInfo.set("serialNumber", new CertificateSerialNumber((new Random()).nextInt() & 2147483647));
-            AlgorithmId algo = AlgorithmId.get(SIG_ALG);
-            certInfo.set("algorithmID", new CertificateAlgorithmId(algo));
-            certInfo.set("subject", x500Name);
-            certInfo.set("key", new CertificateX509Key(keyPair.getPublic()));
-            certInfo.set("validity", certValidity);
-            certInfo.set("issuer", x500Name);
+    private X509Certificate generateCertificate(String dnName, Date notBefore, long validity, KeyPair keyPair)
+            throws CertIOException, OperatorCreationException, CertificateException, NoSuchAlgorithmException {
 
-            X509CertImpl certImpl = new X509CertImpl(certInfo);
-            certImpl.sign(keyPair.getPrivate(), SIG_ALG);
-            return certImpl;
-        } catch (IOException e) {
-            throw new CertificateEncodingException("getSelfCert: " + e.getMessage());
-        }
+        X500Name dn = new X500Name(dnName);
+        Date notAfter = new Date(notBefore.getTime() + validity * 1000L);
+        dateValidity = notAfter;
+        X509v3CertificateBuilder builder = new JcaX509v3CertificateBuilder(
+                dn,
+                new BigInteger(160, new SecureRandom()),
+                notBefore,
+                notAfter,
+                dn,
+                keyPair.getPublic()
+        );
+
+        JcaX509ExtensionUtils extUtils = new JcaX509ExtensionUtils();
+
+        builder.addExtension(Extension.subjectKeyIdentifier, false,
+                extUtils.createSubjectKeyIdentifier(keyPair.getPublic()));
+
+        ASN1Encodable[] subjectAltNAmes = {new GeneralName(GeneralName.dNSName, dnName)};
+        builder.addExtension(Extension.subjectAlternativeName, false,
+                GeneralNames.getInstance(new DERSequence(subjectAltNAmes)));
+
+        X509CertificateHolder certHldr = builder.build(
+                new JcaContentSignerBuilder(SIGNATURE_ALGORITHM).build(keyPair.getPrivate()));
+        X509Certificate cert = new JcaX509CertificateConverter().getCertificate(certHldr);
+
+        return cert;
     }
 
     public String getKeystorePath() {
