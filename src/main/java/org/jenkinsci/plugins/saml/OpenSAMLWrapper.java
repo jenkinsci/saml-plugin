@@ -26,19 +26,6 @@ import org.pac4j.core.context.J2EContext;
 import org.pac4j.core.context.WebContext;
 import org.pac4j.saml.client.SAML2Client;
 import org.pac4j.saml.client.SAML2ClientConfiguration;
-/*
-import sun.security.tools.keytool.CertAndKeyGen;
-import sun.security.x509.X500Name;
-
-import java.io.File;
-import java.io.FileOutputStream;
-import java.security.KeyPairGenerator;
-import java.security.KeyStore;
-import java.security.PrivateKey;
-import java.security.SecureRandom;
-import java.security.cert.X509Certificate;
-import java.util.Date;
-*/
 import java.util.logging.Logger;
 
 import static java.util.logging.Level.*;
@@ -81,7 +68,6 @@ public abstract class OpenSAMLWrapper<T> {
                 thread.setContextClassLoader(loader);
             }
         } catch (InitializationException e) {
-            //FIXME [kuisathaverat] throw exception.
             LOG.log(SEVERE, "Could not initialize opensaml service.", e);
             throw new IllegalStateException(e);
         }
