@@ -29,15 +29,15 @@ import java.io.UnsupportedEncodingException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-class RewriteableStringResource implements WritableResource {
+class SamlStringResource implements WritableResource {
 
-    private static final Logger LOG = Logger.getLogger(RewriteableStringResource.class.getName());
+    private static final Logger LOG = Logger.getLogger(SamlStringResource.class.getName());
 
     private final String name;
 
     private byte[] string;
 
-    public RewriteableStringResource(String string, String name) {
+    public SamlStringResource(String string, String name) {
         try {
             //FIXME [kuisatahverat] assume UTF-8 file, it could not be UTF-8, string.getBytes() uses the platform encoding maybe is better.
             this.string = string != null ? string.getBytes("UTF-8") : null;
@@ -47,11 +47,11 @@ class RewriteableStringResource implements WritableResource {
         this.name = name;
     }
 
-    public RewriteableStringResource(String string) {
+    public SamlStringResource(String string) {
         this(string, "");
     }
 
-    public RewriteableStringResource() {
+    public SamlStringResource() {
         this(null, "");
     }
 
@@ -75,6 +75,7 @@ class RewriteableStringResource implements WritableResource {
 
     @Override
     public File getFile() {
+        LOG.warning("Enter on the getFile Method***************>>>>>>>>");
         File temp = null;
         try {
             temp = File.createTempFile("jenkins-saml-", ".bin");
