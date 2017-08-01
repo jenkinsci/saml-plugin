@@ -167,7 +167,7 @@ public class BundleKeyStore {
         KeyStore ks = KeyStore.getInstance(KeyStore.getDefaultType());
         try (InputStream in = new FileInputStream(keystore)) {
             ks.load(in, password.toCharArray());
-        } catch (Exception e) { // better to catch something more specific
+        } catch (IOException e) {
             ks = initKeyStore(keystore, password);
         }
         return ks;
