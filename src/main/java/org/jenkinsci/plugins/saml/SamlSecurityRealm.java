@@ -557,7 +557,7 @@ public class SamlSecurityRealm extends SecurityRealm {
     @Override
     public String toString() {
         final StringBuffer sb = new StringBuffer("SamlSecurityRealm{");
-        sb.append(getSamlPluginConfig() != null ? getSamlPluginConfig().toString() : "");
+        sb.append(getSamlPluginConfig().toString());
         sb.append('}');
         return sb.toString();
     }
