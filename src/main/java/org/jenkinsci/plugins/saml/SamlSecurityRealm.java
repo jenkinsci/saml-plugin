@@ -30,6 +30,7 @@ import jenkins.security.SecurityListener;
 import org.acegisecurity.*;
 import org.acegisecurity.context.SecurityContextHolder;
 import org.acegisecurity.userdetails.UsernameNotFoundException;
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
 import org.kohsuke.stapler.*;
 import org.pac4j.core.client.RedirectAction;
@@ -58,6 +59,8 @@ public class SamlSecurityRealm extends SecurityRealm {
     public static final String DEFAULT_GROUPS_ATTRIBUTE_NAME = "http://schemas.xmlsoap.org/claims/Group";
     public static final int DEFAULT_MAXIMUM_AUTHENTICATION_LIFETIME = 24 * 60 * 60; // 24h
     public static final String DEFAULT_USERNAME_CASE_CONVERSION = "none";
+    public static final String SP_METADATA_FILE = jenkins.model.Jenkins.getInstance().getRootDir().getAbsolutePath() + "/saml-sp-metadata.xml";
+    public static final String IDP_METADATA_FILE = jenkins.model.Jenkins.getInstance().getRootDir().getAbsolutePath() + "/saml-idp.metadata.xml";
 
     /**
      * URL to process the SAML answers
@@ -100,7 +103,17 @@ public class SamlSecurityRealm extends SecurityRealm {
      * @param usernameCaseConversion        username case sensitive settings
      */
     @DataBoundConstructor
-    public SamlSecurityRealm(String idpMetadata, String displayNameAttributeName, String groupsAttributeName, Integer maximumAuthenticationLifetime, String usernameAttributeName, String emailAttributeName, String logoutUrl, SamlAdvancedConfiguration advancedConfiguration, SamlEncryptionData encryptionData, String usernameCaseConversion) {
+    public SamlSecurityRealm(
+            String idpMetadata,
+            String displayNameAttributeName,
+            String groupsAttributeName,
+            Integer maximumAuthenticationLifetime,
+            String usernameAttributeName,
+            String emailAttributeName,
+            String logoutUrl,
+            SamlAdvancedConfiguration advancedConfiguration,
+            SamlEncryptionData encryptionData,
+            String usernameCaseConversion) throws IOException {
         super();
 
         this.idpMetadata = hudson.Util.fixEmptyAndTrim(idpMetadata);
@@ -125,11 +138,22 @@ public class SamlSecurityRealm extends SecurityRealm {
         this.advancedConfiguration = advancedConfiguration;
         this.encryptionData = encryptionData;
 
+        FileUtils.writeStringToFile(new File(IDP_METADATA_FILE),idpMetadata);
         LOG.finer(this.toString());
     }
 
-    public SamlSecurityRealm(String idpMetadata, String displayNameAttributeName, String groupsAttributeName, Integer maximumAuthenticationLifetime, String usernameAttributeName, String emailAttributeName, String logoutUrl, SamlAdvancedConfiguration advancedConfiguration, SamlEncryptionData encryptionData) {
-        this(idpMetadata, displayNameAttributeName, groupsAttributeName, maximumAuthenticationLifetime, usernameAttributeName, emailAttributeName, logoutUrl, advancedConfiguration, encryptionData, "none");
+    public SamlSecurityRealm(
+            String idpMetadata,
+            String displayNameAttributeName,
+            String groupsAttributeName,
+            Integer maximumAuthenticationLifetime,
+            String usernameAttributeName,
+            String emailAttributeName,
+            String logoutUrl,
+            SamlAdvancedConfiguration advancedConfiguration,
+            SamlEncryptionData encryptionData) throws IOException {
+        this(idpMetadata, displayNameAttributeName, groupsAttributeName, maximumAuthenticationLifetime,
+                usernameAttributeName, emailAttributeName, logoutUrl, advancedConfiguration, encryptionData, "none");
     }
 
     @Override

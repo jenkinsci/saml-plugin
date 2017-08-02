@@ -97,7 +97,7 @@ public abstract class OpenSAMLWrapper<T> {
         Preconditions.checkNotNull(samlPluginConfig.getIdpMetadata());
 
         final SAML2ClientConfiguration config = new SAML2ClientConfiguration();
-        config.setIdentityProviderMetadataResource(new RewriteableStringResource(samlPluginConfig.getIdpMetadata()));
+        config.setIdentityProviderMetadataResource(new SamlFileResource(SamlSecurityRealm.IDP_METADATA_FILE));
         config.setDestinationBindingType(SAML2_REDIRECT_BINDING_URI);
 
         if (samlPluginConfig.getEncryptionData() != null) {
@@ -138,11 +138,12 @@ public abstract class OpenSAMLWrapper<T> {
             }
         }
 
+        config.setForceServiceProviderMetadataGeneration(true);
+        config.setServiceProviderMetadataResource(new SamlFileResource(SamlSecurityRealm.SP_METADATA_FILE));
         final SAML2Client saml2Client = new SAML2Client(config);
         saml2Client.setCallbackUrl(samlPluginConfig.getConsumerServiceUrl());
         saml2Client.init(createWebContext());
-        String spMetadata = saml2Client.getServiceProviderMetadataResolver().getMetadata();
-        config.setServiceProviderMetadataResource(new RewriteableStringResource(spMetadata));
+
         if (LOG.isLoggable(FINE)) {
             LOG.fine(saml2Client.getServiceProviderMetadataResolver().getMetadata());
         }
