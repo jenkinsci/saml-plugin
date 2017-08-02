@@ -725,6 +725,10 @@ public class SamlSecurityRealm extends SecurityRealm {
         return getEncryptionData() != null ? getEncryptionData().getPrivateKeyPassword() : null;
     }
 
+    public String getPrivateKeyAlias() {
+        return getEncryptionData() != null ? getEncryptionData().getPrivateKeyAlias() : null;
+    }
+
     public String getUsernameCaseConversion() {
         return usernameCaseConversion;
     }
