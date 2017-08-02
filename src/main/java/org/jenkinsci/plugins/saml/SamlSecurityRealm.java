@@ -591,7 +591,7 @@ public class SamlSecurityRealm extends SecurityRealm {
 
             long i = 0;
             try {
-                i = Long.valueOf(maximumSessionLifetime);
+                i = Long.parseLong(maximumSessionLifetime);
             } catch (NumberFormatException e) {
                 return FormValidation.error("The field should be a number.", e);
             }
@@ -614,7 +614,7 @@ public class SamlSecurityRealm extends SecurityRealm {
 
             long i = 0;
             try {
-                i = Long.valueOf(maximumAuthenticationLifetime);
+                i = Long.parseLong(maximumAuthenticationLifetime);
             } catch (NumberFormatException e) {
                 return FormValidation.error("The field should be a number.", e);
             }
