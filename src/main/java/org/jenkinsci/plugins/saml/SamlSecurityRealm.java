@@ -271,7 +271,7 @@ public class SamlSecurityRealm extends SecurityRealm {
     }
 
     private String baseUrl() {
-        return Jenkins.getActiveInstance().getRootUrl();
+        return Jenkins.getInstance().getRootUrl();
     }
 
     /**
@@ -418,10 +418,10 @@ public class SamlSecurityRealm extends SecurityRealm {
         LOG.log(Level.FINE, "Doing Logout {}", auth.getPrincipal());
         // if we just redirect to the root and anonymous does not have Overall read then we will start a login all over again.
         // we are actually anonymous here as the security context has been cleared
-        if (Jenkins.getActiveInstance().hasPermission(Jenkins.READ) && StringUtils.isBlank(getLogoutUrl())) {
+        if (Jenkins.getInstance().hasPermission(Jenkins.READ) && StringUtils.isBlank(getLogoutUrl())) {
             return super.getPostLogOutUrl(req, auth);
         }
-        return StringUtils.isNotBlank(getLogoutUrl()) ? getLogoutUrl() : Jenkins.getActiveInstance().getRootUrl() + SamlLogoutAction.POST_LOGOUT_URL;
+        return StringUtils.isNotBlank(getLogoutUrl()) ? getLogoutUrl() : Jenkins.getInstance().getRootUrl() + SamlLogoutAction.POST_LOGOUT_URL;
     }
 
     @Override

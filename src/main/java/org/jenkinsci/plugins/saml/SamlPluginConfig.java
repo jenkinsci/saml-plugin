@@ -162,7 +162,7 @@ public class SamlPluginConfig {
     }
 
     public String baseUrl() {
-        return Jenkins.getActiveInstance().getRootUrl();
+        return Jenkins.getInstance().getRootUrl();
     }
 
     @Override
