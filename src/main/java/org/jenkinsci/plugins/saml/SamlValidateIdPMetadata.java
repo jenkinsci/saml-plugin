@@ -9,6 +9,9 @@ import org.pac4j.saml.util.Configuration;
 
 import java.io.IOException;
 
+/**
+ * validate the IdP metadata, this class is used from the configuration screen to validate the XML in the IdP Metadata textarea.
+ */
 public class SamlValidateIdPMetadata extends OpenSAMLWrapper<FormValidation>{
 
     private final String idpMetadata;
@@ -17,6 +20,10 @@ public class SamlValidateIdPMetadata extends OpenSAMLWrapper<FormValidation>{
         this.idpMetadata = idpMetadata;
     }
 
+    /**
+     * process the IdP Metadata and try to parse it, if so, then return that the validation is ok.
+     * @return ok if the IdP Metadata it right, if not return an validation error.
+     */
     @Override
     protected FormValidation process() {
         try (final java.io.InputStream in = IOUtils.toInputStream(idpMetadata, "UTF-8")) {
