@@ -79,7 +79,7 @@ public abstract class OpenSAMLWrapper<T> {
      *
      * @return process return type
      */
-    abstract T process();
+    abstract protected T process();
 
     /**
      * @return J2E Context from the current HTTP request and response.
@@ -105,6 +105,7 @@ public abstract class OpenSAMLWrapper<T> {
             config.setKeystorePath(samlPluginConfig.getEncryptionData().getKeystorePath());
             config.setKeystorePassword(samlPluginConfig.getEncryptionData().getKeystorePassword());
             config.setPrivateKeyPassword(samlPluginConfig.getEncryptionData().getPrivateKeyPassword());
+            config.setKeystoreAlias(samlPluginConfig.getEncryptionData().getPrivateKeyAlias());
         } else {
             if (!KS.isValid()) {
                 KS.init();
@@ -115,6 +116,7 @@ public abstract class OpenSAMLWrapper<T> {
             config.setKeystorePath(KS.getKeystorePath());
             config.setKeystorePassword(KS.getKsPassword());
             config.setPrivateKeyPassword(KS.getKsPkPassword());
+            config.setKeystoreAlias(KS.getKsPkAlias());
         }
 
         config.setMaximumAuthenticationLifetime(samlPluginConfig.getMaximumAuthenticationLifetime());

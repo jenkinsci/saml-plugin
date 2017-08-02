@@ -40,7 +40,7 @@ public class SamlRedirectActionWrapper extends OpenSAMLWrapper<RedirectAction> {
      * @throws IllegalStateException if something goes wrong.
      */
     @Override
-    RedirectAction process() throws IllegalStateException {
+    protected RedirectAction process() throws IllegalStateException {
         try {
             SAML2Client client = createSAML2Client();
             WebContext context = createWebContext();

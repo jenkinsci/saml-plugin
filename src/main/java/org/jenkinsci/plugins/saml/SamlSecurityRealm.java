@@ -42,7 +42,13 @@ import javax.annotation.Nonnull;
 import java.io.*;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.security.KeyStore;
+import java.security.KeyStoreException;
+import java.security.NoSuchAlgorithmException;
+import java.security.UnrecoverableEntryException;
+import java.security.cert.CertificateException;
 import java.util.ArrayList;
+import java.util.Enumeration;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -138,7 +144,7 @@ public class SamlSecurityRealm extends SecurityRealm {
         this.advancedConfiguration = advancedConfiguration;
         this.encryptionData = encryptionData;
 
-        FileUtils.writeStringToFile(new File(IDP_METADATA_FILE),idpMetadata);
+        FileUtils.writeStringToFile(new File(IDP_METADATA_FILE), idpMetadata);
         LOG.finer(this.toString());
     }
 
@@ -471,18 +477,196 @@ public class SamlSecurityRealm extends SecurityRealm {
             return "SAML 2.0";
         }
 
-    }
-
-    public FormValidation doCheckLogoutUrl(@QueryParameter String logoutUrl) {
-        if (logoutUrl == null || logoutUrl.isEmpty()) {
+        public FormValidation doCheckLogoutUrl(@QueryParameter String logoutUrl) {
+            if (StringUtils.isEmpty(logoutUrl)) {
+                return FormValidation.ok();
+            }
+            try {
+                new URL(logoutUrl);
+            } catch (MalformedURLException e) {
+                return FormValidation.error("The url is malformed.", e);
+            }
             return FormValidation.ok();
         }
-        try {
-            new URL(logoutUrl);
-        } catch (MalformedURLException e) {
-            return FormValidation.error("The url is malformed.", e);
+
+        public FormValidation doTestIdpMetadata(@QueryParameter("idpMetadata") String idpMetadata) {
+            if (StringUtils.isBlank(idpMetadata)) {
+                return FormValidation.error("The IdP Metadata can not be empty.");
+            }
+
+            return new SamlValidateIdPMetadata(idpMetadata).get();
         }
-        return FormValidation.ok();
+
+        public FormValidation doCheckDisplayNameAttributeName(@QueryParameter String displayNameAttributeName) {
+            if (StringUtils.isEmpty(displayNameAttributeName)) {
+                return FormValidation.ok();
+            }
+
+            if (StringUtils.isBlank(displayNameAttributeName)) {
+                return FormValidation.error("The field should have a value different than spaces");
+            }
+
+            return FormValidation.ok();
+        }
+
+        public FormValidation doCheckGroupsAttributeName(@QueryParameter String groupsAttributeName) {
+            if (StringUtils.isEmpty(groupsAttributeName)) {
+                return FormValidation.warning("It is recommended to set the groups attribute.");
+            }
+
+            if (StringUtils.isBlank(groupsAttributeName)) {
+                return FormValidation.error("The field should have a value different than spaces");
+            }
+
+            return FormValidation.ok();
+        }
+
+        public FormValidation doCheckUsernameAttributeName(@QueryParameter String usernameAttributeName) {
+            if (StringUtils.isEmpty(usernameAttributeName)) {
+                return FormValidation.warning("It is recommended to set the username attribute.");
+            }
+
+            if (StringUtils.isBlank(usernameAttributeName)) {
+                return FormValidation.error("The field should have a value different than spaces");
+            }
+
+            return FormValidation.ok();
+        }
+
+        public FormValidation doCheckEmailAttributeName(@QueryParameter String emailAttributeName) {
+            if (StringUtils.isEmpty(emailAttributeName)) {
+                return FormValidation.ok();
+            }
+
+            if (StringUtils.isBlank(emailAttributeName)) {
+                return FormValidation.error("The field should have a value different than spaces");
+            }
+
+            return FormValidation.ok();
+        }
+
+        public FormValidation doCheckAuthnContextClassRef(@QueryParameter String authnContextClassRef) {
+            if (StringUtils.isEmpty(authnContextClassRef)) {
+                return FormValidation.ok();
+            }
+
+            if (StringUtils.isBlank(authnContextClassRef)) {
+                return FormValidation.error("The field should have a value different than spaces");
+            }
+
+            return FormValidation.ok();
+        }
+
+
+        public FormValidation doCheckSpEntityId(@QueryParameter String spEntityId) {
+            if (StringUtils.isEmpty(spEntityId)) {
+                return FormValidation.ok();
+            }
+
+            if (StringUtils.isBlank(spEntityId)) {
+                return FormValidation.error("The field should have a value different than spaces");
+            }
+
+            return FormValidation.ok();
+        }
+
+
+        public FormValidation doCheckKeystorePath(@QueryParameter String keystorePath) {
+            if (StringUtils.isEmpty(keystorePath)) {
+                return FormValidation.ok();
+            }
+
+            if (StringUtils.isBlank(keystorePath)) {
+                return FormValidation.error("The field should have a value different than spaces");
+            }
+
+            return FormValidation.ok();
+        }
+
+
+        public FormValidation doCheckMaximumSessionLifetime(@QueryParameter String maximumSessionLifetime) {
+            if (StringUtils.isEmpty(maximumSessionLifetime)) {
+                return FormValidation.ok();
+            }
+
+            long i = 0;
+            try {
+                i = Long.valueOf(maximumSessionLifetime);
+            } catch (NumberFormatException e) {
+                return FormValidation.error("The field should be a number.", e);
+            }
+
+            if (i < 0) {
+                return FormValidation.error("The field should be a number greater than 0.");
+            }
+
+            if (i > Integer.MAX_VALUE) {
+                return FormValidation.error("The field should be a number lower than " + Integer.MAX_VALUE + ".");
+            }
+
+            return FormValidation.ok();
+        }
+
+        public FormValidation doCheckMaximumAuthenticationLifetime(@QueryParameter String maximumAuthenticationLifetime) {
+            if (StringUtils.isEmpty(maximumAuthenticationLifetime)) {
+                return FormValidation.ok();
+            }
+
+            long i = 0;
+            try {
+                i = Long.valueOf(maximumAuthenticationLifetime);
+            } catch (NumberFormatException e) {
+                return FormValidation.error("The field should be a number.", e);
+            }
+
+            if (i < 0) {
+                return FormValidation.error("The field should be a number greater than 0.");
+            }
+
+            if (i > Integer.MAX_VALUE) {
+                return FormValidation.error("The field should be a number lower than " + Integer.MAX_VALUE + ".");
+            }
+
+            return FormValidation.ok();
+        }
+
+        public FormValidation doTestKeyStore(@QueryParameter("keystorePath") String keystorePath,
+                                             @QueryParameter("keystorePassword") String keystorePassword,
+                                             @QueryParameter("privateKeyPassword") String privateKeyPassword,
+                                             @QueryParameter("privateKeyAlias") String privateKeyAlias) {
+            try (InputStream in = new FileInputStream(keystorePath)) {
+                KeyStore ks = KeyStore.getInstance(KeyStore.getDefaultType());
+                ks.load(in, keystorePassword.toCharArray());
+
+                KeyStore.PasswordProtection keyPassword = new KeyStore.PasswordProtection(null);
+                if (StringUtils.isNotBlank(privateKeyPassword)) {
+                    keyPassword = new KeyStore.PasswordProtection(privateKeyPassword.toCharArray());
+                }
+
+                Enumeration<String> aliases = ks.aliases();
+                while (aliases.hasMoreElements()) {
+                    String currentAlias = aliases.nextElement();
+                    if (StringUtils.isBlank(privateKeyAlias) || currentAlias.equalsIgnoreCase(privateKeyAlias)) {
+                        ks.getEntry(currentAlias, keyPassword);
+                        break;
+                    }
+                }
+
+            } catch (IOException e) {
+                return FormValidation.error("It is not possible to read the keystore file.", e);
+            } catch (CertificateException e) {
+                return FormValidation.error("Any of the certificates in the keystore could not be loaded");
+            } catch (NoSuchAlgorithmException e) {
+                return FormValidation.error("the algorithm used to check the integrity of the keystore cannot be found", e);
+            } catch (KeyStoreException e) {
+                return FormValidation.error("No Provider supports a KeyStoreSpi implementation for the specified type.", e);
+            } catch (java.security.UnrecoverableKeyException e) {
+                return FormValidation.error("The entry is a PrivateKeyEntry or SecretKeyEntry and the specified protParam does not contain the information needed to recover the key (e.g. wrong password)", e);
+            } catch (UnrecoverableEntryException e) {
+                return FormValidation.error("The specified protParam were insufficient or invalid", e);
+            }
+            return FormValidation.ok();
+        }
     }
 
     public String getIdpMetadata() {

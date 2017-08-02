@@ -31,12 +31,14 @@ public class SamlEncryptionData {
     private final String keystorePath;
     private final String keystorePassword;
     private final String privateKeyPassword;
+    private final String privateKeyAlias;
 
     @DataBoundConstructor
-    public SamlEncryptionData(String keystorePath, String keystorePassword, String privateKeyPassword) {
+    public SamlEncryptionData(String keystorePath, String keystorePassword, String privateKeyPassword, String privateKeyAlias) {
         this.keystorePath = Util.fixEmptyAndTrim(keystorePath);
         this.keystorePassword = Util.fixEmptyAndTrim(keystorePassword);
         this.privateKeyPassword = Util.fixEmptyAndTrim(privateKeyPassword);
+        this.privateKeyAlias = Util.fixEmptyAndTrim(privateKeyAlias);
     }
 
     public String getKeystorePath() {
@@ -51,12 +53,17 @@ public class SamlEncryptionData {
         return privateKeyPassword;
     }
 
+    public String getPrivateKeyAlias() {
+        return privateKeyAlias;
+    }
+
     @Override
     public String toString() {
         final StringBuffer sb = new StringBuffer("SamlEncryptionData{");
         sb.append("keystorePath='").append(StringUtils.defaultIfBlank(keystorePath, "none")).append('\'');
         sb.append(", keystorePassword is NOT empty='").append(StringUtils.isNotEmpty(keystorePassword)).append('\'');
         sb.append(", privateKeyPassword is NOT empty='").append(StringUtils.isNotEmpty(privateKeyPassword)).append('\'');
+        sb.append(", privateKeyAlias is NOT empty='").append(StringUtils.isNotEmpty(privateKeyAlias)).append('\'');
         sb.append('}');
         return sb.toString();
     }

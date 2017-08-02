@@ -39,7 +39,7 @@ public class SamlSPMetadataWrapper extends OpenSAMLWrapper<HttpResponse> {
      * @throws IllegalStateException if something goes wrong.
      */
     @Override
-    HttpResponse process() throws IllegalStateException {
+    protected HttpResponse process() throws IllegalStateException {
         final SAML2Client client = createSAML2Client();
         return HttpResponses.plainText(client.getServiceProviderMetadataResolver().getMetadata());
     }

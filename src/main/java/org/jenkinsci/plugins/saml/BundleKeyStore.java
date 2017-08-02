@@ -58,6 +58,7 @@ public class BundleKeyStore {
     private String keystorePath = PAC4J_DEMO_KEYSTORE;
     private String ksPassword = PAC4J_DEMO_PASSWD;
     private String ksPkPassword = PAC4J_DEMO_PASSWD;
+    private String ksPkAlias = "SAML-generated-keyPair";
     private Date dateValidity;
     private File keystore;
 
@@ -84,7 +85,7 @@ public class BundleKeyStore {
             KeyStore ks = loadKeyStore(keystore, ksPassword);
             KeyPair keypair = generate(2048);
             X509Certificate[] chain = createCertificateChain(keypair);
-            ks.setKeyEntry("SAML-generated-keyPair", keypair.getPrivate(), ksPkPassword.toCharArray(), chain);
+            ks.setKeyEntry(ksPkAlias, keypair.getPrivate(), ksPkPassword.toCharArray(), chain);
             saveKeyStore(keystore, ks, ksPassword);
             LOG.warning("Using automatic generated keystore : " + keystorePath);
         } catch (Exception e) {
@@ -259,6 +260,10 @@ public class BundleKeyStore {
 
     public String getKsPkPassword() {
         return ksPkPassword;
+    }
+
+    public String getKsPkAlias() {
+        return ksPkAlias;
     }
 
     /**
