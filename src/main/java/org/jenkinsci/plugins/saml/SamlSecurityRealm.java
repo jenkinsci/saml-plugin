@@ -43,6 +43,7 @@ import java.io.*;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Base64;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -214,6 +215,9 @@ public class SamlSecurityRealm extends SecurityRealm {
      */
     public HttpResponse doFinishLogin(final StaplerRequest request, final StaplerResponse response) {
         LOG.finer("SamlSecurityRealm.doFinishLogin called");
+        if(LOG.isLoggable(Level.FINEST)){
+            LOG.finest("SAMLResponse XML:" + new String(Base64.getDecoder().decode(request.getParameter("SAMLResponse"))));
+        }
         boolean saveUser = false;
 
         SAML2Profile saml2Profile = new SamlProfileWrapper(getSamlPluginConfig(), request, response).get();
