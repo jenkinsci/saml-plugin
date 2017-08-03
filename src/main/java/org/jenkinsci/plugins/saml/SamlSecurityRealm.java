@@ -245,7 +245,7 @@ public class SamlSecurityRealm extends SecurityRealm {
 
 
         //retrieve user email
-        saveUser |= modifyUserEmail(user, (List<?>) saml2Profile.getAttribute(getEmailAttributeName()));
+        saveUser |= modifyUserEmail(user, (List<String>) saml2Profile.getAttribute(getEmailAttributeName()));
 
         try {
             if (user != null && saveUser) {
@@ -342,18 +342,30 @@ public class SamlSecurityRealm extends SecurityRealm {
      * @param emails user emails.
      * @return true if the current user is modified.
      */
-    private boolean modifyUserEmail(User user, List<?> emails) {
+    private boolean modifyUserEmail(User user, List<String> emails) {
         String userEmail = null;
         boolean saveUser = false;
-        if (emails != null && !emails.isEmpty()) {
-            userEmail = (String) emails.get(0);
+        if (emails == null || emails.isEmpty()) {
+            LOG.warning("There is not Email attribute '" + getEmailAttributeName() + "' for user : " + user.getId());
+            return saveUser;
+        }
+
+        for (String item : emails) {
+            if (StringUtils.isNotEmpty(item)) {
+                userEmail = item;
+                break;
+            }
+        }
+
+        if (StringUtils.isBlank(userEmail)) {
+            LOG.warning("The Email is blank for user : " + user.getId());
         }
 
         try {
             if (user != null && StringUtils.isNotBlank(userEmail)) {
                 UserProperty currentUserEmailProperty = user.getProperty(UserProperty.class);
-                if (currentUserEmailProperty != null
-                        && userEmail.compareTo(StringUtils.defaultIfBlank(currentUserEmailProperty.getAddress(), "")) != 0) {
+                if (currentUserEmailProperty == null ||
+                        userEmail.compareTo(StringUtils.defaultIfBlank(currentUserEmailProperty.getAddress(), "")) != 0) {
                     // email address
                     UserProperty emailProperty = new UserProperty(userEmail);
                     user.addProperty(emailProperty);
