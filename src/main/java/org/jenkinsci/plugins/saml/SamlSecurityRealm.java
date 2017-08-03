@@ -69,6 +69,22 @@ public class SamlSecurityRealm extends SecurityRealm {
     public static final String IDP_METADATA_FILE = jenkins.model.Jenkins.getInstance().getRootDir().getAbsolutePath() + "/saml-idp.metadata.xml";
 
     /**
+     * form validation messages.
+     */
+    public static final String ERROR_ONLY_SPACES_FIELD_VALUE = "The field should have a value different than spaces";
+    public static final String ERROR_NOT_VALID_NUMBER = "The field should be a number greater than 0 and lower than " + Integer.MAX_VALUE + ".";
+    public static final String ERROR_MALFORMED_URL = "The url is malformed.";
+    public static final String ERROR_IDP_METADATA_EMPTY = "The IdP Metadata can not be empty.";
+    public static final String WARN_RECOMMENDED_TO_SET_THE_GROUPS_ATTRIBUTE = "It is recommended to set the groups attribute.";
+    public static final String WARN_RECOMMENDED_TO_SET_THE_USERNAME_ATTRIBUTE = "It is recommended to set the username attribute.";
+    public static final String ERROR_NOT_POSSIBLE_TO_READ_KS_FILE = "It is not possible to read the keystore file.";
+    public static final String ERROR_CERTIFICATES_COULD_NOT_BE_LOADED = "Any of the certificates in the keystore could not be loaded";
+    public static final String ERROR_ALGORITHM_CANNOT_BE_FOUND = "the algorithm used to check the integrity of the keystore cannot be found";
+    public static final String ERROR_NO_PROVIDER_SUPPORTS_A_KS_SPI_IMPL = "No Provider supports a KeyStoreSpi implementation for the specified type.";
+    public static final String ERROR_WRONG_INFO_OR_PASSWORD = "The entry is a PrivateKeyEntry or SecretKeyEntry and the specified protParam does not contain the information needed to recover the key (e.g. wrong password)";
+    public static final String ERROR_INSUFFICIENT_OR_INVALID_INFO = "The specified protParam were insufficient or invalid";
+
+    /**
      * URL to process the SAML answers
      */
     public static final String CONSUMER_SERVICE_URL_PATH = "securityRealm/finishLogin";
@@ -484,14 +500,14 @@ public class SamlSecurityRealm extends SecurityRealm {
             try {
                 new URL(logoutUrl);
             } catch (MalformedURLException e) {
-                return FormValidation.error("The url is malformed.", e);
+                return FormValidation.error(ERROR_MALFORMED_URL, e);
             }
             return FormValidation.ok();
         }
 
         public FormValidation doTestIdpMetadata(@QueryParameter("idpMetadata") String idpMetadata) {
             if (StringUtils.isBlank(idpMetadata)) {
-                return FormValidation.error("The IdP Metadata can not be empty.");
+                return FormValidation.error(ERROR_IDP_METADATA_EMPTY);
             }
 
             return new SamlValidateIdPMetadata(idpMetadata).get();
@@ -503,7 +519,7 @@ public class SamlSecurityRealm extends SecurityRealm {
             }
 
             if (StringUtils.isBlank(displayNameAttributeName)) {
-                return FormValidation.error("The field should have a value different than spaces");
+                return FormValidation.error(ERROR_ONLY_SPACES_FIELD_VALUE);
             }
 
             return FormValidation.ok();
@@ -511,11 +527,11 @@ public class SamlSecurityRealm extends SecurityRealm {
 
         public FormValidation doCheckGroupsAttributeName(@QueryParameter String groupsAttributeName) {
             if (StringUtils.isEmpty(groupsAttributeName)) {
-                return FormValidation.warning("It is recommended to set the groups attribute.");
+                return FormValidation.warning(WARN_RECOMMENDED_TO_SET_THE_GROUPS_ATTRIBUTE);
             }
 
             if (StringUtils.isBlank(groupsAttributeName)) {
-                return FormValidation.error("The field should have a value different than spaces");
+                return FormValidation.error(ERROR_ONLY_SPACES_FIELD_VALUE);
             }
 
             return FormValidation.ok();
@@ -523,11 +539,11 @@ public class SamlSecurityRealm extends SecurityRealm {
 
         public FormValidation doCheckUsernameAttributeName(@QueryParameter String usernameAttributeName) {
             if (StringUtils.isEmpty(usernameAttributeName)) {
-                return FormValidation.warning("It is recommended to set the username attribute.");
+                return FormValidation.warning(WARN_RECOMMENDED_TO_SET_THE_USERNAME_ATTRIBUTE);
             }
 
             if (StringUtils.isBlank(usernameAttributeName)) {
-                return FormValidation.error("The field should have a value different than spaces");
+                return FormValidation.error(ERROR_ONLY_SPACES_FIELD_VALUE);
             }
 
             return FormValidation.ok();
@@ -539,7 +555,7 @@ public class SamlSecurityRealm extends SecurityRealm {
             }
 
             if (StringUtils.isBlank(emailAttributeName)) {
-                return FormValidation.error("The field should have a value different than spaces");
+                return FormValidation.error(ERROR_ONLY_SPACES_FIELD_VALUE);
             }
 
             return FormValidation.ok();
@@ -551,7 +567,7 @@ public class SamlSecurityRealm extends SecurityRealm {
             }
 
             if (StringUtils.isBlank(authnContextClassRef)) {
-                return FormValidation.error("The field should have a value different than spaces");
+                return FormValidation.error(ERROR_ONLY_SPACES_FIELD_VALUE);
             }
 
             return FormValidation.ok();
@@ -564,7 +580,7 @@ public class SamlSecurityRealm extends SecurityRealm {
             }
 
             if (StringUtils.isBlank(spEntityId)) {
-                return FormValidation.error("The field should have a value different than spaces");
+                return FormValidation.error(ERROR_ONLY_SPACES_FIELD_VALUE);
             }
 
             return FormValidation.ok();
@@ -577,7 +593,19 @@ public class SamlSecurityRealm extends SecurityRealm {
             }
 
             if (StringUtils.isBlank(keystorePath)) {
-                return FormValidation.error("The field should have a value different than spaces");
+                return FormValidation.error(ERROR_ONLY_SPACES_FIELD_VALUE);
+            }
+
+            return FormValidation.ok();
+        }
+
+        public FormValidation doCheckKPrivateKeyAlias(@QueryParameter String privateKeyAlias) {
+            if (StringUtils.isEmpty(privateKeyAlias)) {
+                return FormValidation.ok();
+            }
+
+            if (StringUtils.isBlank(privateKeyAlias)) {
+                return FormValidation.error(ERROR_ONLY_SPACES_FIELD_VALUE);
             }
 
             return FormValidation.ok();
@@ -593,15 +621,15 @@ public class SamlSecurityRealm extends SecurityRealm {
             try {
                 i = Long.parseLong(maximumSessionLifetime);
             } catch (NumberFormatException e) {
-                return FormValidation.error("The field should be a number.", e);
+                return FormValidation.error(ERROR_NOT_VALID_NUMBER, e);
             }
 
             if (i < 0) {
-                return FormValidation.error("The field should be a number greater than 0.");
+                return FormValidation.error(ERROR_NOT_VALID_NUMBER);
             }
 
             if (i > Integer.MAX_VALUE) {
-                return FormValidation.error("The field should be a number lower than " + Integer.MAX_VALUE + ".");
+                return FormValidation.error(ERROR_NOT_VALID_NUMBER);
             }
 
             return FormValidation.ok();
@@ -616,15 +644,15 @@ public class SamlSecurityRealm extends SecurityRealm {
             try {
                 i = Long.parseLong(maximumAuthenticationLifetime);
             } catch (NumberFormatException e) {
-                return FormValidation.error("The field should be a number.", e);
+                return FormValidation.error(ERROR_NOT_VALID_NUMBER, e);
             }
 
             if (i < 0) {
-                return FormValidation.error("The field should be a number greater than 0.");
+                return FormValidation.error(ERROR_NOT_VALID_NUMBER);
             }
 
             if (i > Integer.MAX_VALUE) {
-                return FormValidation.error("The field should be a number lower than " + Integer.MAX_VALUE + ".");
+                return FormValidation.error(ERROR_NOT_VALID_NUMBER);
             }
 
             return FormValidation.ok();
@@ -653,17 +681,17 @@ public class SamlSecurityRealm extends SecurityRealm {
                 }
 
             } catch (IOException e) {
-                return FormValidation.error("It is not possible to read the keystore file.", e);
+                return FormValidation.error(ERROR_NOT_POSSIBLE_TO_READ_KS_FILE, e);
             } catch (CertificateException e) {
-                return FormValidation.error("Any of the certificates in the keystore could not be loaded");
+                return FormValidation.error(ERROR_CERTIFICATES_COULD_NOT_BE_LOADED);
             } catch (NoSuchAlgorithmException e) {
-                return FormValidation.error("the algorithm used to check the integrity of the keystore cannot be found", e);
+                return FormValidation.error(ERROR_ALGORITHM_CANNOT_BE_FOUND, e);
             } catch (KeyStoreException e) {
-                return FormValidation.error("No Provider supports a KeyStoreSpi implementation for the specified type.", e);
+                return FormValidation.error(ERROR_NO_PROVIDER_SUPPORTS_A_KS_SPI_IMPL, e);
             } catch (java.security.UnrecoverableKeyException e) {
-                return FormValidation.error("The entry is a PrivateKeyEntry or SecretKeyEntry and the specified protParam does not contain the information needed to recover the key (e.g. wrong password)", e);
+                return FormValidation.error(ERROR_WRONG_INFO_OR_PASSWORD, e);
             } catch (UnrecoverableEntryException e) {
-                return FormValidation.error("The specified protParam were insufficient or invalid", e);
+                return FormValidation.error(ERROR_INSUFFICIENT_OR_INVALID_INFO, e);
             }
             return FormValidation.ok();
         }
