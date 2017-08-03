@@ -217,8 +217,8 @@ public class SamlSecurityRealm extends SecurityRealm {
         LOG.finer("SamlSecurityRealm.doFinishLogin called");
         if(LOG.isLoggable(Level.FINEST)){
             try {
-                LOG.finest("SAMLResponse XML:" + new String(java.util.Base64.getDecoder().decode(request.getParameter("SAMLResponse")),"UTF-8"));
-            } catch (java.io.UnsupportedEncodingException e) {
+                LOG.finest("SAMLResponse XML:" + new String(Base64.getDecoder().decode(request.getParameter("SAMLResponse")),"UTF-8"));
+            } catch (UnsupportedEncodingException e) {
                 LOG.finest("No UTF-8 SAMLResponse XML");
             }
         }
