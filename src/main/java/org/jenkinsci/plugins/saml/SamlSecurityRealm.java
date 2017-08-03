@@ -92,6 +92,8 @@ public class SamlSecurityRealm extends SecurityRealm {
 
     private static final Logger LOG = Logger.getLogger(SamlSecurityRealm.class.getName());
     private static final String REFERER_ATTRIBUTE = SamlSecurityRealm.class.getName() + ".referer";
+    public static final String WARN_THERE_IS_NOT_KEY_STORE = "There is not keyStore to validate";
+    public static final String ERROR_NOT_KEY_FOUND = "Not key found";
 
     /**
      * configuration settings.
@@ -662,9 +664,12 @@ public class SamlSecurityRealm extends SecurityRealm {
                                              @QueryParameter("keystorePassword") String keystorePassword,
                                              @QueryParameter("privateKeyPassword") String privateKeyPassword,
                                              @QueryParameter("privateKeyAlias") String privateKeyAlias) {
+            if(StringUtils.isBlank(keystorePath)){
+                return FormValidation.warning(WARN_THERE_IS_NOT_KEY_STORE);
+            }
             try (InputStream in = new FileInputStream(keystorePath)) {
                 KeyStore ks = KeyStore.getInstance(KeyStore.getDefaultType());
-                ks.load(in, keystorePassword.toCharArray());
+                ks.load(in, StringUtils.defaultIfEmpty(keystorePassword,"").toCharArray());
 
                 KeyStore.PasswordProtection keyPassword = new KeyStore.PasswordProtection(null);
                 if (StringUtils.isNotBlank(privateKeyPassword)) {
@@ -676,7 +681,7 @@ public class SamlSecurityRealm extends SecurityRealm {
                     String currentAlias = aliases.nextElement();
                     if (StringUtils.isBlank(privateKeyAlias) || currentAlias.equalsIgnoreCase(privateKeyAlias)) {
                         ks.getEntry(currentAlias, keyPassword);
-                        break;
+                        return FormValidation.ok();
                     }
                 }
 
@@ -693,7 +698,7 @@ public class SamlSecurityRealm extends SecurityRealm {
             } catch (UnrecoverableEntryException e) {
                 return FormValidation.error(ERROR_INSUFFICIENT_OR_INVALID_INFO, e);
             }
-            return FormValidation.ok();
+            return FormValidation.error(ERROR_NOT_KEY_FOUND);
         }
     }
 
