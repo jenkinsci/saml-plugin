@@ -17,9 +17,7 @@ under the License. */
 
 package org.jenkinsci.plugins.saml;
 
-import hudson.security.SecurityRealm;
 import org.acegisecurity.GrantedAuthority;
-import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -47,10 +45,6 @@ public class SamlSecurityRealmTest {
         } else {
             throw new RuntimeException("The security Realm it is not correct");
         }
-    }
-
-    @After
-    public void end() {
     }
 
 
@@ -121,7 +115,7 @@ public class SamlSecurityRealmTest {
     }
 
     @LocalData("testHugeNumberOfUsers")
-    @Test(timeout = 5000)
+    @Test(timeout = 15000)
     public void testLoadGroupByGroupname() {
         assertEquals(samlSecurityRealm.loadGroupByGroupname("role500", true).getName(), "role500");
     }
