@@ -170,11 +170,12 @@ public class SamlSecurityRealmTest {
         assertThat(new SamlEncryptionData("","","", "").toString(), containsString("SamlEncryptionData"));
 
         assertEquals(new SamlFileResource("fileNotExists").exists(),false);
-        SamlFileResource file = new SamlFileResource("file","data");
+        SamlFileResource file = new SamlFileResource("fileWillExists","data");
         assertEquals(file.exists(),true);
         assertEquals(IOUtils.toByteArray(file.getInputStream()).length>0,true);
         IOUtils.write("data1",file.getOutputStream());
         assertEquals(IOUtils.toByteArray(file.getInputStream()).length>0,true);
+        file.getFile().delete();
     }
 
 }
