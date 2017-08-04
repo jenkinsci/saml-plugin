@@ -21,6 +21,7 @@ import hudson.security.GroupDetails;
 import jenkins.security.LastGrantedAuthoritiesProperty;
 import org.acegisecurity.GrantedAuthority;
 
+import java.util.HashSet;
 import java.util.Set;
 
 
@@ -32,7 +33,7 @@ import java.util.Set;
 public class SamlGroupDetails extends GroupDetails {
 
     private final String name;
-    private final Set<String> members = new java.util.HashSet<String>();
+    private final Set<String> members = new HashSet<String>();
 
     public SamlGroupDetails(String name) {
         this.name = name;
