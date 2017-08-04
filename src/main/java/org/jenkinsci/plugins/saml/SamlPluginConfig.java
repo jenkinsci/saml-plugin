@@ -93,24 +93,8 @@ public class SamlPluginConfig {
         return getAdvancedConfiguration() != null ? getAdvancedConfiguration().getSpEntityId() : null;
     }
 
-    public Integer getMaximumSessionLifetime() {
-        return getAdvancedConfiguration() != null ? getAdvancedConfiguration().getMaximumSessionLifetime() : null;
-    }
-
     public SamlEncryptionData getEncryptionData() {
         return encryptionData;
-    }
-
-    public String getKeystorePath() {
-        return getEncryptionData() != null ? getEncryptionData().getKeystorePath() : null;
-    }
-
-    public String getKeystorePassword() {
-        return getEncryptionData() != null ? getEncryptionData().getKeystorePassword() : null;
-    }
-
-    public String getPrivateKeyPassword() {
-        return getEncryptionData() != null ? getEncryptionData().getPrivateKeyPassword() : null;
     }
 
     public String getUsernameCaseConversion() {
@@ -123,38 +107,6 @@ public class SamlPluginConfig {
 
     public String getLogoutUrl() {
         return logoutUrl;
-    }
-
-    public void setDisplayNameAttributeName(String displayNameAttributeName) {
-        if (displayNameAttributeName != null && !displayNameAttributeName.isEmpty()) {
-            this.displayNameAttributeName = displayNameAttributeName;
-        }
-    }
-
-    public void setGroupsAttributeName(String groupsAttributeName) {
-        if (groupsAttributeName != null && !groupsAttributeName.isEmpty()) {
-            this.groupsAttributeName = groupsAttributeName;
-        }
-    }
-
-    public void setMaximumAuthenticationLifetime(Integer maximumAuthenticationLifetime) {
-        if (maximumAuthenticationLifetime != null && maximumAuthenticationLifetime > 0) {
-            this.maximumAuthenticationLifetime = maximumAuthenticationLifetime;
-        }
-    }
-
-    public void setEmailAttributeName(String emailAttributeName) {
-        if (StringUtils.isNotBlank(emailAttributeName)) {
-            this.emailAttributeName = hudson.Util.fixEmptyAndTrim(emailAttributeName);
-        }
-    }
-
-    public void setEncryptionData(SamlEncryptionData encryptionData) {
-        this.encryptionData = encryptionData;
-    }
-
-    public void setAdvancedConfiguration(SamlAdvancedConfiguration advancedConfiguration) {
-        this.advancedConfiguration = advancedConfiguration;
     }
 
     public String getConsumerServiceUrl() {
