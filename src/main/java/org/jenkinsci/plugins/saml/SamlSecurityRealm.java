@@ -48,6 +48,7 @@ import java.security.NoSuchAlgorithmException;
 import java.security.UnrecoverableEntryException;
 import java.security.cert.CertificateException;
 import java.util.ArrayList;
+import java.util.Base64;
 import java.util.Enumeration;
 import java.util.List;
 import java.util.logging.Level;
@@ -238,6 +239,13 @@ public class SamlSecurityRealm extends SecurityRealm {
      */
     public HttpResponse doFinishLogin(final StaplerRequest request, final StaplerResponse response) {
         LOG.finer("SamlSecurityRealm.doFinishLogin called");
+        if(LOG.isLoggable(Level.FINEST)){
+            try {
+                LOG.finest("SAMLResponse XML:" + new String(Base64.getDecoder().decode(request.getParameter("SAMLResponse")),"UTF-8"));
+            } catch (UnsupportedEncodingException e) {
+                LOG.finest("No UTF-8 SAMLResponse XML");
+            }
+        }
         boolean saveUser = false;
 
         SAML2Profile saml2Profile = new SamlProfileWrapper(getSamlPluginConfig(), request, response).get();
@@ -269,7 +277,7 @@ public class SamlSecurityRealm extends SecurityRealm {
 
 
         //retrieve user email
-        saveUser |= modifyUserEmail(user, (List<?>) saml2Profile.getAttribute(getEmailAttributeName()));
+        saveUser |= modifyUserEmail(user, (List<String>) saml2Profile.getAttribute(getEmailAttributeName()));
 
         try {
             if (user != null && saveUser) {
@@ -360,24 +368,36 @@ public class SamlSecurityRealm extends SecurityRealm {
     }
 
     /**
-     * set the user email.
+     * set the user email. It will take the first not empty value on the list of email.
      *
      * @param user   current user.
      * @param emails user emails.
      * @return true if the current user is modified.
      */
-    private boolean modifyUserEmail(User user, List<?> emails) {
+    private boolean modifyUserEmail(User user, List<String> emails) {
         String userEmail = null;
         boolean saveUser = false;
-        if (emails != null && !emails.isEmpty()) {
-            userEmail = (String) emails.get(0);
+        if (emails == null || emails.isEmpty()) {
+            LOG.warning("There is not Email attribute '" + getEmailAttributeName() + "' for user : " + user.getId());
+            return saveUser;
+        }
+
+        for (String item : emails) {
+            if (StringUtils.isNotEmpty(item)) {
+                userEmail = item;
+                break;
+            }
+        }
+
+        if (StringUtils.isBlank(userEmail)) {
+            LOG.warning("The Email is blank for user : " + user.getId());
         }
 
         try {
             if (user != null && StringUtils.isNotBlank(userEmail)) {
                 UserProperty currentUserEmailProperty = user.getProperty(UserProperty.class);
-                if (currentUserEmailProperty != null
-                        && userEmail.compareTo(StringUtils.defaultIfBlank(currentUserEmailProperty.getAddress(), "")) != 0) {
+                if (currentUserEmailProperty == null ||
+                        userEmail.compareTo(StringUtils.defaultIfBlank(currentUserEmailProperty.getAddress(), "")) != 0) {
                     // email address
                     UserProperty emailProperty = new UserProperty(userEmail);
                     user.addProperty(emailProperty);

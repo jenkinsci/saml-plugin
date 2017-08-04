@@ -19,19 +19,30 @@ package org.jenkinsci.plugins.saml;
 
 import org.acegisecurity.GrantedAuthority;
 import org.junit.Before;
+import org.apache.commons.io.IOUtils;
 import org.junit.Rule;
 import org.junit.Test;
 import org.jvnet.hudson.test.JenkinsRule;
 import org.jvnet.hudson.test.recipes.LocalData;
+import org.kohsuke.stapler.HttpResponse;
+import org.kohsuke.stapler.StaplerResponse;
+import org.mockito.Mockito;
 
+import javax.servlet.ServletException;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.io.StringWriter;
+
+import static org.hamcrest.core.StringContains.containsString;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertThat;
+import static org.mockito.Mockito.when;
 
 /**
  * Different configurations tests
  * Created by kuisathaverat on 30/03/2017.
  */
 public class SamlSecurityRealmTest {
-
 
     @Rule
     public JenkinsRule jenkinsRule = new JenkinsRule();
@@ -46,7 +57,6 @@ public class SamlSecurityRealmTest {
             throw new RuntimeException("The security Realm it is not correct");
         }
     }
-
 
     @LocalData
     @Test
@@ -153,4 +163,5 @@ public class SamlSecurityRealmTest {
 
 //        SamlAuthenticationToken token = new SamlAuthenticationToken(userDetails, );
     }
+
 }
