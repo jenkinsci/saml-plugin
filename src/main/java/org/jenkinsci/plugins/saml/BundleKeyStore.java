@@ -48,6 +48,8 @@ import java.util.logging.Logger;
 public class BundleKeyStore {
     public static final String PAC4J_DEMO_PASSWD = "pac4j-demo-passwd";
     public static final String PAC4J_DEMO_KEYSTORE = "resource:samlKeystore.jks";
+    public static final String PAC4J_DEMO_ALIAS = "pac4j-demo";
+    public static final String DEFAULT_KEY_ALIAS = "SAML-generated-keyPair";
     public static final String KEY_ALG = "RSA";
     public static final String SIGNATURE_ALGORITHM = "SHA256withRSA";
     public static final String PROVIDER = "BC";
@@ -58,6 +60,7 @@ public class BundleKeyStore {
     private String keystorePath = PAC4J_DEMO_KEYSTORE;
     private String ksPassword = PAC4J_DEMO_PASSWD;
     private String ksPkPassword = PAC4J_DEMO_PASSWD;
+    private String ksPkAlias = PAC4J_DEMO_ALIAS;
     private Date dateValidity;
     private File keystore;
 
@@ -80,11 +83,11 @@ public class BundleKeyStore {
                 ksPassword = generatePassword();
                 ksPkPassword = generatePassword();
             }
-
+            ksPkAlias = DEFAULT_KEY_ALIAS;
             KeyStore ks = loadKeyStore(keystore, ksPassword);
             KeyPair keypair = generate(2048);
             X509Certificate[] chain = createCertificateChain(keypair);
-            ks.setKeyEntry("SAML-generated-keyPair", keypair.getPrivate(), ksPkPassword.toCharArray(), chain);
+            ks.setKeyEntry(ksPkAlias, keypair.getPrivate(), ksPkPassword.toCharArray(), chain);
             saveKeyStore(keystore, ks, ksPassword);
             LOG.warning("Using automatic generated keystore : " + keystorePath);
         } catch (Exception e) {
@@ -92,6 +95,7 @@ public class BundleKeyStore {
             ksPassword = PAC4J_DEMO_PASSWD;
             ksPkPassword = PAC4J_DEMO_PASSWD;
             keystorePath = PAC4J_DEMO_KEYSTORE;
+            ksPkAlias = PAC4J_DEMO_ALIAS;
         }
     }
 
@@ -259,6 +263,10 @@ public class BundleKeyStore {
 
     public String getKsPkPassword() {
         return ksPkPassword;
+    }
+
+    public String getKsPkAlias() {
+        return ksPkAlias;
     }
 
     /**

@@ -42,7 +42,13 @@ import javax.annotation.Nonnull;
 import java.io.*;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.security.KeyStore;
+import java.security.KeyStoreException;
+import java.security.NoSuchAlgorithmException;
+import java.security.UnrecoverableEntryException;
+import java.security.cert.CertificateException;
 import java.util.ArrayList;
+import java.util.Enumeration;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -63,6 +69,22 @@ public class SamlSecurityRealm extends SecurityRealm {
     public static final String IDP_METADATA_FILE = jenkins.model.Jenkins.getInstance().getRootDir().getAbsolutePath() + "/saml-idp.metadata.xml";
 
     /**
+     * form validation messages.
+     */
+    public static final String ERROR_ONLY_SPACES_FIELD_VALUE = "The field should have a value different than spaces";
+    public static final String ERROR_NOT_VALID_NUMBER = "The field should be a number greater than 0 and lower than " + Integer.MAX_VALUE + ".";
+    public static final String ERROR_MALFORMED_URL = "The url is malformed.";
+    public static final String ERROR_IDP_METADATA_EMPTY = "The IdP Metadata can not be empty.";
+    public static final String WARN_RECOMMENDED_TO_SET_THE_GROUPS_ATTRIBUTE = "It is recommended to set the groups attribute.";
+    public static final String WARN_RECOMMENDED_TO_SET_THE_USERNAME_ATTRIBUTE = "It is recommended to set the username attribute.";
+    public static final String ERROR_NOT_POSSIBLE_TO_READ_KS_FILE = "It is not possible to read the keystore file.";
+    public static final String ERROR_CERTIFICATES_COULD_NOT_BE_LOADED = "Any of the certificates in the keystore could not be loaded";
+    public static final String ERROR_ALGORITHM_CANNOT_BE_FOUND = "the algorithm used to check the integrity of the keystore cannot be found";
+    public static final String ERROR_NO_PROVIDER_SUPPORTS_A_KS_SPI_IMPL = "No Provider supports a KeyStoreSpi implementation for the specified type.";
+    public static final String ERROR_WRONG_INFO_OR_PASSWORD = "The entry is a PrivateKeyEntry or SecretKeyEntry and the specified protParam does not contain the information needed to recover the key (e.g. wrong password)";
+    public static final String ERROR_INSUFFICIENT_OR_INVALID_INFO = "The specified protParam were insufficient or invalid";
+
+    /**
      * URL to process the SAML answers
      */
     public static final String CONSUMER_SERVICE_URL_PATH = "securityRealm/finishLogin";
@@ -70,6 +92,8 @@ public class SamlSecurityRealm extends SecurityRealm {
 
     private static final Logger LOG = Logger.getLogger(SamlSecurityRealm.class.getName());
     private static final String REFERER_ATTRIBUTE = SamlSecurityRealm.class.getName() + ".referer";
+    public static final String WARN_THERE_IS_NOT_KEY_STORE = "There is not keyStore to validate";
+    public static final String ERROR_NOT_KEY_FOUND = "Not key found";
 
     /**
      * configuration settings.
@@ -138,7 +162,7 @@ public class SamlSecurityRealm extends SecurityRealm {
         this.advancedConfiguration = advancedConfiguration;
         this.encryptionData = encryptionData;
 
-        FileUtils.writeStringToFile(new File(IDP_METADATA_FILE),idpMetadata);
+        FileUtils.writeStringToFile(new File(IDP_METADATA_FILE), idpMetadata);
         LOG.finer(this.toString());
     }
 
@@ -265,7 +289,7 @@ public class SamlSecurityRealm extends SecurityRealm {
     }
 
     private String baseUrl() {
-        return Jenkins.getActiveInstance().getRootUrl();
+        return Jenkins.getInstance().getRootUrl();
     }
 
     /**
@@ -412,10 +436,10 @@ public class SamlSecurityRealm extends SecurityRealm {
         LOG.log(Level.FINE, "Doing Logout {}", auth.getPrincipal());
         // if we just redirect to the root and anonymous does not have Overall read then we will start a login all over again.
         // we are actually anonymous here as the security context has been cleared
-        if (Jenkins.getActiveInstance().hasPermission(Jenkins.READ) && StringUtils.isBlank(getLogoutUrl())) {
+        if (Jenkins.getInstance().hasPermission(Jenkins.READ) && StringUtils.isBlank(getLogoutUrl())) {
             return super.getPostLogOutUrl(req, auth);
         }
-        return StringUtils.isNotBlank(getLogoutUrl()) ? getLogoutUrl() : Jenkins.getActiveInstance().getRootUrl() + SamlLogoutAction.POST_LOGOUT_URL;
+        return StringUtils.isNotBlank(getLogoutUrl()) ? getLogoutUrl() : Jenkins.getInstance().getRootUrl() + SamlLogoutAction.POST_LOGOUT_URL;
     }
 
     @Override
@@ -471,18 +495,211 @@ public class SamlSecurityRealm extends SecurityRealm {
             return "SAML 2.0";
         }
 
-    }
-
-    public FormValidation doCheckLogoutUrl(@QueryParameter String logoutUrl) {
-        if (logoutUrl == null || logoutUrl.isEmpty()) {
+        public FormValidation doCheckLogoutUrl(@QueryParameter String logoutUrl) {
+            if (StringUtils.isEmpty(logoutUrl)) {
+                return FormValidation.ok();
+            }
+            try {
+                new URL(logoutUrl);
+            } catch (MalformedURLException e) {
+                return FormValidation.error(ERROR_MALFORMED_URL, e);
+            }
             return FormValidation.ok();
         }
-        try {
-            new URL(logoutUrl);
-        } catch (MalformedURLException e) {
-            return FormValidation.error("The url is malformed.", e);
+
+        public FormValidation doTestIdpMetadata(@QueryParameter("idpMetadata") String idpMetadata) {
+            if (StringUtils.isBlank(idpMetadata)) {
+                return FormValidation.error(ERROR_IDP_METADATA_EMPTY);
+            }
+
+            return new SamlValidateIdPMetadata(idpMetadata).get();
         }
-        return FormValidation.ok();
+
+        public FormValidation doCheckDisplayNameAttributeName(@QueryParameter String displayNameAttributeName) {
+            if (StringUtils.isEmpty(displayNameAttributeName)) {
+                return FormValidation.ok();
+            }
+
+            if (StringUtils.isBlank(displayNameAttributeName)) {
+                return FormValidation.error(ERROR_ONLY_SPACES_FIELD_VALUE);
+            }
+
+            return FormValidation.ok();
+        }
+
+        public FormValidation doCheckGroupsAttributeName(@QueryParameter String groupsAttributeName) {
+            if (StringUtils.isEmpty(groupsAttributeName)) {
+                return FormValidation.warning(WARN_RECOMMENDED_TO_SET_THE_GROUPS_ATTRIBUTE);
+            }
+
+            if (StringUtils.isBlank(groupsAttributeName)) {
+                return FormValidation.error(ERROR_ONLY_SPACES_FIELD_VALUE);
+            }
+
+            return FormValidation.ok();
+        }
+
+        public FormValidation doCheckUsernameAttributeName(@QueryParameter String usernameAttributeName) {
+            if (StringUtils.isEmpty(usernameAttributeName)) {
+                return FormValidation.warning(WARN_RECOMMENDED_TO_SET_THE_USERNAME_ATTRIBUTE);
+            }
+
+            if (StringUtils.isBlank(usernameAttributeName)) {
+                return FormValidation.error(ERROR_ONLY_SPACES_FIELD_VALUE);
+            }
+
+            return FormValidation.ok();
+        }
+
+        public FormValidation doCheckEmailAttributeName(@QueryParameter String emailAttributeName) {
+            if (StringUtils.isEmpty(emailAttributeName)) {
+                return FormValidation.ok();
+            }
+
+            if (StringUtils.isBlank(emailAttributeName)) {
+                return FormValidation.error(ERROR_ONLY_SPACES_FIELD_VALUE);
+            }
+
+            return FormValidation.ok();
+        }
+
+        public FormValidation doCheckAuthnContextClassRef(@QueryParameter String authnContextClassRef) {
+            if (StringUtils.isEmpty(authnContextClassRef)) {
+                return FormValidation.ok();
+            }
+
+            if (StringUtils.isBlank(authnContextClassRef)) {
+                return FormValidation.error(ERROR_ONLY_SPACES_FIELD_VALUE);
+            }
+
+            return FormValidation.ok();
+        }
+
+
+        public FormValidation doCheckSpEntityId(@QueryParameter String spEntityId) {
+            if (StringUtils.isEmpty(spEntityId)) {
+                return FormValidation.ok();
+            }
+
+            if (StringUtils.isBlank(spEntityId)) {
+                return FormValidation.error(ERROR_ONLY_SPACES_FIELD_VALUE);
+            }
+
+            return FormValidation.ok();
+        }
+
+
+        public FormValidation doCheckKeystorePath(@QueryParameter String keystorePath) {
+            if (StringUtils.isEmpty(keystorePath)) {
+                return FormValidation.ok();
+            }
+
+            if (StringUtils.isBlank(keystorePath)) {
+                return FormValidation.error(ERROR_ONLY_SPACES_FIELD_VALUE);
+            }
+
+            return FormValidation.ok();
+        }
+
+        public FormValidation doCheckKPrivateKeyAlias(@QueryParameter String privateKeyAlias) {
+            if (StringUtils.isEmpty(privateKeyAlias)) {
+                return FormValidation.ok();
+            }
+
+            if (StringUtils.isBlank(privateKeyAlias)) {
+                return FormValidation.error(ERROR_ONLY_SPACES_FIELD_VALUE);
+            }
+
+            return FormValidation.ok();
+        }
+
+
+        public FormValidation doCheckMaximumSessionLifetime(@QueryParameter String maximumSessionLifetime) {
+            if (StringUtils.isEmpty(maximumSessionLifetime)) {
+                return FormValidation.ok();
+            }
+
+            long i = 0;
+            try {
+                i = Long.parseLong(maximumSessionLifetime);
+            } catch (NumberFormatException e) {
+                return FormValidation.error(ERROR_NOT_VALID_NUMBER, e);
+            }
+
+            if (i < 0) {
+                return FormValidation.error(ERROR_NOT_VALID_NUMBER);
+            }
+
+            if (i > Integer.MAX_VALUE) {
+                return FormValidation.error(ERROR_NOT_VALID_NUMBER);
+            }
+
+            return FormValidation.ok();
+        }
+
+        public FormValidation doCheckMaximumAuthenticationLifetime(@QueryParameter String maximumAuthenticationLifetime) {
+            if (StringUtils.isEmpty(maximumAuthenticationLifetime)) {
+                return FormValidation.ok();
+            }
+
+            long i = 0;
+            try {
+                i = Long.parseLong(maximumAuthenticationLifetime);
+            } catch (NumberFormatException e) {
+                return FormValidation.error(ERROR_NOT_VALID_NUMBER, e);
+            }
+
+            if (i < 0) {
+                return FormValidation.error(ERROR_NOT_VALID_NUMBER);
+            }
+
+            if (i > Integer.MAX_VALUE) {
+                return FormValidation.error(ERROR_NOT_VALID_NUMBER);
+            }
+
+            return FormValidation.ok();
+        }
+
+        public FormValidation doTestKeyStore(@QueryParameter("keystorePath") String keystorePath,
+                                             @QueryParameter("keystorePassword") String keystorePassword,
+                                             @QueryParameter("privateKeyPassword") String privateKeyPassword,
+                                             @QueryParameter("privateKeyAlias") String privateKeyAlias) {
+            if(StringUtils.isBlank(keystorePath)){
+                return FormValidation.warning(WARN_THERE_IS_NOT_KEY_STORE);
+            }
+            try (InputStream in = new FileInputStream(keystorePath)) {
+                KeyStore ks = KeyStore.getInstance(KeyStore.getDefaultType());
+                ks.load(in, StringUtils.defaultIfEmpty(keystorePassword,"").toCharArray());
+
+                KeyStore.PasswordProtection keyPassword = new KeyStore.PasswordProtection(null);
+                if (StringUtils.isNotBlank(privateKeyPassword)) {
+                    keyPassword = new KeyStore.PasswordProtection(privateKeyPassword.toCharArray());
+                }
+
+                Enumeration<String> aliases = ks.aliases();
+                while (aliases.hasMoreElements()) {
+                    String currentAlias = aliases.nextElement();
+                    if (StringUtils.isBlank(privateKeyAlias) || currentAlias.equalsIgnoreCase(privateKeyAlias)) {
+                        ks.getEntry(currentAlias, keyPassword);
+                        return FormValidation.ok();
+                    }
+                }
+
+            } catch (IOException e) {
+                return FormValidation.error(ERROR_NOT_POSSIBLE_TO_READ_KS_FILE, e);
+            } catch (CertificateException e) {
+                return FormValidation.error(ERROR_CERTIFICATES_COULD_NOT_BE_LOADED);
+            } catch (NoSuchAlgorithmException e) {
+                return FormValidation.error(ERROR_ALGORITHM_CANNOT_BE_FOUND, e);
+            } catch (KeyStoreException e) {
+                return FormValidation.error(ERROR_NO_PROVIDER_SUPPORTS_A_KS_SPI_IMPL, e);
+            } catch (java.security.UnrecoverableKeyException e) {
+                return FormValidation.error(ERROR_WRONG_INFO_OR_PASSWORD, e);
+            } catch (UnrecoverableEntryException e) {
+                return FormValidation.error(ERROR_INSUFFICIENT_OR_INVALID_INFO, e);
+            }
+            return FormValidation.error(ERROR_NOT_KEY_FOUND);
+        }
     }
 
     public String getIdpMetadata() {
@@ -539,6 +756,10 @@ public class SamlSecurityRealm extends SecurityRealm {
 
     public String getPrivateKeyPassword() {
         return getEncryptionData() != null ? getEncryptionData().getPrivateKeyPassword() : null;
+    }
+
+    public String getPrivateKeyAlias() {
+        return getEncryptionData() != null ? getEncryptionData().getPrivateKeyAlias() : null;
     }
 
     public String getUsernameCaseConversion() {

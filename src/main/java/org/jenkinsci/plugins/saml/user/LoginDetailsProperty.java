@@ -138,7 +138,7 @@ public class LoginDetailsProperty extends UserProperty {
 
         @Override
         protected void loggedIn(@javax.annotation.Nonnull String username) {
-            SecurityRealm realm = Jenkins.getActiveInstance().getSecurityRealm();
+            SecurityRealm realm = Jenkins.getInstance().getSecurityRealm();
             if (!(realm instanceof SamlSecurityRealm)) {
                 return;
             }
