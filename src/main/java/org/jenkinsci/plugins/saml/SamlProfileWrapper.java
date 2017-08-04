@@ -44,7 +44,7 @@ public class SamlProfileWrapper extends OpenSAMLWrapper<SAML2Profile> {
      * @return the SAML2Profile of the user returned by the IdP.
      */
     @Override
-    SAML2Profile process() {
+    protected SAML2Profile process() {
         SAML2Credentials credentials;
         SAML2Profile saml2Profile;
         try {

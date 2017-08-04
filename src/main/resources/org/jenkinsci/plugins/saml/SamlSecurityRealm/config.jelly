@@ -7,6 +7,7 @@
     <f:entry title="IdP Metadata" field="idpMetadata" help="/plugin/saml/help/metadata.html">
       <f:textarea />
     </f:entry>
+    <f:validateButton title="Validate IdP Metadata" progress="Validate..." method="testIdpMetadata" with="idpMetadata" />
     <f:entry title="Display Name Attribute" field="displayNameAttributeName" help="/plugin/saml/help/displayNameAttributeName.html">
       <f:textbox default="http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name" />
     </f:entry>
@@ -70,11 +71,15 @@
             <f:textbox />
           </f:entry>
           <f:entry title="Keystore password"  field="keystorePassword" help="/plugin/saml/help/keystorePassword.html">
+            <f:password />
+          </f:entry>
+          <f:entry title="Private Key Alias"  field="privateKeyAlias" help="/plugin/saml/help/keyAlias.html">
             <f:textbox />
           </f:entry>
           <f:entry title="Private Key password"  field="privateKeyPassword" help="/plugin/saml/help/keyPassword.html">
-            <f:textbox />
+            <f:password />
           </f:entry>
+          <f:validateButton title="Test keystore" progress="Testing..." method="testKeyStore" with="keystorePath,keystorePassword,privateKeyPassword,privateKeyAlias" />
         </f:optionalBlock>
       </table>
     </f:entry>

@@ -108,6 +108,27 @@ public class SamlSecurityRealmTest {
 
     @LocalData
     @Test
+    public void testReadSimpleConfigurationEncryptionData1() throws Exception {
+        hudson.security.SecurityRealm securityRealm = jenkinsRule.getInstance().getSecurityRealm();
+        assertEquals(true, securityRealm instanceof SamlSecurityRealm);
+
+        if (securityRealm instanceof SamlSecurityRealm) {
+            SamlSecurityRealm samlSecurityRealm = (SamlSecurityRealm) securityRealm;
+            assertEquals("urn:mace:dir:attribute-def:displayName", samlSecurityRealm.getDisplayNameAttributeName());
+            assertEquals("urn:mace:dir:attribute-def:groups", samlSecurityRealm.getGroupsAttributeName());
+            assertEquals(86400, samlSecurityRealm.getMaximumAuthenticationLifetime().longValue());
+            assertEquals("none", samlSecurityRealm.getUsernameCaseConversion());
+            assertEquals("urn:mace:dir:attribute-def:uid", samlSecurityRealm.getUsernameAttributeName());
+            assertEquals(true, samlSecurityRealm.getIdpMetadata().startsWith("<?xml version"));
+            assertEquals("/home/jdk/keystore", samlSecurityRealm.getKeystorePath());
+            assertEquals("changeit", samlSecurityRealm.getKeystorePassword());
+            assertEquals("changeit", samlSecurityRealm.getPrivateKeyPassword());
+            assertEquals("saml-key", samlSecurityRealm.getPrivateKeyAlias());
+        }
+    }
+
+    @LocalData
+    @Test
     public void testReadSimpleConfigurationAdvancedConfiguration() throws Exception {
         hudson.security.SecurityRealm securityRealm = jenkinsRule.getInstance().getSecurityRealm();
         assertEquals(true, securityRealm instanceof SamlSecurityRealm);
