@@ -70,9 +70,8 @@ public class SamlUserDetails implements UserDetails {
     @Override
     public String toString() {
         final StringBuffer sb = new StringBuffer("SamlUserDetails{");
-        sb.append("username='").append(username).append('\'');
-        sb.append(", authorities=").append(authorities == null ? "null" : java.util.Arrays.asList(authorities).toString()).append('\'');
-        ;
+        sb.append("username='").append(getUsername()).append('\'');
+        sb.append(", authorities=").append(getAuthorities() == null ? "null" : Arrays.asList(getAuthorities()).toString()).append('\'');
         sb.append(", isAccountNonExpired='").append(isAccountNonExpired()).append('\'');
         sb.append(", isAccountNonLocked='").append(isAccountNonLocked()).append('\'');
         sb.append(", isCredentialsNonExpired='").append(isCredentialsNonExpired()).append('\'');

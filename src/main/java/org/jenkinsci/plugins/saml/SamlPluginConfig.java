@@ -168,14 +168,16 @@ public class SamlPluginConfig {
     @Override
     public String toString() {
         final StringBuffer sb = new StringBuffer("SamlPluginConfig{");
-        sb.append("idpMetadata='").append(idpMetadata).append('\'');
-        sb.append(", displayNameAttributeName='").append(displayNameAttributeName).append('\'');
-        sb.append(", groupsAttributeName='").append(groupsAttributeName).append('\'');
-        sb.append(", maximumAuthenticationLifetime=").append(maximumAuthenticationLifetime);
-        sb.append(", usernameCaseConversion='").append(usernameCaseConversion).append('\'');
-        sb.append(", usernameAttributeName='").append(usernameAttributeName).append('\'');
-        sb.append(", encryptionData=").append(encryptionData);
-        sb.append(", advancedConfiguration=").append(advancedConfiguration);
+        sb.append("idpMetadata='").append(getIdpMetadata()).append('\'');
+        sb.append(", displayNameAttributeName='").append(getDisplayNameAttributeName()).append('\'');
+        sb.append(", groupsAttributeName='").append(getGroupsAttributeName()).append('\'');
+        sb.append(", emailAttributeName='").append(getEmailAttributeName()).append('\'');
+        sb.append(", usernameAttributeName='").append(getUsernameAttributeName()).append('\'');
+        sb.append(", maximumAuthenticationLifetime=").append(getMaximumAuthenticationLifetime());
+        sb.append(", usernameCaseConversion='").append(getUsernameCaseConversion()).append('\'');
+        sb.append(", logoutUrl='").append(getLogoutUrl()).append('\'');
+        sb.append(", encryptionData=").append(getEncryptionData());
+        sb.append(", advancedConfiguration=").append(getAdvancedConfiguration());
         sb.append('}');
         return sb.toString();
     }

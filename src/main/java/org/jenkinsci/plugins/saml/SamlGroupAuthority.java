@@ -38,6 +38,6 @@ public class SamlGroupAuthority implements GrantedAuthority {
 
     @Override
     public String toString() {
-        return this.group;
+        return this.getAuthority();
     }
 }
