@@ -17,8 +17,12 @@ under the License. */
 
 package org.jenkinsci.plugins.saml;
 
+import hudson.security.SecurityRealm;
+import org.junit.After;
+import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
+import org.jvnet.hudson.test.JenkinsRule;
 import org.jvnet.hudson.test.recipes.LocalData;
 
 import static org.junit.Assert.assertEquals;
@@ -31,102 +35,115 @@ public class SamlSecurityRealmTest {
 
 
     @Rule
-    public org.jvnet.hudson.test.JenkinsRule jenkinsRule = new org.jvnet.hudson.test.JenkinsRule();
+    public JenkinsRule jenkinsRule = new JenkinsRule();
+
+    private SamlSecurityRealm samlSecurityRealm;
+
+    @Before
+    public void start() {
+        if (jenkinsRule.getInstance().getSecurityRealm() instanceof SamlSecurityRealm) {
+            samlSecurityRealm = (SamlSecurityRealm) jenkinsRule.getInstance().getSecurityRealm();
+        } else {
+            throw new RuntimeException("The security Realm it is not correct");
+        }
+    }
+
+    @After
+    public void end() {
+    }
+
 
     @LocalData
     @Test
-    public void testReadSimpleConfiguration() throws Exception {
-        hudson.security.SecurityRealm securityRealm = jenkinsRule.getInstance().getSecurityRealm();
-        assertEquals(true, securityRealm instanceof SamlSecurityRealm);
-
-        if (securityRealm instanceof SamlSecurityRealm) {
-            SamlSecurityRealm samlSecurityRealm = (SamlSecurityRealm) securityRealm;
-            assertEquals("urn:mace:dir:attribute-def:displayName", samlSecurityRealm.getDisplayNameAttributeName());
-            assertEquals("urn:mace:dir:attribute-def:groups", samlSecurityRealm.getGroupsAttributeName());
-            assertEquals(86400, samlSecurityRealm.getMaximumAuthenticationLifetime().longValue());
-            assertEquals("none", samlSecurityRealm.getUsernameCaseConversion());
-            assertEquals("urn:mace:dir:attribute-def:mail", samlSecurityRealm.getEmailAttributeName());
-            assertEquals("urn:mace:dir:attribute-def:uid", samlSecurityRealm.getUsernameAttributeName());
-            assertEquals(true, samlSecurityRealm.getIdpMetadata().startsWith("<?xml version"));
-        }
+    public void testReadSimpleConfiguration() {
+        assertEquals("urn:mace:dir:attribute-def:displayName", samlSecurityRealm.getDisplayNameAttributeName());
+        assertEquals("urn:mace:dir:attribute-def:groups", samlSecurityRealm.getGroupsAttributeName());
+        assertEquals(86400, samlSecurityRealm.getMaximumAuthenticationLifetime().longValue());
+        assertEquals("none", samlSecurityRealm.getUsernameCaseConversion());
+        assertEquals("urn:mace:dir:attribute-def:mail", samlSecurityRealm.getEmailAttributeName());
+        assertEquals("urn:mace:dir:attribute-def:uid", samlSecurityRealm.getUsernameAttributeName());
+        assertEquals(true, samlSecurityRealm.getIdpMetadata().startsWith("<?xml version"));
     }
 
     @LocalData
     @Test
-    public void testReadSimpleConfigurationLowercase() throws Exception {
-        hudson.security.SecurityRealm securityRealm = jenkinsRule.getInstance().getSecurityRealm();
-        assertEquals(true, securityRealm instanceof SamlSecurityRealm);
-
-        if (securityRealm instanceof SamlSecurityRealm) {
-            SamlSecurityRealm samlSecurityRealm = (SamlSecurityRealm) securityRealm;
-            assertEquals("urn:mace:dir:attribute-def:displayName", samlSecurityRealm.getDisplayNameAttributeName());
-            assertEquals("urn:mace:dir:attribute-def:groups", samlSecurityRealm.getGroupsAttributeName());
-            assertEquals(86400, samlSecurityRealm.getMaximumAuthenticationLifetime().longValue());
-            assertEquals("lowercase", samlSecurityRealm.getUsernameCaseConversion());
-            assertEquals("urn:mace:dir:attribute-def:uid", samlSecurityRealm.getUsernameAttributeName());
-            assertEquals(true, samlSecurityRealm.getIdpMetadata().startsWith("<?xml version"));
-        }
+    public void testReadSimpleConfigurationLowercase() {
+        assertEquals("urn:mace:dir:attribute-def:displayName", samlSecurityRealm.getDisplayNameAttributeName());
+        assertEquals("urn:mace:dir:attribute-def:groups", samlSecurityRealm.getGroupsAttributeName());
+        assertEquals(86400, samlSecurityRealm.getMaximumAuthenticationLifetime().longValue());
+        assertEquals("lowercase", samlSecurityRealm.getUsernameCaseConversion());
+        assertEquals("urn:mace:dir:attribute-def:uid", samlSecurityRealm.getUsernameAttributeName());
+        assertEquals(true, samlSecurityRealm.getIdpMetadata().startsWith("<?xml version"));
     }
 
     @LocalData
     @Test
-    public void testReadSimpleConfigurationUppercase() throws Exception {
-        hudson.security.SecurityRealm securityRealm = jenkinsRule.getInstance().getSecurityRealm();
-        assertEquals(true, securityRealm instanceof SamlSecurityRealm);
-
-        if (securityRealm instanceof SamlSecurityRealm) {
-            SamlSecurityRealm samlSecurityRealm = (SamlSecurityRealm) securityRealm;
-            assertEquals("urn:mace:dir:attribute-def:displayName", samlSecurityRealm.getDisplayNameAttributeName());
-            assertEquals("urn:mace:dir:attribute-def:groups", samlSecurityRealm.getGroupsAttributeName());
-            assertEquals(86400, samlSecurityRealm.getMaximumAuthenticationLifetime().longValue());
-            assertEquals("uppercase", samlSecurityRealm.getUsernameCaseConversion());
-            assertEquals("urn:mace:dir:attribute-def:uid", samlSecurityRealm.getUsernameAttributeName());
-            assertEquals(true, samlSecurityRealm.getIdpMetadata().startsWith("<?xml version"));
-        }
+    public void testReadSimpleConfigurationUppercase() {
+        assertEquals("urn:mace:dir:attribute-def:displayName", samlSecurityRealm.getDisplayNameAttributeName());
+        assertEquals("urn:mace:dir:attribute-def:groups", samlSecurityRealm.getGroupsAttributeName());
+        assertEquals(86400, samlSecurityRealm.getMaximumAuthenticationLifetime().longValue());
+        assertEquals("uppercase", samlSecurityRealm.getUsernameCaseConversion());
+        assertEquals("urn:mace:dir:attribute-def:uid", samlSecurityRealm.getUsernameAttributeName());
+        assertEquals(true, samlSecurityRealm.getIdpMetadata().startsWith("<?xml version"));
     }
 
     @LocalData
     @Test
-    public void testReadSimpleConfigurationEncryptionData() throws Exception {
-        hudson.security.SecurityRealm securityRealm = jenkinsRule.getInstance().getSecurityRealm();
-        assertEquals(true, securityRealm instanceof SamlSecurityRealm);
-
-        if (securityRealm instanceof SamlSecurityRealm) {
-            SamlSecurityRealm samlSecurityRealm = (SamlSecurityRealm) securityRealm;
-            assertEquals("urn:mace:dir:attribute-def:displayName", samlSecurityRealm.getDisplayNameAttributeName());
-            assertEquals("urn:mace:dir:attribute-def:groups", samlSecurityRealm.getGroupsAttributeName());
-            assertEquals(86400, samlSecurityRealm.getMaximumAuthenticationLifetime().longValue());
-            assertEquals("none", samlSecurityRealm.getUsernameCaseConversion());
-            assertEquals("urn:mace:dir:attribute-def:uid", samlSecurityRealm.getUsernameAttributeName());
-            assertEquals(true, samlSecurityRealm.getIdpMetadata().startsWith("<?xml version"));
-            assertEquals("/home/jdk/keystore", samlSecurityRealm.getKeystorePath());
-            assertEquals("changeit", samlSecurityRealm.getKeystorePassword());
-            assertEquals("changeit", samlSecurityRealm.getPrivateKeyPassword());
-
-        }
+    public void testReadSimpleConfigurationEncryptionData() {
+        assertEquals("urn:mace:dir:attribute-def:displayName", samlSecurityRealm.getDisplayNameAttributeName());
+        assertEquals("urn:mace:dir:attribute-def:groups", samlSecurityRealm.getGroupsAttributeName());
+        assertEquals(86400, samlSecurityRealm.getMaximumAuthenticationLifetime().longValue());
+        assertEquals("none", samlSecurityRealm.getUsernameCaseConversion());
+        assertEquals("urn:mace:dir:attribute-def:uid", samlSecurityRealm.getUsernameAttributeName());
+        assertEquals(true, samlSecurityRealm.getIdpMetadata().startsWith("<?xml version"));
+        assertEquals("/home/jdk/keystore", samlSecurityRealm.getKeystorePath());
+        assertEquals("changeit", samlSecurityRealm.getKeystorePassword());
+        assertEquals("changeit", samlSecurityRealm.getPrivateKeyPassword());
     }
 
     @LocalData
     @Test
-    public void testReadSimpleConfigurationAdvancedConfiguration() throws Exception {
-        hudson.security.SecurityRealm securityRealm = jenkinsRule.getInstance().getSecurityRealm();
-        assertEquals(true, securityRealm instanceof SamlSecurityRealm);
+    public void testReadSimpleConfigurationAdvancedConfiguration() {
+        assertEquals("urn:mace:dir:attribute-def:displayName", samlSecurityRealm.getDisplayNameAttributeName());
+        assertEquals("urn:mace:dir:attribute-def:groups", samlSecurityRealm.getGroupsAttributeName());
+        assertEquals(86400, samlSecurityRealm.getMaximumAuthenticationLifetime().longValue());
+        assertEquals("none", samlSecurityRealm.getUsernameCaseConversion());
+        assertEquals("urn:mace:dir:attribute-def:uid", samlSecurityRealm.getUsernameAttributeName());
+        assertEquals(true, samlSecurityRealm.getIdpMetadata().startsWith("<?xml version"));
+        assertEquals("/home/jdk/keystore", samlSecurityRealm.getKeystorePath());
+        assertEquals("changeit", samlSecurityRealm.getKeystorePassword());
+        assertEquals("changeit", samlSecurityRealm.getPrivateKeyPassword());
+        assertEquals(true, samlSecurityRealm.getForceAuthn());
+        assertEquals("anotherContext", samlSecurityRealm.getAuthnContextClassRef());
+        assertEquals("spEntityId", samlSecurityRealm.getSpEntityId());
+        assertEquals(86400, samlSecurityRealm.getMaximumSessionLifetime().longValue());
+    }
 
-        if (securityRealm instanceof SamlSecurityRealm) {
-            SamlSecurityRealm samlSecurityRealm = (SamlSecurityRealm) securityRealm;
-            assertEquals("urn:mace:dir:attribute-def:displayName", samlSecurityRealm.getDisplayNameAttributeName());
-            assertEquals("urn:mace:dir:attribute-def:groups", samlSecurityRealm.getGroupsAttributeName());
-            assertEquals(86400, samlSecurityRealm.getMaximumAuthenticationLifetime().longValue());
-            assertEquals("none", samlSecurityRealm.getUsernameCaseConversion());
-            assertEquals("urn:mace:dir:attribute-def:uid", samlSecurityRealm.getUsernameAttributeName());
-            assertEquals(true, samlSecurityRealm.getIdpMetadata().startsWith("<?xml version"));
-            assertEquals("/home/jdk/keystore", samlSecurityRealm.getKeystorePath());
-            assertEquals("changeit", samlSecurityRealm.getKeystorePassword());
-            assertEquals("changeit", samlSecurityRealm.getPrivateKeyPassword());
-            assertEquals(true, samlSecurityRealm.getForceAuthn());
-            assertEquals("anotherContext", samlSecurityRealm.getAuthnContextClassRef());
-            assertEquals("spEntityId", samlSecurityRealm.getSpEntityId());
-            assertEquals(86400, samlSecurityRealm.getMaximumSessionLifetime().longValue());
-        }
+    @LocalData("testHugeNumberOfUsers")
+    @Test(timeout = 5000)
+    public void testLoadGroupByGroupname() {
+        assertEquals(samlSecurityRealm.loadGroupByGroupname("role500", true).getName(), "role500");
+    }
+
+    @LocalData("testHugeNumberOfUsers")
+    @Test(timeout = 5000)
+    public void testLoadUserByUsername() {
+        assertEquals(samlSecurityRealm.loadUserByUsername("tesla").getUsername(), "tesla");
+    }
+
+    @LocalData("testReadSimpleConfiguration")
+    @Test
+    public void testGetters() {
+        SamlPluginConfig samlPluginConfig = new SamlPluginConfig(samlSecurityRealm.getDisplayNameAttributeName(),
+                samlSecurityRealm.getGroupsAttributeName(),
+                samlSecurityRealm.getMaximumAuthenticationLifetime(),
+                samlSecurityRealm.getEmailAttributeName(),
+                samlSecurityRealm.getIdpMetadata(),
+                samlSecurityRealm.getUsernameCaseConversion(),
+                samlSecurityRealm.getUsernameAttributeName(),
+                samlSecurityRealm.getLogoutUrl(),
+                samlSecurityRealm.getEncryptionData(),
+                samlSecurityRealm.getAdvancedConfiguration());
+        assertEquals(samlPluginConfig.toString().equals(samlSecurityRealm.getSamlPluginConfig().toString()), true);
     }
 }
