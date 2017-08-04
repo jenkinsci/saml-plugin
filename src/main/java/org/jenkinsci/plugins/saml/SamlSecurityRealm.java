@@ -368,7 +368,7 @@ public class SamlSecurityRealm extends SecurityRealm {
     }
 
     /**
-     * set the user email.
+     * set the user email. It will take the first not empty value on the list of email.
      *
      * @param user   current user.
      * @param emails user emails.
