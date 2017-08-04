@@ -17,11 +17,24 @@ under the License. */
 
 package org.jenkinsci.plugins.saml;
 
+import org.apache.commons.io.IOUtils;
 import org.junit.Rule;
 import org.junit.Test;
+import org.jvnet.hudson.test.JenkinsRule;
 import org.jvnet.hudson.test.recipes.LocalData;
+import org.kohsuke.stapler.HttpResponse;
+import org.kohsuke.stapler.StaplerResponse;
+import org.mockito.Mockito;
 
+import javax.servlet.ServletException;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.io.StringWriter;
+
+import static org.hamcrest.core.StringContains.containsString;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertThat;
+import static org.mockito.Mockito.when;
 
 /**
  * Different configurations tests
@@ -31,7 +44,7 @@ public class SamlSecurityRealmTest {
 
 
     @Rule
-    public org.jvnet.hudson.test.JenkinsRule jenkinsRule = new org.jvnet.hudson.test.JenkinsRule();
+    public JenkinsRule jenkinsRule = new JenkinsRule();
 
     @LocalData
     @Test
@@ -128,5 +141,23 @@ public class SamlSecurityRealmTest {
             assertEquals("spEntityId", samlSecurityRealm.getSpEntityId());
             assertEquals(86400, samlSecurityRealm.getMaximumSessionLifetime().longValue());
         }
+    }
+
+    @Test
+    public void metadataWrapper() throws IOException, ServletException {
+        String metadata = IOUtils.toString(this.getClass().getClassLoader().getResourceAsStream("org/jenkinsci/plugins/saml/SamlSecurityRealmTest/metadataWrapper/metadata.xml"));
+        SamlSecurityRealm samlSecurity = new SamlSecurityRealm(metadata, "displayName", "groups", 10000, "uid", "email", "/logout", null, null, null);
+        jenkinsRule.jenkins.setSecurityRealm(samlSecurity);
+        SamlSPMetadataWrapper samlSPMetadataWrapper = new SamlSPMetadataWrapper(samlSecurity.getSamlPluginConfig(), null, null);
+        HttpResponse process = samlSPMetadataWrapper.process();
+        StaplerResponse mockResponse = Mockito.mock(StaplerResponse.class);
+        StringWriter stringWriter = new StringWriter();
+        when(mockResponse.getWriter()).thenReturn(new PrintWriter(stringWriter));
+        process.generateResponse(null, mockResponse, null);
+        String result = stringWriter.toString();
+        // Some random checks as the full XML comparison fails because of reformatting on processing
+        assertThat(result, containsString("EntityDescriptor"));
+        assertThat(result, containsString("<md:NameIDFormat>urn:oasis:names:tc:SAML:2.0:nameid-format:transient</md:NameIDFormat>"));
+        assertThat(result, containsString("<ds:X509Certificate>"));
     }
 }
