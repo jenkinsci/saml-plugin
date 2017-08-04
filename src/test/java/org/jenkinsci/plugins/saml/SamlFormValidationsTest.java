@@ -28,7 +28,6 @@ import static org.junit.Assert.assertEquals;
 
 /**
  * Different form validation tests
- * Created by kuisathaverat on 02/08/2017.
  */
 public class SamlFormValidationsTest {
 
