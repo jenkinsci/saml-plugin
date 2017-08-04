@@ -22,8 +22,10 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.jvnet.hudson.test.JenkinsRule;
 import org.kohsuke.stapler.HttpResponse;
+import org.kohsuke.stapler.StaplerRequest;
 import org.kohsuke.stapler.StaplerResponse;
 import org.mockito.Mockito;
+import org.pac4j.saml.profile.SAML2Profile;
 
 import javax.servlet.ServletException;
 import java.io.IOException;
@@ -45,11 +47,11 @@ public class OpenSamlWrapperTest {
 
     @Test
     public void metadataWrapper() throws IOException, ServletException {
-        String metadata = IOUtils.toString(this.getClass().getClassLoader().getResourceAsStream("org/jenkinsci/plugins/saml/SamlSecurityRealmTest/metadataWrapper/metadata.xml"));
+        String metadata = IOUtils.toString(this.getClass().getClassLoader().getResourceAsStream("org/jenkinsci/plugins/saml/OpenSamlWrapperTest/metadataWrapper/metadata.xml"));
         SamlSecurityRealm samlSecurity = new SamlSecurityRealm(metadata, "displayName", "groups", 10000, "uid", "email", "/logout", null, null, null);
         jenkinsRule.jenkins.setSecurityRealm(samlSecurity);
         SamlSPMetadataWrapper samlSPMetadataWrapper = new SamlSPMetadataWrapper(samlSecurity.getSamlPluginConfig(), null, null);
-        HttpResponse process = samlSPMetadataWrapper.process();
+        HttpResponse process = samlSPMetadataWrapper.get();
         StaplerResponse mockResponse = Mockito.mock(StaplerResponse.class);
         StringWriter stringWriter = new StringWriter();
         when(mockResponse.getWriter()).thenReturn(new PrintWriter(stringWriter));
@@ -59,5 +61,30 @@ public class OpenSamlWrapperTest {
         assertThat(result, containsString("EntityDescriptor"));
         assertThat(result, containsString("<md:NameIDFormat>urn:oasis:names:tc:SAML:2.0:nameid-format:transient</md:NameIDFormat>"));
         assertThat(result, containsString("<ds:X509Certificate>"));
+    }
+
+    @Test
+    public void profileWrapper() throws IOException, ServletException {
+        String metadata = IOUtils.toString(this.getClass().getClassLoader().getResourceAsStream("org/jenkinsci/plugins/saml/OpenSamlWrapperTest/metadataWrapper/metadata.xml"));
+        String samlResponse = IOUtils.toString(this.getClass().getClassLoader().getResourceAsStream("org/jenkinsci/plugins/saml/OpenSamlWrapperTest/profileWrapper/samlresponse.xml"));
+        SamlSecurityRealm samlSecurity = new SamlSecurityRealm(metadata, "displayName", "groups", 10000, "uid", "email", "/logout", null, null, null);
+        jenkinsRule.jenkins.setSecurityRealm(samlSecurity);
+        StaplerResponse mockResponse = Mockito.mock(StaplerResponse.class);
+        StaplerRequest mockRequest = Mockito.mock(StaplerRequest.class);
+        when(mockRequest.getMethod()).thenReturn("POST");
+        when(mockRequest.getParameter("SAMLResponse")).thenReturn(samlResponse);
+        SamlProfileWrapper samlProfileWrapper = new SamlProfileWrapper(samlSecurity.getSamlPluginConfig(), mockRequest, mockResponse);
+        SAML2Profile process = samlProfileWrapper.get();
+ /*
+        StaplerResponse mockResponse = Mockito.mock(StaplerResponse.class);
+        StringWriter stringWriter = new StringWriter();
+        when(mockResponse.getWriter()).thenReturn(new PrintWriter(stringWriter));
+        process.generateResponse(null, mockResponse, null);
+        String result = stringWriter.toString();
+        // Some random checks as the full XML comparison fails because of reformatting on processing
+        assertThat(result, containsString("EntityDescriptor"));
+        assertThat(result, containsString("<md:NameIDFormat>urn:oasis:names:tc:SAML:2.0:nameid-format:transient</md:NameIDFormat>"));
+        assertThat(result, containsString("<ds:X509Certificate>"));
+        */
     }
 }
