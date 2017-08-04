@@ -18,6 +18,7 @@ under the License. */
 package org.jenkinsci.plugins.saml;
 
 import hudson.security.SecurityRealm;
+import org.acegisecurity.GrantedAuthority;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
@@ -145,5 +146,17 @@ public class SamlSecurityRealmTest {
                 samlSecurityRealm.getEncryptionData(),
                 samlSecurityRealm.getAdvancedConfiguration());
         assertEquals(samlPluginConfig.toString().equals(samlSecurityRealm.getSamlPluginConfig().toString()), true);
+
+        assertEquals(new SamlAdvancedConfiguration(null,null,null, null).toString().contains("SamlAdvancedConfiguration"),true);
+        assertEquals(new SamlAdvancedConfiguration(true,null,null, null).toString().contains("SamlAdvancedConfiguration"),true);
+        assertEquals(new SamlAdvancedConfiguration(true,"","", 1).toString().contains("SamlAdvancedConfiguration"),true);
+
+        SamlGroupAuthority authority = new SamlGroupAuthority("role001");
+        assertEquals(authority.toString().equals("role001"),true);
+
+        SamlUserDetails userDetails = new SamlUserDetails("tesla",new GrantedAuthority[]{authority});
+        assertEquals(userDetails.toString().contains("tesla") && userDetails.toString().contains("role001"), true);
+
+//        SamlAuthenticationToken token = new SamlAuthenticationToken(userDetails, );
     }
 }
