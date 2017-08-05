@@ -19,6 +19,7 @@ package org.jenkinsci.plugins.saml;
 
 import hudson.Util;
 
+import hudson.util.Secret;
 import org.kohsuke.stapler.DataBoundConstructor;
 
 import org.apache.commons.lang.StringUtils;
@@ -29,15 +30,15 @@ import org.apache.commons.lang.StringUtils;
  */
 public class SamlEncryptionData {
     private final String keystorePath;
-    private final String keystorePassword;
-    private final String privateKeyPassword;
+    private final Secret keystorePassword;
+    private final Secret privateKeyPassword;
     private final String privateKeyAlias;
 
     @DataBoundConstructor
     public SamlEncryptionData(String keystorePath, String keystorePassword, String privateKeyPassword, String privateKeyAlias) {
         this.keystorePath = Util.fixEmptyAndTrim(keystorePath);
-        this.keystorePassword = Util.fixEmptyAndTrim(keystorePassword);
-        this.privateKeyPassword = Util.fixEmptyAndTrim(privateKeyPassword);
+        this.keystorePassword = Secret.fromString(Util.fixEmpty(keystorePassword));
+        this.privateKeyPassword = Secret.fromString(Util.fixEmpty(privateKeyPassword));
         this.privateKeyAlias = Util.fixEmptyAndTrim(privateKeyAlias);
     }
 
@@ -46,11 +47,11 @@ public class SamlEncryptionData {
     }
 
     public String getKeystorePassword() {
-        return keystorePassword;
+        return Secret.toString(keystorePassword);
     }
 
     public String getPrivateKeyPassword() {
-        return privateKeyPassword;
+        return Secret.toString(privateKeyPassword);
     }
 
     public String getPrivateKeyAlias() {
@@ -60,10 +61,10 @@ public class SamlEncryptionData {
     @Override
     public String toString() {
         final StringBuffer sb = new StringBuffer("SamlEncryptionData{");
-        sb.append("keystorePath='").append(StringUtils.defaultIfBlank(keystorePath, "none")).append('\'');
-        sb.append(", keystorePassword is NOT empty='").append(StringUtils.isNotEmpty(keystorePassword)).append('\'');
-        sb.append(", privateKeyPassword is NOT empty='").append(StringUtils.isNotEmpty(privateKeyPassword)).append('\'');
-        sb.append(", privateKeyAlias is NOT empty='").append(StringUtils.isNotEmpty(privateKeyAlias)).append('\'');
+        sb.append("keystorePath='").append(StringUtils.defaultIfBlank(getKeystorePath(), "none")).append('\'');
+        sb.append(", keystorePassword is NOT empty='").append(StringUtils.isNotEmpty(getKeystorePassword())).append('\'');
+        sb.append(", privateKeyPassword is NOT empty='").append(StringUtils.isNotEmpty(getPrivateKeyPassword())).append('\'');
+        sb.append(", privateKeyAlias is NOT empty='").append(StringUtils.isNotEmpty(getPrivateKeyAlias())).append('\'');
         sb.append('}');
         return sb.toString();
     }
