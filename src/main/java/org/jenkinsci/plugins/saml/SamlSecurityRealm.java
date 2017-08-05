@@ -701,7 +701,7 @@ public class SamlSecurityRealm extends SecurityRealm {
                     String currentAlias = aliases.nextElement();
                     if (StringUtils.isBlank(privateKeyAlias) || currentAlias.equalsIgnoreCase(privateKeyAlias)) {
                         ks.getEntry(currentAlias, keyPassword);
-                        return FormValidation.ok();
+                        return FormValidation.ok("Success");
                     }
                 }
 
