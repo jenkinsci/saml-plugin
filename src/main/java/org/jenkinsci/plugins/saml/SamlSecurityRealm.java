@@ -167,6 +167,19 @@ public class SamlSecurityRealm extends SecurityRealm {
         LOG.finer(this.toString());
     }
 
+    // migration code for the new IdP metadata file
+    public Object readResolve() {
+        File idpMetadataFile = new File(IDP_METADATA_FILE);
+        if (!idpMetadataFile.exists() && idpMetadata != null) {
+            try {
+                FileUtils.writeStringToFile(new File(IDP_METADATA_FILE), idpMetadata);
+            } catch (IOException e) {
+                LOG.log(Level.SEVERE, "Can not write IdP metadata file in JENKINS_HOME", e);
+            }
+        }
+        return this;
+    }
+
     public SamlSecurityRealm(
             String idpMetadata,
             String displayNameAttributeName,
