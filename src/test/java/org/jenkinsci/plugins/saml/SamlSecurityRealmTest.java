@@ -22,6 +22,7 @@ import hudson.security.AuthorizationStrategy;
 import hudson.util.Secret;
 import java.io.File;
 import org.acegisecurity.GrantedAuthority;
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.junit.Before;
 import org.junit.Rule;
@@ -33,6 +34,15 @@ import org.mockito.Mockito;
 import javax.servlet.http.HttpSession;
 import static org.hamcrest.Matchers.*;
 
+import java.io.File;
+import java.io.IOException;
+
+import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.isEmptyString;
+import static org.hamcrest.Matchers.not;
+import static org.hamcrest.core.StringContains.containsString;
+import static org.hamcrest.text.IsEmptyString.emptyString;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
 import org.jvnet.hudson.test.Issue;
@@ -188,6 +198,21 @@ public class SamlSecurityRealmTest {
         IOUtils.write("data1",file.getOutputStream());
         assertEquals(IOUtils.toByteArray(file.getInputStream()).length>0,true);
         file.getFile().delete();
+    }
+
+    @Test
+    @LocalData // config.xml from saml-plugin 0.14
+    public void upgradeIDPMetadataFileTest() throws IOException {
+        // after upgrading a new file should be automatically created under JENKINS_HOME
+        // without user interaction
+
+        String idpMetadata = FileUtils.readFileToString(new File(SamlSecurityRealm.getIDPMetadataFilePath()));
+        String configuredMetadata = ((SamlSecurityRealm) jenkinsRule.getInstance().getSecurityRealm()).getIdpMetadata();
+        idpMetadata = idpMetadata.replace(" ", ""); // remove spaces
+        idpMetadata = idpMetadata.replace("\\n", ""); // remove new lines
+        configuredMetadata = configuredMetadata.replace(" ", ""); // remove spaces
+        configuredMetadata = configuredMetadata.replace("\\n", ""); // remove new lines
+        assertThat(idpMetadata, equalTo(configuredMetadata));
     }
 
 }
