@@ -193,7 +193,7 @@ public class SamlSecurityRealmTest {
         // after upgrading a new file should be automatically created under JENKINS_HOME
         // without user interaction
 
-        String idpMetadata = FileUtils.readFileToString(new File(SamlSecurityRealm.IDP_METADATA_FILE));
+        String idpMetadata = FileUtils.readFileToString(new File(SamlSecurityRealm.getIDPMetadataFilePath()));
         String configuredMetadata = ((SamlSecurityRealm) jenkinsRule.getInstance().getSecurityRealm()).getIdpMetadata();
         idpMetadata = idpMetadata.replace(" ", ""); // remove spaces
         idpMetadata = idpMetadata.replace("\\n", ""); // remove new lines

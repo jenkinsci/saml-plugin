@@ -66,8 +66,8 @@ public class SamlSecurityRealm extends SecurityRealm {
     public static final String DEFAULT_GROUPS_ATTRIBUTE_NAME = "http://schemas.xmlsoap.org/claims/Group";
     public static final int DEFAULT_MAXIMUM_AUTHENTICATION_LIFETIME = 24 * 60 * 60; // 24h
     public static final String DEFAULT_USERNAME_CASE_CONVERSION = "none";
-    public static final String SP_METADATA_FILE = jenkins.model.Jenkins.getInstance().getRootDir().getAbsolutePath() + "/saml-sp-metadata.xml";
-    public static final String IDP_METADATA_FILE = jenkins.model.Jenkins.getInstance().getRootDir().getAbsolutePath() + "/saml-idp.metadata.xml";
+    public static final String SP_METADATA_FILE_NAME = "/saml-sp-metadata.xml";
+    public static final String IDP_METADATA_FILE_NAME = "/saml-idp.metadata.xml";
 
     /**
      * form validation messages.
@@ -163,16 +163,16 @@ public class SamlSecurityRealm extends SecurityRealm {
         this.advancedConfiguration = advancedConfiguration;
         this.encryptionData = encryptionData;
 
-        FileUtils.writeStringToFile(new File(IDP_METADATA_FILE), idpMetadata);
+        FileUtils.writeStringToFile(new File(getIDPMetadataFilePath()), idpMetadata);
         LOG.finer(this.toString());
     }
 
     // migration code for the new IdP metadata file
     public Object readResolve() {
-        File idpMetadataFile = new File(IDP_METADATA_FILE);
+        File idpMetadataFile = new File(getIDPMetadataFilePath());
         if (!idpMetadataFile.exists() && idpMetadata != null) {
             try {
-                FileUtils.writeStringToFile(new File(IDP_METADATA_FILE), idpMetadata);
+                FileUtils.writeStringToFile(new File(getIDPMetadataFilePath()), idpMetadata);
             } catch (IOException e) {
                 LOG.log(Level.SEVERE, "Can not write IdP metadata file in JENKINS_HOME", e);
             }
@@ -443,6 +443,14 @@ public class SamlSecurityRealm extends SecurityRealm {
             LOG.log(Level.SEVERE, "Falling back to NameId {0}", saml2Profile.getId());
         }
         return saml2Profile.getId();
+    }
+
+    static String getIDPMetadataFilePath() {
+        return jenkins.model.Jenkins.getInstance().getRootDir().getAbsolutePath() + IDP_METADATA_FILE_NAME;
+    }
+
+    static String getSPMetadataFilePath() {
+        return jenkins.model.Jenkins.getInstance().getRootDir().getAbsolutePath() + SP_METADATA_FILE_NAME;
     }
 
     /**
