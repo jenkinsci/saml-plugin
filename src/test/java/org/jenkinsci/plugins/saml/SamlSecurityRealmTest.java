@@ -195,6 +195,10 @@ public class SamlSecurityRealmTest {
 
         String idpMetadata = FileUtils.readFileToString(new File(SamlSecurityRealm.IDP_METADATA_FILE));
         String configuredMetadata = ((SamlSecurityRealm) jenkinsRule.getInstance().getSecurityRealm()).getIdpMetadata();
+        idpMetadata = idpMetadata.replace(" ", ""); // remove spaces
+        idpMetadata = idpMetadata.replace("\\n", ""); // remove new lines
+        configuredMetadata = configuredMetadata.replace(" ", ""); // remove spaces
+        configuredMetadata = configuredMetadata.replace("\\n", ""); // remove new lines
         assertThat(idpMetadata, equalTo(configuredMetadata));
     }
 
