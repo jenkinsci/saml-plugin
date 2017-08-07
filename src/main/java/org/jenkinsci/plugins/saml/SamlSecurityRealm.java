@@ -25,6 +25,7 @@ import hudson.model.Descriptor;
 import hudson.model.User;
 import hudson.security.SecurityRealm;
 import hudson.tasks.Mailer.UserProperty;
+import hudson.util.Secret;
 import jenkins.model.Jenkins;
 import jenkins.security.SecurityListener;
 import org.acegisecurity.*;
@@ -681,19 +682,19 @@ public class SamlSecurityRealm extends SecurityRealm {
         }
 
         public FormValidation doTestKeyStore(@QueryParameter("keystorePath") String keystorePath,
-                                             @QueryParameter("keystorePassword") String keystorePassword,
-                                             @QueryParameter("privateKeyPassword") String privateKeyPassword,
+                                             @QueryParameter("keystorePassword") Secret keystorePassword,
+                                             @QueryParameter("privateKeyPassword") Secret privateKeyPassword,
                                              @QueryParameter("privateKeyAlias") String privateKeyAlias) {
             if(StringUtils.isBlank(keystorePath)){
                 return FormValidation.warning(WARN_THERE_IS_NOT_KEY_STORE);
             }
             try (InputStream in = new FileInputStream(keystorePath)) {
                 KeyStore ks = KeyStore.getInstance(KeyStore.getDefaultType());
-                ks.load(in, StringUtils.defaultIfEmpty(keystorePassword,"").toCharArray());
+                ks.load(in, keystorePassword.getPlainText().toCharArray());
 
                 KeyStore.PasswordProtection keyPassword = new KeyStore.PasswordProtection(null);
-                if (StringUtils.isNotBlank(privateKeyPassword)) {
-                    keyPassword = new KeyStore.PasswordProtection(privateKeyPassword.toCharArray());
+                if (StringUtils.isNotBlank(privateKeyPassword.getPlainText())) {
+                    keyPassword = new KeyStore.PasswordProtection(privateKeyPassword.getPlainText().toCharArray());
                 }
 
                 Enumeration<String> aliases = ks.aliases();
@@ -701,22 +702,22 @@ public class SamlSecurityRealm extends SecurityRealm {
                     String currentAlias = aliases.nextElement();
                     if (StringUtils.isBlank(privateKeyAlias) || currentAlias.equalsIgnoreCase(privateKeyAlias)) {
                         ks.getEntry(currentAlias, keyPassword);
-                        return FormValidation.ok();
+                        return FormValidation.ok("Success");
                     }
                 }
 
             } catch (IOException e) {
-                return FormValidation.error(ERROR_NOT_POSSIBLE_TO_READ_KS_FILE, e);
+                return FormValidation.error(e, ERROR_NOT_POSSIBLE_TO_READ_KS_FILE);
             } catch (CertificateException e) {
-                return FormValidation.error(ERROR_CERTIFICATES_COULD_NOT_BE_LOADED);
+                return FormValidation.error(e, ERROR_CERTIFICATES_COULD_NOT_BE_LOADED);
             } catch (NoSuchAlgorithmException e) {
-                return FormValidation.error(ERROR_ALGORITHM_CANNOT_BE_FOUND, e);
+                return FormValidation.error(e, ERROR_ALGORITHM_CANNOT_BE_FOUND);
             } catch (KeyStoreException e) {
-                return FormValidation.error(ERROR_NO_PROVIDER_SUPPORTS_A_KS_SPI_IMPL, e);
+                return FormValidation.error(e, ERROR_NO_PROVIDER_SUPPORTS_A_KS_SPI_IMPL);
             } catch (java.security.UnrecoverableKeyException e) {
-                return FormValidation.error(ERROR_WRONG_INFO_OR_PASSWORD, e);
+                return FormValidation.error(e, ERROR_WRONG_INFO_OR_PASSWORD);
             } catch (UnrecoverableEntryException e) {
-                return FormValidation.error(ERROR_INSUFFICIENT_OR_INVALID_INFO, e);
+                return FormValidation.error(e, ERROR_INSUFFICIENT_OR_INVALID_INFO);
             }
             return FormValidation.error(ERROR_NOT_KEY_FOUND);
         }
@@ -766,15 +767,16 @@ public class SamlSecurityRealm extends SecurityRealm {
         return encryptionData;
     }
 
+    // TODO this is an antipattern; cf. config.jelly
     public String getKeystorePath() {
         return getEncryptionData() != null ? getEncryptionData().getKeystorePath() : null;
     }
 
-    public String getKeystorePassword() {
+    public Secret getKeystorePassword() {
         return getEncryptionData() != null ? getEncryptionData().getKeystorePassword() : null;
     }
 
-    public String getPrivateKeyPassword() {
+    public Secret getPrivateKeyPassword() {
         return getEncryptionData() != null ? getEncryptionData().getPrivateKeyPassword() : null;
     }
 

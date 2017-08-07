@@ -64,6 +64,7 @@
 
     <f:entry>
       <table>
+        <!-- TODO rather move the contents to SamlEncryptionData/config.jelly and use f:optionalProperty (can then put help-keystorePassword.html etc. in the same resource folder) -->
         <f:optionalBlock title="Use Encryption" field="encryptionData"
                          checked="${instance.encryptionData != null}"
                          help="/plugin/saml/help/encryption.html">

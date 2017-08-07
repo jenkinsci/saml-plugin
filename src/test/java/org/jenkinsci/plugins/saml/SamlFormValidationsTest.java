@@ -18,6 +18,7 @@ under the License. */
 package org.jenkinsci.plugins.saml;
 
 import hudson.util.FormValidation.Kind;
+import hudson.util.Secret;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -67,21 +68,15 @@ public class SamlFormValidationsTest {
     public void testKeyStore() throws Exception {
         BundleKeyStore bks = new BundleKeyStore();
         bks.init();
-        assertEquals(descriptor.doTestKeyStore(null, null, null, null).kind, Kind.WARNING);
-        assertEquals(descriptor.doTestKeyStore("", null, null, null).kind, Kind.WARNING);
-        assertEquals(descriptor.doTestKeyStore("", "", null, null).kind, Kind.WARNING);
-        assertEquals(descriptor.doTestKeyStore("", "", "", null).kind, Kind.WARNING);
-        assertEquals(descriptor.doTestKeyStore("", "", "", "").kind, Kind.WARNING);
-        assertEquals(descriptor.doTestKeyStore("", "", "", "").kind, Kind.WARNING);
-        assertEquals(descriptor.doTestKeyStore("none", "", "", "").kind, Kind.ERROR);
-        assertEquals(descriptor.doTestKeyStore(bks.getKeystorePath().substring(5), null, "", "").kind, Kind.ERROR);
-        assertEquals(descriptor.doTestKeyStore(bks.getKeystorePath().substring(5), "none", "", "").kind, Kind.ERROR);
-        assertEquals(descriptor.doTestKeyStore(bks.getKeystorePath().substring(5), bks.getKsPassword(), null, "").kind, Kind.ERROR);
-        assertEquals(descriptor.doTestKeyStore(bks.getKeystorePath().substring(5), bks.getKsPassword(), "none", "").kind, Kind.ERROR);
-        assertEquals(descriptor.doTestKeyStore(bks.getKeystorePath().substring(5), bks.getKsPassword(), bks.getKsPkPassword(), null).kind, Kind.OK);
-        assertEquals(descriptor.doTestKeyStore(bks.getKeystorePath().substring(5), bks.getKsPassword(), bks.getKsPkPassword(), "").kind, Kind.OK);
-        assertEquals(descriptor.doTestKeyStore(bks.getKeystorePath().substring(5), bks.getKsPassword(), bks.getKsPkPassword(), "none").kind, Kind.ERROR);
-        assertEquals(descriptor.doTestKeyStore(bks.getKeystorePath().substring(5), bks.getKsPassword(), bks.getKsPkPassword(), bks.getKsPkAlias()).kind, Kind.OK);
+        assertEquals(descriptor.doTestKeyStore("", Secret.fromString(""), Secret.fromString(""), "").kind, Kind.WARNING);
+        assertEquals(descriptor.doTestKeyStore("none", Secret.fromString(""), Secret.fromString(""), "").kind, Kind.ERROR);
+        assertEquals(descriptor.doTestKeyStore(bks.getKeystorePath().substring(5), Secret.fromString(""), Secret.fromString(""), "").kind, Kind.ERROR);
+        assertEquals(descriptor.doTestKeyStore(bks.getKeystorePath().substring(5), Secret.fromString("none"), Secret.fromString(""), "").kind, Kind.ERROR);
+        assertEquals(descriptor.doTestKeyStore(bks.getKeystorePath().substring(5), Secret.fromString(bks.getKsPassword()), Secret.fromString(""), "").kind, Kind.ERROR);
+        assertEquals(descriptor.doTestKeyStore(bks.getKeystorePath().substring(5), Secret.fromString(bks.getKsPassword()), Secret.fromString("none"), "").kind, Kind.ERROR);
+        assertEquals(descriptor.doTestKeyStore(bks.getKeystorePath().substring(5), Secret.fromString(bks.getKsPassword()), Secret.fromString(bks.getKsPkPassword()), "").kind, Kind.OK);
+        assertEquals(descriptor.doTestKeyStore(bks.getKeystorePath().substring(5), Secret.fromString(bks.getKsPassword()), Secret.fromString(bks.getKsPkPassword()), "none").kind, Kind.ERROR);
+        assertEquals(descriptor.doTestKeyStore(bks.getKeystorePath().substring(5), Secret.fromString(bks.getKsPassword()), Secret.fromString(bks.getKsPkPassword()), bks.getKsPkAlias()).kind, Kind.OK);
     }
 
     @LocalData("testReadSimpleConfigurationAdvancedConfiguration")

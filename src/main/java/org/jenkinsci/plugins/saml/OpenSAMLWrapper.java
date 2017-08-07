@@ -103,8 +103,9 @@ public abstract class OpenSAMLWrapper<T> {
         if (samlPluginConfig.getEncryptionData() != null) {
             config.setWantsAssertionsSigned(true);
             config.setKeystorePath(samlPluginConfig.getEncryptionData().getKeystorePath());
-            config.setKeystorePassword(samlPluginConfig.getEncryptionData().getKeystorePassword());
-            config.setPrivateKeyPassword(samlPluginConfig.getEncryptionData().getPrivateKeyPassword());
+            // TODO does this really accept blanks? its constructor seems to imply it does not
+            config.setKeystorePassword(samlPluginConfig.getEncryptionData().getKeystorePasswordPlainText());
+            config.setPrivateKeyPassword(samlPluginConfig.getEncryptionData().getPrivateKeyPasswordPlainText());
             config.setKeystoreAlias(samlPluginConfig.getEncryptionData().getPrivateKeyAlias());
         } else {
             if (!KS.isValid()) {

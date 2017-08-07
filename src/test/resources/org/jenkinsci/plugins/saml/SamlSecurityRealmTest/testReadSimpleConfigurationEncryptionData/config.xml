@@ -44,8 +44,8 @@
         <usernameAttributeName>urn:mace:dir:attribute-def:uid</usernameAttributeName>
         <encryptionData>
             <keystorePath>/home/jdk/keystore</keystorePath>
-            <keystorePassword>changeit</keystorePassword>
-            <privateKeyPassword>changeit</privateKeyPassword>
+            <keystorePassword>changeitks</keystorePassword>
+            <privateKeyPassword>changeitpk</privateKeyPassword>
         </encryptionData>
     </securityRealm>
     <disableRememberMe>false</disableRememberMe>

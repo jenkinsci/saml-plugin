@@ -18,6 +18,9 @@ under the License. */
 package org.jenkinsci.plugins.saml;
 
 import hudson.Util;
+import hudson.util.Secret;
+import javax.annotation.CheckForNull;
+import javax.annotation.Nonnull;
 
 import org.kohsuke.stapler.DataBoundConstructor;
 
@@ -29,15 +32,19 @@ import org.apache.commons.lang.StringUtils;
  */
 public class SamlEncryptionData {
     private final String keystorePath;
-    private final String keystorePassword;
-    private final String privateKeyPassword;
+    @Deprecated
+    private transient String keystorePassword;
+    private Secret keystorePasswordSecret;
+    @Deprecated
+    private transient String privateKeyPassword;
+    private Secret privateKeyPasswordSecret;
     private final String privateKeyAlias;
 
     @DataBoundConstructor
-    public SamlEncryptionData(String keystorePath, String keystorePassword, String privateKeyPassword, String privateKeyAlias) {
+    public SamlEncryptionData(String keystorePath, Secret keystorePassword, Secret privateKeyPassword, String privateKeyAlias) {
         this.keystorePath = Util.fixEmptyAndTrim(keystorePath);
-        this.keystorePassword = Util.fixEmptyAndTrim(keystorePassword);
-        this.privateKeyPassword = Util.fixEmptyAndTrim(privateKeyPassword);
+        this.keystorePasswordSecret = keystorePassword != null ? keystorePassword : Secret.fromString("");
+        this.privateKeyPasswordSecret = privateKeyPassword != null ? privateKeyPassword : Secret.fromString("");
         this.privateKeyAlias = Util.fixEmptyAndTrim(privateKeyAlias);
     }
 
@@ -45,12 +52,20 @@ public class SamlEncryptionData {
         return keystorePath;
     }
 
-    public String getKeystorePassword() {
-        return keystorePassword;
+    public @Nonnull Secret getKeystorePassword() {
+        return keystorePasswordSecret;
     }
 
-    public String getPrivateKeyPassword() {
-        return privateKeyPassword;
+    public @CheckForNull String getKeystorePasswordPlainText() {
+        return Util.fixEmptyAndTrim(keystorePasswordSecret.getPlainText());
+    }
+
+    public @Nonnull Secret getPrivateKeyPassword() {
+        return privateKeyPasswordSecret;
+    }
+
+    public @CheckForNull String getPrivateKeyPasswordPlainText() {
+        return Util.fixEmptyAndTrim(privateKeyPasswordSecret.getPlainText());
     }
 
     public String getPrivateKeyAlias() {
@@ -61,10 +76,23 @@ public class SamlEncryptionData {
     public String toString() {
         final StringBuffer sb = new StringBuffer("SamlEncryptionData{");
         sb.append("keystorePath='").append(StringUtils.defaultIfBlank(keystorePath, "none")).append('\'');
-        sb.append(", keystorePassword is NOT empty='").append(StringUtils.isNotEmpty(keystorePassword)).append('\'');
-        sb.append(", privateKeyPassword is NOT empty='").append(StringUtils.isNotEmpty(privateKeyPassword)).append('\'');
+        sb.append(", keystorePassword is NOT empty='").append(getKeystorePasswordPlainText() != null).append('\'');
+        sb.append(", privateKeyPassword is NOT empty='").append(getPrivateKeyPasswordPlainText() != null).append('\'');
         sb.append(", privateKeyAlias is NOT empty='").append(StringUtils.isNotEmpty(privateKeyAlias)).append('\'');
         sb.append('}');
         return sb.toString();
     }
+
+    private Object readResolve() {
+        if (keystorePassword != null) {
+            keystorePasswordSecret = Secret.fromString(keystorePassword);
+            keystorePassword = null;
+        }
+        if (privateKeyPassword != null) {
+            privateKeyPasswordSecret = Secret.fromString(privateKeyPassword);
+            privateKeyPassword = null;
+        }
+        return this;
+    }
+
 }
