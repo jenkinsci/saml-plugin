@@ -14,6 +14,9 @@
     <f:entry title="Group Attribute" field="groupsAttributeName" help="/plugin/saml/help/groupsAttributeName.html">
       <f:textbox default="http://schemas.xmlsoap.org/claims/Group" />
     </f:entry>
+    <f:entry title="Group in string" field="groupsAttributeNameInString" help="/plugin/saml/help/groupsAttributeNameInString.html">
+      <f:checkbox default="unchecked" />
+    </f:entry>
     <f:entry title="Maximum Authentication Lifetime" field="maximumAuthenticationLifetime" help="/plugin/saml/help/maximumAuthenticationLifetime.html">
       <f:textbox default="86400" />
     </f:entry>

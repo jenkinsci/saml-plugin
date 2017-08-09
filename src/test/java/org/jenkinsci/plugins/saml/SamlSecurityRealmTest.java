@@ -158,6 +158,7 @@ public class SamlSecurityRealmTest {
     public void testGetters() throws java.io.IOException {
         SamlPluginConfig samlPluginConfig = new SamlPluginConfig(samlSecurityRealm.getDisplayNameAttributeName(),
                 samlSecurityRealm.getGroupsAttributeName(),
+                samlSecurityRealm.getGroupsAttributeNameInString(),
                 samlSecurityRealm.getMaximumAuthenticationLifetime(),
                 samlSecurityRealm.getEmailAttributeName(),
                 samlSecurityRealm.getIdpMetadata(),

@@ -29,6 +29,7 @@ import static org.jenkinsci.plugins.saml.SamlSecurityRealm.DEFAULT_USERNAME_CASE
 public class SamlPluginConfig {
     private String displayNameAttributeName;
     private String groupsAttributeName;
+    private Boolean groupsAttributeNameInString;
     private int maximumAuthenticationLifetime;
     private String emailAttributeName;
 
@@ -40,12 +41,13 @@ public class SamlPluginConfig {
     private SamlEncryptionData encryptionData;
     private SamlAdvancedConfiguration advancedConfiguration;
 
-    public SamlPluginConfig(String displayNameAttributeName, String groupsAttributeName,
+    public SamlPluginConfig(String displayNameAttributeName, String groupsAttributeName, Boolean groupsAttributeNameInString,
                             int maximumAuthenticationLifetime, String emailAttributeName, String idpMetadata,
                             String usernameCaseConversion, String usernameAttributeName, String logoutUrl,
                             SamlEncryptionData encryptionData, SamlAdvancedConfiguration advancedConfiguration) {
         this.displayNameAttributeName = displayNameAttributeName;
         this.groupsAttributeName = groupsAttributeName;
+        this.groupsAttributeNameInString = groupsAttributeNameInString;
         this.maximumAuthenticationLifetime = maximumAuthenticationLifetime;
         this.emailAttributeName = emailAttributeName;
         this.idpMetadata = hudson.Util.fixEmptyAndTrim(idpMetadata);
@@ -71,6 +73,10 @@ public class SamlPluginConfig {
 
     public String getGroupsAttributeName() {
         return groupsAttributeName;
+    }
+
+    public Boolean getGroupsAttributeNameInString() {
+    	return groupsAttributeNameInString != null ? groupsAttributeNameInString: Boolean.FALSE;
     }
 
     public Integer getMaximumAuthenticationLifetime() {
@@ -123,6 +129,7 @@ public class SamlPluginConfig {
         sb.append("idpMetadata='").append(getIdpMetadata()).append('\'');
         sb.append(", displayNameAttributeName='").append(getDisplayNameAttributeName()).append('\'');
         sb.append(", groupsAttributeName='").append(getGroupsAttributeName()).append('\'');
+        sb.append(", groupsAttributeNameInString='").append(getGroupsAttributeNameInString()).append('\'');
         sb.append(", emailAttributeName='").append(getEmailAttributeName()).append('\'');
         sb.append(", usernameAttributeName='").append(getUsernameAttributeName()).append('\'');
         sb.append(", maximumAuthenticationLifetime=").append(getMaximumAuthenticationLifetime());

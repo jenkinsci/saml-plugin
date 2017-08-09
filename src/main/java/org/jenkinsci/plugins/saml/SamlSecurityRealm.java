@@ -48,10 +48,12 @@ import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
 import java.security.UnrecoverableEntryException;
 import java.security.cert.CertificateException;
+import java.util.Arrays;
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.Enumeration;
 import java.util.List;
+//import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -65,7 +67,7 @@ import java.util.logging.Logger;
 public class SamlSecurityRealm extends SecurityRealm {
     public static final String DEFAULT_DISPLAY_NAME_ATTRIBUTE_NAME = "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name";
     public static final String DEFAULT_GROUPS_ATTRIBUTE_NAME = "http://schemas.xmlsoap.org/claims/Group";
-    public static final int DEFAULT_MAXIMUM_AUTHENTICATION_LIFETIME = 24 * 60 * 60; // 24h
+    public static final Boolean DEFAULT_GROUPS_ATTRIBUTE_NAME_IN_STRING = Boolean.FALSE;
     public static final String DEFAULT_USERNAME_CASE_CONVERSION = "none";
     public static final String SP_METADATA_FILE_NAME = "/saml-sp-metadata.xml";
     public static final String IDP_METADATA_FILE_NAME = "/saml-idp.metadata.xml";
@@ -102,6 +104,8 @@ public class SamlSecurityRealm extends SecurityRealm {
      */
     private String displayNameAttributeName;
     private String groupsAttributeName;
+    private Boolean groupsAttributeNameInString;
+    public static final int DEFAULT_MAXIMUM_AUTHENTICATION_LIFETIME = 24 * 60 * 60; // 24h
     private int maximumAuthenticationLifetime;
     private String emailAttributeName;
 
@@ -120,6 +124,7 @@ public class SamlSecurityRealm extends SecurityRealm {
      * @param idpMetadata                   Identity provider Metadata
      * @param displayNameAttributeName      attribute that has the displayname
      * @param groupsAttributeName           attribute that has the groups
+     * @param groupsAttributeNameInString attribute that indicates if the groups come concatenated in one string
      * @param maximumAuthenticationLifetime maximum time that an identification it is valid
      * @param usernameAttributeName         attribute that has the username
      * @param emailAttributeName            attribute that has the email
@@ -133,6 +138,7 @@ public class SamlSecurityRealm extends SecurityRealm {
             String idpMetadata,
             String displayNameAttributeName,
             String groupsAttributeName,
+            Boolean groupsAttributeNameInString,
             Integer maximumAuthenticationLifetime,
             String usernameAttributeName,
             String emailAttributeName,
@@ -148,12 +154,16 @@ public class SamlSecurityRealm extends SecurityRealm {
         this.logoutUrl = hudson.Util.fixEmptyAndTrim(logoutUrl);
         this.displayNameAttributeName = DEFAULT_DISPLAY_NAME_ATTRIBUTE_NAME;
         this.groupsAttributeName = DEFAULT_GROUPS_ATTRIBUTE_NAME;
+        this.groupsAttributeNameInString = DEFAULT_GROUPS_ATTRIBUTE_NAME_IN_STRING;
         this.maximumAuthenticationLifetime = DEFAULT_MAXIMUM_AUTHENTICATION_LIFETIME;
         if (displayNameAttributeName != null && !displayNameAttributeName.isEmpty()) {
             this.displayNameAttributeName = displayNameAttributeName;
         }
         if (groupsAttributeName != null && !groupsAttributeName.isEmpty()) {
             this.groupsAttributeName = groupsAttributeName;
+        }
+        if (groupsAttributeNameInString != null) {
+            this.groupsAttributeNameInString = groupsAttributeNameInString;
         }
         if (maximumAuthenticationLifetime != null && maximumAuthenticationLifetime > 0) {
             this.maximumAuthenticationLifetime = maximumAuthenticationLifetime;
@@ -185,14 +195,16 @@ public class SamlSecurityRealm extends SecurityRealm {
             String idpMetadata,
             String displayNameAttributeName,
             String groupsAttributeName,
+            Boolean groupsAttributeNameInString,
             Integer maximumAuthenticationLifetime,
             String usernameAttributeName,
             String emailAttributeName,
             String logoutUrl,
             SamlAdvancedConfiguration advancedConfiguration,
             SamlEncryptionData encryptionData) throws IOException {
-        this(idpMetadata, displayNameAttributeName, groupsAttributeName, maximumAuthenticationLifetime,
-                usernameAttributeName, emailAttributeName, logoutUrl, advancedConfiguration, encryptionData, "none");
+        this(idpMetadata, displayNameAttributeName, groupsAttributeName, groupsAttributeNameInString, 
+                maximumAuthenticationLifetime, usernameAttributeName, emailAttributeName, logoutUrl, 
+                advancedConfiguration, encryptionData, "none");
     }
 
     @Override
@@ -368,6 +380,19 @@ public class SamlSecurityRealm extends SecurityRealm {
         if (groups == null) {
             groups = new ArrayList<String>();
         }
+        else{
+            if(getGroupsAttributeNameInString()) {
+                String[] TemporaryGroups = ((String)groups.get(0)).split(" ");
+                groups.clear();
+                groups = Arrays.asList(TemporaryGroups);
+
+/*              groups.addAll(TemporaryGroups)
+                for (int i=0; i<TemporaryGroups.length; i++) {
+                    groups.add(TemporaryGroups[i]);
+                }
+*/
+            }
+        }
 
         // build list of authorities
         List<GrantedAuthority> authorities = new ArrayList<GrantedAuthority>();
@@ -515,9 +540,9 @@ public class SamlSecurityRealm extends SecurityRealm {
      * @return plugin configuration parameters.
      */
     public SamlPluginConfig getSamlPluginConfig() {
-        SamlPluginConfig samlPluginConfig = new SamlPluginConfig(displayNameAttributeName, groupsAttributeName,
-                maximumAuthenticationLifetime, emailAttributeName, idpMetadata, usernameCaseConversion,
-                usernameAttributeName, logoutUrl, encryptionData, advancedConfiguration);
+        SamlPluginConfig samlPluginConfig = new SamlPluginConfig(displayNameAttributeName, groupsAttributeName, 
+        		groupsAttributeNameInString, maximumAuthenticationLifetime, emailAttributeName, idpMetadata, 
+        		usernameCaseConversion, usernameAttributeName, logoutUrl, encryptionData, advancedConfiguration);
         return samlPluginConfig;
     }
 
@@ -758,6 +783,10 @@ public class SamlSecurityRealm extends SecurityRealm {
 
     public String getGroupsAttributeName() {
         return groupsAttributeName;
+    }
+
+    public Boolean getGroupsAttributeNameInString() {
+       return groupsAttributeNameInString != null ? groupsAttributeNameInString: Boolean.FALSE;
     }
 
     public Integer getMaximumAuthenticationLifetime() {
