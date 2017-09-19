@@ -115,7 +115,7 @@ under the License.
     <dependency>
       <groupId>org.jenkins-ci.plugins</groupId>
       <artifactId>bouncycastle-api</artifactId>
-      <version>2.16.2</version>
+      <version>2.16.1</version>
     </dependency>
     <dependency>
       <groupId>net.shibboleth.utilities</groupId>
