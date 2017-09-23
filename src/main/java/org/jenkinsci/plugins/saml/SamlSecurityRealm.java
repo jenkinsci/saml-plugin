@@ -190,35 +190,11 @@ public class SamlSecurityRealm extends SecurityRealm {
         }
 
         if(StringUtils.isEmpty(getUsernameCaseConversion())){
-            usernameCaseConversion = "none";
+            usernameCaseConversion = DEFAULT_USERNAME_CASE_CONVERSION;
         }
 
         return this;
     }
-/*
-    public SamlSecurityRealm(
-            String idpMetadata,
-            String displayNameAttributeName,
-            String groupsAttributeName,
-            Integer maximumAuthenticationLifetime,
-            String usernameAttributeName,
-            String emailAttributeName,
-            String logoutUrl,
-            SamlAdvancedConfiguration advancedConfiguration,
-            SamlEncryptionData encryptionData) throws IOException {
-        this(idpMetadata,
-                displayNameAttributeName,
-                groupsAttributeName,
-                maximumAuthenticationLifetime,
-                usernameAttributeName,
-                emailAttributeName,
-                logoutUrl,
-                advancedConfiguration,
-                encryptionData,
-                "none",
-                SAML2_REDIRECT_BINDING_URI);
-    }
-*/
 
     @Override
     public boolean allowsSignup() {
