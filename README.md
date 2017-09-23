@@ -28,13 +28,40 @@ Report new issue on https://issues.jenkins-ci.org on component **saml-plugin**.
 
 **The Jenkins JIRA is not a support site. If you need assistance or have general questions, visit us [in chat](http://jenkins-ci.org/content/chat), or email one of the [mailing lists](http://jenkins-ci.org/content/mailing-lists).**
 
+Changelog
+-------------------
+[Changelog](CHANGELOG.md)
+
 Troubleshooting
 ----------------
 When you face an issue you could try to enable a logger to these two packages on the level specified and try to find errors, this will show in logs the information send from Jenkins (SP) to the SAML service (IdP), this information could be sensitive so take care where you copy/send it.  
 
     * org.jenkinsci.plugins.saml - FINEST
     * org.pac4j - FINE
-    
-Changelog
--------------------
-[Changelog](CHANGELOG.md)
+
+
+**Identity provider has no single sign on service available for the selected...**
+
+* Check the SP EntryID configured on the IdP
+* Check the binding methods supported on your IdP
+
+```
+org.pac4j.saml.exceptions.SAMLException: Identity provider has no single sign on service available for the selected profileorg.opensaml.saml.saml2.metadata.impl.IDPSSODescriptorImpl@7ef38e46
+	at org.pac4j.saml.context.SAML2MessageContext.getIDPSingleSignOnService(SAML2MessageContext.java:93)
+	at org.pac4j.saml.sso.impl.SAML2AuthnRequestBuilder.build(SAML2AuthnRequestBuilder.java:70)
+	at org.pac4j.saml.sso.impl.SAML2AuthnRequestBuilder.build(SAML2AuthnRequestBuilder.java:34)
+	at org.pac4j.saml.client.SAML2Client.retrieveRedirectAction(SAML2Client.java:209)
+	at org.pac4j.core.client.IndirectClient.getRedirectAction(IndirectClient.java:79)
+	at org.jenkinsci.plugins.saml.SamlRedirectActionWrapper.process(SamlRedirectActionWrapper.java:47)
+	at org.jenkinsci.plugins.saml.SamlRedirectActionWrapper.process(SamlRedirectActionWrapper.java:30)
+	at org.jenkinsci.plugins.saml.OpenSAMLWrapper.get(OpenSAMLWrapper.java:65)
+	at org.jenkinsci.plugins.saml.SamlSecurityRealm.doCommenceLogin(SamlSecurityRealm.java:260)
+	at java.lang.invoke.MethodHandle.invokeWithArguments(MethodHandle.java:627)
+	at org.kohsuke.stapler.Function$MethodFunction.invoke(Function.java:343)
+	at org.kohsuke.stapler.Function.bindAndInvoke(Function.java:184)
+	at org.kohsuke.stapler.Function.bindAndInvokeAndServeResponse(Function.java:117)
+	at org.kohsuke.stapler.MetaClass$1.doDispatch(MetaClass.java:129)
+	at org.kohsuke.stapler.NameBasedDispatcher.dispatch(NameBasedDispatcher.java:58)
+	at org.kohsuke.stapler.Stapler.tryInvoke(Stapler.java:715)
+```
+
