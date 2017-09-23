@@ -55,6 +55,8 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import static org.opensaml.saml.common.xml.SAMLConstants.SAML2_REDIRECT_BINDING_URI;
+
 /**
  * Authenticates the user via SAML.
  * This class is the main entry point to the plugin.
@@ -106,27 +108,29 @@ public class SamlSecurityRealm extends SecurityRealm {
     private String emailAttributeName;
 
     private final String idpMetadata;
-    private final String usernameCaseConversion;
+    private String usernameCaseConversion;
     private final String usernameAttributeName;
     private final String logoutUrl;
+    private String binding;
 
     private SamlEncryptionData encryptionData;
     private SamlAdvancedConfiguration advancedConfiguration;
 
     /**
      * Jenkins passes these parameters in when you update the settings.
-     * It does this because of the @DataBoundConstructor
+     * It does this because of the @DataBoundConstructor.
      *
-     * @param idpMetadata                   Identity provider Metadata
-     * @param displayNameAttributeName      attribute that has the displayname
-     * @param groupsAttributeName           attribute that has the groups
-     * @param maximumAuthenticationLifetime maximum time that an identification it is valid
-     * @param usernameAttributeName         attribute that has the username
-     * @param emailAttributeName            attribute that has the email
-     * @param logoutUrl                     optional URL to redirect on logout
-     * @param advancedConfiguration         advanced configuration settings
-     * @param encryptionData                encryption configuration settings
-     * @param usernameCaseConversion        username case sensitive settings
+     * @param idpMetadata                   Identity provider Metadata.
+     * @param displayNameAttributeName      attribute that has the displayname.
+     * @param groupsAttributeName           attribute that has the groups.
+     * @param maximumAuthenticationLifetime maximum time that an identification it is valid.
+     * @param usernameAttributeName         attribute that has the username.
+     * @param emailAttributeName            attribute that has the email.
+     * @param logoutUrl                     optional URL to redirect on logout.
+     * @param advancedConfiguration         advanced configuration settings.
+     * @param encryptionData                encryption configuration settings.
+     * @param usernameCaseConversion        username case sensitive settings.
+     * @param binding                       SAML binding method.
      */
     @DataBoundConstructor
     public SamlSecurityRealm(
@@ -139,7 +143,8 @@ public class SamlSecurityRealm extends SecurityRealm {
             String logoutUrl,
             SamlAdvancedConfiguration advancedConfiguration,
             SamlEncryptionData encryptionData,
-            String usernameCaseConversion) throws IOException {
+            String usernameCaseConversion,
+            String binding) throws IOException {
         super();
 
         this.idpMetadata = hudson.Util.fixEmptyAndTrim(idpMetadata);
@@ -163,6 +168,7 @@ public class SamlSecurityRealm extends SecurityRealm {
         }
         this.advancedConfiguration = advancedConfiguration;
         this.encryptionData = encryptionData;
+        this.binding = binding;
 
         FileUtils.writeStringToFile(new File(getIDPMetadataFilePath()), idpMetadata);
         LOG.finer(this.toString());
@@ -178,9 +184,18 @@ public class SamlSecurityRealm extends SecurityRealm {
                 LOG.log(Level.SEVERE, "Can not write IdP metadata file in JENKINS_HOME", e);
             }
         }
+
+        if(StringUtils.isEmpty(getBinding())){
+            binding = SAML2_REDIRECT_BINDING_URI;
+        }
+
+        if(StringUtils.isEmpty(getUsernameCaseConversion())){
+            usernameCaseConversion = "none";
+        }
+
         return this;
     }
-
+/*
     public SamlSecurityRealm(
             String idpMetadata,
             String displayNameAttributeName,
@@ -191,9 +206,19 @@ public class SamlSecurityRealm extends SecurityRealm {
             String logoutUrl,
             SamlAdvancedConfiguration advancedConfiguration,
             SamlEncryptionData encryptionData) throws IOException {
-        this(idpMetadata, displayNameAttributeName, groupsAttributeName, maximumAuthenticationLifetime,
-                usernameAttributeName, emailAttributeName, logoutUrl, advancedConfiguration, encryptionData, "none");
+        this(idpMetadata,
+                displayNameAttributeName,
+                groupsAttributeName,
+                maximumAuthenticationLifetime,
+                usernameAttributeName,
+                emailAttributeName,
+                logoutUrl,
+                advancedConfiguration,
+                encryptionData,
+                "none",
+                SAML2_REDIRECT_BINDING_URI);
     }
+*/
 
     @Override
     public boolean allowsSignup() {
@@ -517,7 +542,7 @@ public class SamlSecurityRealm extends SecurityRealm {
     public SamlPluginConfig getSamlPluginConfig() {
         SamlPluginConfig samlPluginConfig = new SamlPluginConfig(displayNameAttributeName, groupsAttributeName,
                 maximumAuthenticationLifetime, emailAttributeName, idpMetadata, usernameCaseConversion,
-                usernameAttributeName, logoutUrl, encryptionData, advancedConfiguration);
+                usernameAttributeName, logoutUrl, binding, encryptionData, advancedConfiguration);
         return samlPluginConfig;
     }
 
@@ -784,6 +809,10 @@ public class SamlSecurityRealm extends SecurityRealm {
         return getAdvancedConfiguration() != null ? getAdvancedConfiguration().getMaximumSessionLifetime() : null;
     }
 
+    public String getBinding() {
+        return binding;
+    }
+
     public SamlEncryptionData getEncryptionData() {
         return encryptionData;
     }
@@ -816,7 +845,6 @@ public class SamlSecurityRealm extends SecurityRealm {
     public String getLogoutUrl() {
         return logoutUrl;
     }
-
 
     @Override
     public String toString() {

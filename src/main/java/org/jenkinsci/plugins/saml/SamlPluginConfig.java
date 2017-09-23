@@ -36,13 +36,14 @@ public class SamlPluginConfig {
     private final String usernameCaseConversion;
     private final String usernameAttributeName;
     private final String logoutUrl;
+    private final String binding;
 
     private SamlEncryptionData encryptionData;
     private SamlAdvancedConfiguration advancedConfiguration;
 
     public SamlPluginConfig(String displayNameAttributeName, String groupsAttributeName,
                             int maximumAuthenticationLifetime, String emailAttributeName, String idpMetadata,
-                            String usernameCaseConversion, String usernameAttributeName, String logoutUrl,
+                            String usernameCaseConversion, String usernameAttributeName, String logoutUrl, String binding,
                             SamlEncryptionData encryptionData, SamlAdvancedConfiguration advancedConfiguration) {
         this.displayNameAttributeName = displayNameAttributeName;
         this.groupsAttributeName = groupsAttributeName;
@@ -52,6 +53,7 @@ public class SamlPluginConfig {
         this.usernameCaseConversion = StringUtils.defaultIfBlank(usernameCaseConversion, DEFAULT_USERNAME_CASE_CONVERSION);
         this.usernameAttributeName = hudson.Util.fixEmptyAndTrim(usernameAttributeName);
         this.logoutUrl = logoutUrl;
+        this.binding = binding;
         this.encryptionData = encryptionData;
         this.advancedConfiguration = advancedConfiguration;
     }
@@ -117,6 +119,10 @@ public class SamlPluginConfig {
         return Jenkins.getInstance().getRootUrl();
     }
 
+    public String getBinding() {
+        return binding;
+    }
+
     @Override
     public String toString() {
         final StringBuffer sb = new StringBuffer("SamlPluginConfig{");
@@ -128,6 +134,7 @@ public class SamlPluginConfig {
         sb.append(", maximumAuthenticationLifetime=").append(getMaximumAuthenticationLifetime());
         sb.append(", usernameCaseConversion='").append(getUsernameCaseConversion()).append('\'');
         sb.append(", logoutUrl='").append(getLogoutUrl()).append('\'');
+        sb.append(", binding='").append(getBinding()).append('\'');
         sb.append(", encryptionData=").append(getEncryptionData());
         sb.append(", advancedConfiguration=").append(getAdvancedConfiguration());
         sb.append('}');

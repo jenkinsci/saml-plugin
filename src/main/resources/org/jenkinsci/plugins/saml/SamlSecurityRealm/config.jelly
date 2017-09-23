@@ -32,6 +32,14 @@
         <f:option value="uppercase" selected="${instance.usernameCaseConversion == 'uppercase'}">Uppercase</f:option>
       </select>
     </f:entry>
+    <f:entry title="Data Binding Method" field="binding" help="/plugin/saml/help/binding.html">
+      <select name="binding">
+        <f:option value="urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect"
+                  selected="${instance.binding == 'urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect'}">HTTP-Redirect</f:option>
+        <f:option value="urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST"
+                  selected="${instance.binding == 'urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST'}">HTTP-POST</f:option>
+      </select>
+    </f:entry>
 
     <f:entry title="Logout URL"  field="logoutUrl" help="/plugin/saml/help/logoutUrl.html">
       <f:textbox />

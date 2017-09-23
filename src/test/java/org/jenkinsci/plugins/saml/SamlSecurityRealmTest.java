@@ -164,6 +164,7 @@ public class SamlSecurityRealmTest {
                 samlSecurityRealm.getUsernameCaseConversion(),
                 samlSecurityRealm.getUsernameAttributeName(),
                 samlSecurityRealm.getLogoutUrl(),
+                samlSecurityRealm.getBinding(),
                 samlSecurityRealm.getEncryptionData(),
                 samlSecurityRealm.getAdvancedConfiguration());
         assertEquals(samlPluginConfig.toString().equals(samlSecurityRealm.getSamlPluginConfig().toString()), true);
@@ -214,5 +215,7 @@ public class SamlSecurityRealmTest {
         configuredMetadata = configuredMetadata.replace("\\n", ""); // remove new lines
         assertThat(idpMetadata, equalTo(configuredMetadata));
     }
+
+
 
 }

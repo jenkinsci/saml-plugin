@@ -38,6 +38,7 @@ import java.util.Date;
 import static org.hamcrest.core.StringContains.containsString;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.when;
+import static org.opensaml.saml.common.xml.SAMLConstants.SAML2_REDIRECT_BINDING_URI;
 
 /**
  * Different OpenSAMLWrapper classes tests
@@ -50,7 +51,11 @@ public class OpenSamlWrapperTest {
     @Test
     public void metadataWrapper() throws IOException, ServletException {
         String metadata = IOUtils.toString(this.getClass().getClassLoader().getResourceAsStream("org/jenkinsci/plugins/saml/OpenSamlWrapperTest/metadataWrapper/metadata.xml"));
-        SamlSecurityRealm samlSecurity = new SamlSecurityRealm(metadata, "displayName", "groups", 10000, "uid", "email", "/logout", null, null, null);
+        SamlSecurityRealm samlSecurity = new SamlSecurityRealm(
+                metadata, "displayName", "groups",
+                10000, "uid", "email",
+                "/logout", null, null, "none",
+                SAML2_REDIRECT_BINDING_URI);
         jenkinsRule.jenkins.setSecurityRealm(samlSecurity);
         SamlSPMetadataWrapper samlSPMetadataWrapper = new SamlSPMetadataWrapper(samlSecurity.getSamlPluginConfig(), null, null);
         HttpResponse process = samlSPMetadataWrapper.get();
@@ -71,7 +76,10 @@ public class OpenSamlWrapperTest {
         String metadata = IOUtils.toString(this.getClass().getClassLoader().getResourceAsStream("org/jenkinsci/plugins/saml/OpenSamlWrapperTest/metadataWrapper/metadata.xml"));
         String samlResponse = IOUtils.toString(this.getClass().getClassLoader().getResourceAsStream("org/jenkinsci/plugins/saml/OpenSamlWrapperTest/profileWrapper/samlresponse.xml"));
 
-        SamlSecurityRealm samlSecurity = new SamlSecurityRealm(metadata, "displayName", "groups", 10000, "uid", "email", "/logout", null, null, null);
+        SamlSecurityRealm samlSecurity = new SamlSecurityRealm(metadata, "displayName",
+                "groups", 10000, "uid",
+                "email", "/logout", null, null,
+                "none", SAML2_REDIRECT_BINDING_URI);
         jenkinsRule.jenkins.setSecurityRealm(samlSecurity);
 
         DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ");
