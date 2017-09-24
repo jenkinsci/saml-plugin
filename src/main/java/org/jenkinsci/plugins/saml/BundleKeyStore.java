@@ -1,5 +1,6 @@
 package org.jenkinsci.plugins.saml;
 
+import org.apache.commons.lang.math.NumberUtils;
 import org.bouncycastle.asn1.ASN1Encodable;
 import org.bouncycastle.asn1.DERSequence;
 import org.bouncycastle.asn1.x509.Extension;
@@ -35,6 +36,7 @@ import java.security.cert.X509Certificate;
 import java.util.Base64;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.concurrent.TimeUnit;
 import java.util.logging.Logger;
 
 /**
@@ -53,7 +55,8 @@ public class BundleKeyStore {
     public static final String KEY_ALG = "RSA";
     public static final String SIGNATURE_ALGORITHM = "SHA256withRSA";
     public static final String PROVIDER = "BC";
-    public static final Long KEY_VALIDITY = 1 * 24L * 60L * 60L;
+    public static final String KEY_VALIDITY_PROPERTY = BundleKeyStore.class.getName() + ".validity";
+    public static final Long KEY_VALIDITY = 365L;
 
     private static final Logger LOG = Logger.getLogger(BundleKeyStore.class.getName());
 
@@ -115,7 +118,8 @@ public class BundleKeyStore {
             throws IOException, CertificateException, InvalidKeyException, SignatureException,
             NoSuchAlgorithmException, NoSuchProviderException, OperatorCreationException {
         X509Certificate[] chain = new X509Certificate[1];
-        chain[0] = generateCertificate("cn=SAML-jenkins", new java.util.Date(), KEY_VALIDITY, keypair);
+        Long validity = NumberUtils.toLong(System.getProperty(KEY_VALIDITY_PROPERTY), KEY_VALIDITY);
+        chain[0] = generateCertificate("cn=SAML-jenkins", new Date(),  TimeUnit.DAYS.toSeconds(validity), keypair);
         return chain;
     }
 
