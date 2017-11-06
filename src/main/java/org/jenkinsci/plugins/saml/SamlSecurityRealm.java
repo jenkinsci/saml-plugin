@@ -309,7 +309,7 @@ public class SamlSecurityRealm extends SecurityRealm {
     }
 
     /**
-     *
+     * Tries to log the content of the SAMLResponse even it is not valid.
      * @param request Request received in doFinishLogin, it should be a SAMLResponse.
      */
     private void logSamlResponse(StaplerRequest request) {
