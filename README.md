@@ -68,10 +68,21 @@ org.pac4j.saml.exceptions.SAMLException: Identity provider has no single sign on
 **Identity provider does not support encryption settings**
 
 * Downgrade to 0.14 version, if it works, then enable encryption on that version to be sure that this is the issue
+* Check the JDK version does not have issues like this [JDK-8176043](https://bugs.openjdk.java.net/browse/JDK-8176043)
 
 ```
-2017-10-18 19:56:28.987+0000 [id=23]    WARNING o.e.j.s.h.ContextHandler$Context#log: Error while serving https://jenkins.example.com/securityRealm/finishLogin
+2017-10-18 20:26:49.568+0000 [id=1296]	WARNING	o.j.p.s.SuppressionFilter#reportError: Request processing failed. URI=/securityRealm/finishLogin clientIP=192.168.1.100 ErrorID=b04ec3d5-8fbe-4961-88f2-187f47649000
 org.opensaml.messaging.decoder.MessageDecodingException: This message decoder only supports the HTTP POST method
+	at org.pac4j.saml.transport.Pac4jHTTPPostDecoder.doDecode(Pac4jHTTPPostDecoder.java:57)
+	at org.opensaml.messaging.decoder.AbstractMessageDecoder.decode(AbstractMessageDecoder.java:58)
+	at org.pac4j.saml.sso.impl.SAML2WebSSOMessageReceiver.receiveMessage(SAML2WebSSOMessageReceiver.java:40)
+Caused: org.pac4j.saml.exceptions.SAMLException: Error decoding saml message
+	at org.pac4j.saml.sso.impl.SAML2WebSSOMessageReceiver.receiveMessage(SAML2WebSSOMessageReceiver.java:43)
+	at org.pac4j.saml.sso.impl.SAML2WebSSOProfileHandler.receive(SAML2WebSSOProfileHandler.java:35)
+	at org.pac4j.saml.client.SAML2Client.retrieveCredentials(SAML2Client.java:225)
+	at org.pac4j.saml.client.SAML2Client.retrieveCredentials(SAML2Client.java:60)
+	at org.pac4j.core.client.IndirectClient.getCredentials(IndirectClient.java:106)
+	at org.jenkinsci.plugins.saml.SamlProfileWrapper.process(SamlProfileWrapper.java:53)
 ```
 
 ```

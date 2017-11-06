@@ -32,6 +32,7 @@ import org.acegisecurity.*;
 import org.acegisecurity.context.SecurityContextHolder;
 import org.acegisecurity.userdetails.UsernameNotFoundException;
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.kohsuke.stapler.*;
 import org.pac4j.core.client.RedirectAction;
@@ -43,6 +44,7 @@ import javax.annotation.Nonnull;
 import java.io.*;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
 import java.security.KeyStore;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
@@ -55,6 +57,7 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import static org.apache.commons.codec.binary.Base64.*;
 import static org.opensaml.saml.common.xml.SAMLConstants.SAML2_REDIRECT_BINDING_URI;
 
 /**
@@ -254,13 +257,7 @@ public class SamlSecurityRealm extends SecurityRealm {
      */
     public HttpResponse doFinishLogin(final StaplerRequest request, final StaplerResponse response) {
         LOG.finer("SamlSecurityRealm.doFinishLogin called");
-        if(LOG.isLoggable(Level.FINEST)){
-            try {
-                LOG.finest("SAMLResponse XML:" + new String(Base64.getDecoder().decode(request.getParameter("SAMLResponse")),"UTF-8"));
-            } catch (UnsupportedEncodingException e) {
-                LOG.finest("No UTF-8 SAMLResponse XML");
-            }
-        }
+        logSamlResponse(request);
         boolean saveUser = false;
 
         SAML2Profile saml2Profile = new SamlProfileWrapper(getSamlPluginConfig(), request, response).get();
@@ -309,6 +306,30 @@ public class SamlSecurityRealm extends SecurityRealm {
         String referer = (String) request.getSession().getAttribute(REFERER_ATTRIBUTE);
         String redirectUrl = referer != null ? referer : baseUrl();
         return HttpResponses.redirectTo(redirectUrl);
+    }
+
+    /**
+     *
+     * @param request Request received in doFinishLogin, it should be a SAMLResponse.
+     */
+    private void logSamlResponse(StaplerRequest request) {
+        if(LOG.isLoggable(Level.FINEST)){
+            try {
+                String samlResponse = request.getParameter("SAMLResponse");
+                if(isBase64(samlResponse)) {
+                    LOG.finest("SAMLResponse XML:" + new String(decodeBase64(samlResponse), request.getCharacterEncoding()));
+                } else {
+                    LOG.finest("SAMLResponse XML:" + samlResponse);
+                }
+            } catch (Exception e) {
+                LOG.finest("No UTF-8 SAMLResponse XML");
+                try(InputStream in = request.getInputStream()) {
+                    LOG.finest(IOUtils.toString(in, request.getCharacterEncoding()));
+                } catch (IOException e1) {
+                    LOG.finest("Was not possible to read the request");
+                }
+            }
+        }
     }
 
     private String baseUrl() {
