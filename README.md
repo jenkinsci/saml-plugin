@@ -92,3 +92,4 @@ Caused by: java.lang.IllegalArgumentException: Illegal base64 character d
     at java.util.Base64$Decoder.decode(Base64.java:549)
     at org.jenkinsci.plugins.saml.SamlSecurityRealm.doFinishLogin(SamlSecurityRealm.java:258)
 ```
+
