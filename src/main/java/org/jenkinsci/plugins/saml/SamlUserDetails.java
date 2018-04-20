@@ -17,7 +17,6 @@ under the License. */
 
 package org.jenkinsci.plugins.saml;
 
-import com.google.common.collect.ImmutableList;
 import org.acegisecurity.GrantedAuthority;
 import org.acegisecurity.userdetails.UserDetails;
 

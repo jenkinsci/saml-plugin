@@ -9,8 +9,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import hudson.Extension;
-import hudson.model.Descriptor;
-import hudson.security.SecurityRealm;
 import hudson.security.csrf.CrumbExclusion;
 
 /**
