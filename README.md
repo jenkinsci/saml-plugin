@@ -38,6 +38,8 @@ Configure
 
 [ADFS Example](doc/ADFS_CONFIG.md)
 
+[Azure Example](doc/CONFIGURE_AZURE.md)
+
 Troubleshooting
 -------------------
 [Troubleshooting](doc/TROUBLESHOOTING.md)
