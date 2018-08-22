@@ -1,6 +1,6 @@
 ## Configure Azure
 
-You have to configure a SSO application on Azure by following the instructions in [Configuring single sign-on to applications that are not in the Azure Active Directory application gallery](https://docs.microsoft.com/en-us/azure/active-directory/active-directory-saas-custom-apps). You will ahve to take care of the following settings in order to configure Jenkins SAML Plugin properly:
+You have to configure a SSO application on Azure by following the instructions in [Configuring single sign-on to applications that are not in the Azure Active Directory application gallery](https://docs.microsoft.com/en-us/azure/active-directory/active-directory-saas-custom-apps). You will have to take care of the following settings in order to configure Jenkins SAML Plugin properly:
 
 * **Sign On URL**: it should be the Jenkins base URL Manage, you have to check the value of Jenkins URL setting on `Jenkins/Configure System/Jenkins Location/Jenkins URL`
 ![Manage Jenkins/Configure System/Jenkins Location/Jenkins URL](images/JenkinsURL.png)
