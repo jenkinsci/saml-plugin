@@ -1,6 +1,6 @@
 <?jelly escape-by-default='true'?>
 <j:jelly xmlns:j="jelly:core" xmlns:f="/lib/form">
-    <f:entry field="name" title="Attribure Name">
+    <f:entry field="name" title="Attribute Name">
         <f:textbox/>
     </f:entry>
     <f:entry field="displayName" title="Display Name in user properties">
