@@ -29,6 +29,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.jvnet.hudson.test.JenkinsRule;
 import org.jvnet.hudson.test.recipes.LocalData;
+import org.jvnet.hudson.test.recipes.WithTimeout;
 import org.mockito.Mockito;
 
 import javax.servlet.http.HttpSession;
@@ -168,13 +169,15 @@ public class SamlSecurityRealmTest {
     }
 
     @LocalData("testHugeNumberOfUsers")
-    @Test(timeout = 15000)
+    @WithTimeout(240)
+    @Test
     public void testLoadGroupByGroupname() {
         assertEquals(samlSecurityRealm.loadGroupByGroupname("role500", true).getName(), "role500");
     }
 
     @LocalData("testHugeNumberOfUsers")
-    @Test(timeout = 5000)
+    @WithTimeout(240)
+    @Test
     public void testLoadUserByUsername() {
         assertEquals(samlSecurityRealm.loadUserByUsername("tesla").getUsername(), "tesla");
     }
