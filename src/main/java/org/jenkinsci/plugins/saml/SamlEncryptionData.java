@@ -57,7 +57,7 @@ public class SamlEncryptionData extends AbstractDescribableImpl<SamlEncryptionDa
     private transient String keystorePassword;
     private Secret keystorePasswordSecret;
     /***
-     * @deprecated
+     * @deprecated use privateKeyPasswordSecret instead
      */
     @Deprecated
     private transient String privateKeyPassword;
