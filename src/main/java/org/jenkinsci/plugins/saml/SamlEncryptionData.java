@@ -50,9 +50,15 @@ import static org.jenkinsci.plugins.saml.SamlSecurityRealm.*;
  */
 public class SamlEncryptionData extends AbstractDescribableImpl<SamlEncryptionData> {
     private final String keystorePath;
+    /***
+     * @deprecated
+     */
     @Deprecated
     private transient String keystorePassword;
     private Secret keystorePasswordSecret;
+    /***
+     * @deprecated
+     */
     @Deprecated
     private transient String privateKeyPassword;
     private Secret privateKeyPasswordSecret;

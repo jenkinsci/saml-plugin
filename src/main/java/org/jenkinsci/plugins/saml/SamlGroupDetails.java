@@ -33,7 +33,7 @@ import java.util.Set;
 public class SamlGroupDetails extends GroupDetails {
 
     private final String name;
-    private final Set<String> members = new HashSet<String>();
+    private final Set<String> members = new HashSet<>();
 
     public SamlGroupDetails(String name) {
         this.name = name;
@@ -44,10 +44,12 @@ public class SamlGroupDetails extends GroupDetails {
         return name;
     }
 
+    @Override
     public String getDisplayName() {
         return getName();
     }
 
+    @Override
     public Set<String> getMembers() {
         if (members.isEmpty()) {
             for (User u : User.getAll()) {

@@ -17,13 +17,7 @@ under the License. */
 
 package org.jenkinsci.plugins.saml;
 
-
 import org.acegisecurity.providers.AbstractAuthenticationToken;
-import org.acegisecurity.context.SecurityContextHolder;
-
-import javax.servlet.http.HttpSession;
-
-import jenkins.security.SecurityListener;
 
 import javax.annotation.Nonnull;
 
