@@ -119,7 +119,7 @@ public class SamlSecurityRealm extends SecurityRealm {
     private SamlAdvancedConfiguration advancedConfiguration;
 
     /***
-     * @deprecated
+     * @deprecated use idpMetadataConfiguration instead
      */
     @Deprecated
     private transient String idpMetadata;
