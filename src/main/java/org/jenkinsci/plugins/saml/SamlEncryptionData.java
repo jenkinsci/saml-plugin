@@ -143,51 +143,19 @@ public class SamlEncryptionData extends AbstractDescribableImpl<SamlEncryptionDa
         }
 
         public FormValidation doCheckKeystorePath(@QueryParameter String keystorePath) {
-            if (StringUtils.isEmpty(keystorePath)) {
-                return FormValidation.ok();
-            }
-
-            if (StringUtils.isBlank(keystorePath)) {
-                return FormValidation.error(ERROR_ONLY_SPACES_FIELD_VALUE);
-            }
-
-            return FormValidation.ok();
+            return SamlFormValidation.checkStringFormat(keystorePath);
         }
 
         public FormValidation doCheckPrivateKeyAlias(@QueryParameter String privateKeyAlias) {
-            if (StringUtils.isEmpty(privateKeyAlias)) {
-                return FormValidation.ok();
-            }
-
-            if (StringUtils.isBlank(privateKeyAlias)) {
-                return FormValidation.error(ERROR_ONLY_SPACES_FIELD_VALUE);
-            }
-
-            return FormValidation.ok();
+            return SamlFormValidation.checkStringFormat(privateKeyAlias);
         }
 
         public FormValidation doCheckKeystorePassword(@QueryParameter String keystorePassword) {
-            if (StringUtils.isEmpty(keystorePassword)) {
-                return FormValidation.ok();
-            }
-
-            if (StringUtils.isBlank(keystorePassword)) {
-                return FormValidation.error(ERROR_ONLY_SPACES_FIELD_VALUE);
-            }
-
-            return FormValidation.ok();
+            return SamlFormValidation.checkStringFormat(keystorePassword);
         }
 
         public FormValidation doCheckPrivateKeyPassword(@QueryParameter String privateKeyPassword) {
-            if (StringUtils.isEmpty(privateKeyPassword)) {
-                return FormValidation.ok();
-            }
-
-            if (StringUtils.isBlank(privateKeyPassword)) {
-                return FormValidation.error(ERROR_ONLY_SPACES_FIELD_VALUE);
-            }
-
-            return FormValidation.ok();
+            return SamlFormValidation.checkStringFormat(privateKeyPassword);
         }
 
         public FormValidation doTestKeyStore(@QueryParameter("keystorePath") String keystorePath,

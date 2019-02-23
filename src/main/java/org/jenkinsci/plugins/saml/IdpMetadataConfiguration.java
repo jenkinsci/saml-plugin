@@ -188,25 +188,7 @@ public class IdpMetadataConfiguration extends AbstractDescribableImpl<IdpMetadat
         }
 
         public FormValidation doCheckPeriod(@QueryParameter("period") String period) {
-            if (StringUtils.isEmpty(period)) {
-                return FormValidation.error(ERROR_NOT_VALID_NUMBER);
-            }
-            long i = 0;
-            try {
-                i = Long.parseLong(period);
-            } catch (NumberFormatException e) {
-                return FormValidation.error(ERROR_NOT_VALID_NUMBER, e);
-            }
-
-            if (i < 0) {
-                return FormValidation.error(ERROR_NOT_VALID_NUMBER);
-            }
-
-            if (i > Integer.MAX_VALUE) {
-                return FormValidation.error(ERROR_NOT_VALID_NUMBER);
-            }
-
-            return FormValidation.ok();
+            return SamlFormValidation.checkIntegerFormat(period);
         }
 
         public FormValidation doCheckXml(@QueryParameter("xml") String xml, @QueryParameter("url") String url) {

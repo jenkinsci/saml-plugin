@@ -22,6 +22,7 @@ import hudson.Util;
 
 import hudson.model.AbstractDescribableImpl;
 import hudson.model.Descriptor;
+import hudson.util.FormValidation;
 import org.apache.commons.lang.StringUtils;
 import org.kohsuke.stapler.DataBoundConstructor;
 
@@ -90,32 +91,17 @@ public class SamlAdvancedConfiguration extends AbstractDescribableImpl<SamlAdvan
             return "Advanced Configuration";
         }
 
-        public hudson.util.FormValidation doCheckAuthnContextClassRef(@org.kohsuke.stapler.QueryParameter String authnContextClassRef) {
-            if (StringUtils.isEmpty(authnContextClassRef)) {
-                return hudson.util.FormValidation.ok();
-            }
 
-            if (StringUtils.isBlank(authnContextClassRef)) {
-                return hudson.util.FormValidation.error(ERROR_ONLY_SPACES_FIELD_VALUE);
-            }
-
-            return hudson.util.FormValidation.ok();
+        public FormValidation doCheckAuthnContextClassRef(@org.kohsuke.stapler.QueryParameter String authnContextClassRef) {
+           return SamlFormValidation.checkStringFormat(authnContextClassRef);
         }
 
 
-        public hudson.util.FormValidation doCheckSpEntityId(@org.kohsuke.stapler.QueryParameter String spEntityId) {
-            if (StringUtils.isEmpty(spEntityId)) {
-                return hudson.util.FormValidation.ok();
-            }
-
-            if (StringUtils.isBlank(spEntityId)) {
-                return hudson.util.FormValidation.error(ERROR_ONLY_SPACES_FIELD_VALUE);
-            }
-
-            return hudson.util.FormValidation.ok();
+        public FormValidation doCheckSpEntityId(@org.kohsuke.stapler.QueryParameter String spEntityId) {
+            return SamlFormValidation.checkStringFormat(spEntityId);
         }
 
-        public hudson.util.FormValidation doCheckMaximumSessionLifetime(@org.kohsuke.stapler.QueryParameter String maximumSessionLifetime) {
+        public FormValidation doCheckMaximumSessionLifetime(@org.kohsuke.stapler.QueryParameter String maximumSessionLifetime) {
             if (StringUtils.isEmpty(maximumSessionLifetime)) {
                 return hudson.util.FormValidation.ok();
             }

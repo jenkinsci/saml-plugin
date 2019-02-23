@@ -47,8 +47,6 @@ import org.pac4j.saml.profile.SAML2Profile;
 import javax.annotation.Nonnull;
 import javax.servlet.http.HttpSession;
 import java.io.*;
-import java.net.MalformedURLException;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
@@ -644,86 +642,27 @@ public class SamlSecurityRealm extends SecurityRealm {
         }
 
         public FormValidation doCheckLogoutUrl(@QueryParameter String logoutUrl) {
-            if (StringUtils.isEmpty(logoutUrl)) {
-                return FormValidation.ok();
-            }
-            try {
-                new URL(logoutUrl);
-            } catch (MalformedURLException e) {
-                return FormValidation.error(ERROR_MALFORMED_URL, e);
-            }
-            return FormValidation.ok();
+            return SamlFormValidation.checkUrlFormat(logoutUrl);
         }
 
         public FormValidation doCheckDisplayNameAttributeName(@QueryParameter String displayNameAttributeName) {
-            if (StringUtils.isEmpty(displayNameAttributeName)) {
-                return FormValidation.ok();
-            }
-
-            if (StringUtils.isBlank(displayNameAttributeName)) {
-                return FormValidation.error(ERROR_ONLY_SPACES_FIELD_VALUE);
-            }
-
-            return FormValidation.ok();
+            return SamlFormValidation.checkStringFormat(displayNameAttributeName);
         }
 
         public FormValidation doCheckGroupsAttributeName(@QueryParameter String groupsAttributeName) {
-            if (StringUtils.isEmpty(groupsAttributeName)) {
-                return FormValidation.warning(WARN_RECOMMENDED_TO_SET_THE_GROUPS_ATTRIBUTE);
-            }
-
-            if (StringUtils.isBlank(groupsAttributeName)) {
-                return FormValidation.error(ERROR_ONLY_SPACES_FIELD_VALUE);
-            }
-
-            return FormValidation.ok();
+            SamlFormValidation.checkStringAttributeFormat(groupsAttributeName);
         }
 
         public FormValidation doCheckUsernameAttributeName(@QueryParameter String usernameAttributeName) {
-            if (StringUtils.isEmpty(usernameAttributeName)) {
-                return FormValidation.warning(WARN_RECOMMENDED_TO_SET_THE_USERNAME_ATTRIBUTE);
-            }
-
-            if (StringUtils.isBlank(usernameAttributeName)) {
-                return FormValidation.error(ERROR_ONLY_SPACES_FIELD_VALUE);
-            }
-
-            return FormValidation.ok();
+            return SamlFormValidation.checkStringAttributeFormat(usernameAttributeName);
         }
 
         public FormValidation doCheckEmailAttributeName(@QueryParameter String emailAttributeName) {
-            if (StringUtils.isEmpty(emailAttributeName)) {
-                return FormValidation.ok();
-            }
-
-            if (StringUtils.isBlank(emailAttributeName)) {
-                return FormValidation.error(ERROR_ONLY_SPACES_FIELD_VALUE);
-            }
-
-            return FormValidation.ok();
+            return SamlFormValidation.checkStringAttributeFormat(emailAttributeName);
         }
 
         public FormValidation doCheckMaximumAuthenticationLifetime(@QueryParameter String maximumAuthenticationLifetime) {
-            if (StringUtils.isEmpty(maximumAuthenticationLifetime)) {
-                return FormValidation.ok();
-            }
-
-            long i = 0;
-            try {
-                i = Long.parseLong(maximumAuthenticationLifetime);
-            } catch (NumberFormatException e) {
-                return FormValidation.error(ERROR_NOT_VALID_NUMBER, e);
-            }
-
-            if (i < 0) {
-                return FormValidation.error(ERROR_NOT_VALID_NUMBER);
-            }
-
-            if (i > Integer.MAX_VALUE) {
-                return FormValidation.error(ERROR_NOT_VALID_NUMBER);
-            }
-
-            return FormValidation.ok();
+            return SamlFormValidation.checkIntegerFormat(maximumAuthenticationLifetime);
         }
     }
 

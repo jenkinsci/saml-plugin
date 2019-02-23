@@ -147,7 +147,8 @@ public class LoginDetailsProperty extends UserProperty {
                 User u = User.get(username);
                 LoginDetailsProperty o = u.getProperty(LoginDetailsProperty.class);
                 if (o == null)
-                    u.addProperty(o = new LoginDetailsProperty());
+                    o = new LoginDetailsProperty()
+                    u.addProperty(o);
                 org.acegisecurity.Authentication a = Jenkins.getAuthentication();
                 if (a != null && a.getName().equals(username))
                     o.update();    // just for defensive sanity checking
@@ -170,6 +171,7 @@ public class LoginDetailsProperty extends UserProperty {
 
     @Extension
     public static final class DescriptorImpl extends UserPropertyDescriptor {
+        @Override
         public String getDisplayName() {
             return "User Login Properties";
         }
