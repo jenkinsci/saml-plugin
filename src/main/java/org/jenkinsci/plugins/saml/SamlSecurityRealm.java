@@ -49,13 +49,8 @@ import javax.servlet.http.HttpSession;
 import java.io.*;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
-import java.util.TimeZone;
-import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -123,6 +118,9 @@ public class SamlSecurityRealm extends SecurityRealm {
     private SamlEncryptionData encryptionData;
     private SamlAdvancedConfiguration advancedConfiguration;
 
+    /***
+     * @deprecated use idpMetadataConfiguration instead
+     */
     @Deprecated
     private transient String idpMetadata;
 

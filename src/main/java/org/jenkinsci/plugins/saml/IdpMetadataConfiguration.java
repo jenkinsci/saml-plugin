@@ -12,6 +12,7 @@ import org.kohsuke.stapler.DataBoundConstructor;
 import org.kohsuke.stapler.QueryParameter;
 
 import javax.annotation.Nonnull;
+import javax.xml.XMLConstants;
 import javax.xml.transform.OutputKeys;
 import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerException;
@@ -131,15 +132,16 @@ public class IdpMetadataConfiguration extends AbstractDescribableImpl<IdpMetadat
             URLConnection urlConnection = ProxyConfiguration.open(new URL(url));
             try (InputStream in = urlConnection.getInputStream()) {
                 TransformerFactory tf = TransformerFactory.newInstance();
+                tf.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true);
                 Transformer transformer = tf.newTransformer();
                 transformer.setOutputProperty(OutputKeys.OMIT_XML_DECLARATION, "no");
                 transformer.setOutputProperty(OutputKeys.INDENT, "yes");
                 StringWriter writer = new StringWriter();
                 transformer.transform(new StreamSource(in), new StreamResult(writer));
-                String xml = writer.toString();
-                FormValidation validation = new SamlValidateIdPMetadata(xml).get();
+                String idpXml = writer.toString();
+                FormValidation validation = new SamlValidateIdPMetadata(idpXml).get();
                 if (FormValidation.Kind.OK == validation.kind) {
-                    FileUtils.writeStringToFile(new File(SamlSecurityRealm.getIDPMetadataFilePath()), xml);
+                    FileUtils.writeStringToFile(new File(SamlSecurityRealm.getIDPMetadataFilePath()), idpXml);
                 } else {
                     throw new IllegalArgumentException(validation.getMessage());
                 }
