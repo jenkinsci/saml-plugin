@@ -651,7 +651,7 @@ public class SamlSecurityRealm extends SecurityRealm {
         }
 
         public FormValidation doCheckGroupsAttributeName(@QueryParameter String groupsAttributeName) {
-            SamlFormValidation.checkStringAttributeFormat(groupsAttributeName, FormValidation.warning(SamlSecurityRealm.WARN_RECOMMENDED_TO_SET_THE_GROUPS_ATTRIBUTE));
+            return SamlFormValidation.checkStringAttributeFormat(groupsAttributeName, FormValidation.warning(SamlSecurityRealm.WARN_RECOMMENDED_TO_SET_THE_GROUPS_ATTRIBUTE));
         }
 
         public FormValidation doCheckUsernameAttributeName(@QueryParameter String usernameAttributeName) {
