@@ -147,7 +147,7 @@ public class LoginDetailsProperty extends UserProperty {
                 User u = User.get(username);
                 LoginDetailsProperty o = u.getProperty(LoginDetailsProperty.class);
                 if (o == null)
-                    o = new LoginDetailsProperty()
+                    o = new LoginDetailsProperty();
                     u.addProperty(o);
                 org.acegisecurity.Authentication a = Jenkins.getAuthentication();
                 if (a != null && a.getName().equals(username))
