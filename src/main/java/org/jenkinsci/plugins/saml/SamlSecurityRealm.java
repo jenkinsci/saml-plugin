@@ -79,6 +79,7 @@ public class SamlSecurityRealm extends SecurityRealm {
     public static final String ERROR_IDP_METADATA_EMPTY = "The IdP Metadata can not be empty.";
     public static final String WARN_RECOMMENDED_TO_SET_THE_GROUPS_ATTRIBUTE = "It is recommended to set the groups attribute.";
     public static final String WARN_RECOMMENDED_TO_SET_THE_USERNAME_ATTRIBUTE = "It is recommended to set the username attribute.";
+    public static final String WARN_RECOMMENDED_TO_SET_THE_EMAIL_ATTRIBUTE = "It is recommended to set the email attribute.";
     public static final String ERROR_NOT_POSSIBLE_TO_READ_KS_FILE = "It is not possible to read the keystore file.";
     public static final String ERROR_CERTIFICATES_COULD_NOT_BE_LOADED = "Any of the certificates in the keystore could not be loaded";
     public static final String ERROR_ALGORITHM_CANNOT_BE_FOUND = "the algorithm used to check the integrity of the keystore cannot be found";
@@ -650,15 +651,15 @@ public class SamlSecurityRealm extends SecurityRealm {
         }
 
         public FormValidation doCheckGroupsAttributeName(@QueryParameter String groupsAttributeName) {
-            SamlFormValidation.checkStringAttributeFormat(groupsAttributeName);
+            SamlFormValidation.checkStringAttributeFormat(groupsAttributeName, FormValidation.warning(SamlSecurityRealm.WARN_RECOMMENDED_TO_SET_THE_GROUPS_ATTRIBUTE));
         }
 
         public FormValidation doCheckUsernameAttributeName(@QueryParameter String usernameAttributeName) {
-            return SamlFormValidation.checkStringAttributeFormat(usernameAttributeName);
+            return SamlFormValidation.checkStringAttributeFormat(usernameAttributeName, FormValidation.warning(SamlSecurityRealm.WARN_RECOMMENDED_TO_SET_THE_USERNAME_ATTRIBUTE));
         }
 
         public FormValidation doCheckEmailAttributeName(@QueryParameter String emailAttributeName) {
-            return SamlFormValidation.checkStringAttributeFormat(emailAttributeName);
+            return SamlFormValidation.checkStringAttributeFormat(emailAttributeName, FormValidation.warning(SamlSecurityRealm.WARN_RECOMMENDED_TO_SET_THE_EMAIL_ATTRIBUTE));
         }
 
         public FormValidation doCheckMaximumAuthenticationLifetime(@QueryParameter String maximumAuthenticationLifetime) {

@@ -24,10 +24,10 @@ public class SamlFormValidation extends FormValidation {
 
     }
 
-    public static FormValidation checkStringAttributeFormat(String value) {
+    public static FormValidation checkStringAttributeFormat(String value, FormValidation validation) {
 
         if (StringUtils.isEmpty(value)) {
-            return FormValidation.warning(SamlSecurityRealm.WARN_RECOMMENDED_TO_SET_THE_USERNAME_ATTRIBUTE);
+            return validation;
         }
 
         if (StringUtils.isBlank(value)) {
