@@ -651,15 +651,15 @@ public class SamlSecurityRealm extends SecurityRealm {
         }
 
         public FormValidation doCheckGroupsAttributeName(@QueryParameter String groupsAttributeName) {
-            return SamlFormValidation.checkStringAttributeFormat(groupsAttributeName, FormValidation.warning(SamlSecurityRealm.WARN_RECOMMENDED_TO_SET_THE_GROUPS_ATTRIBUTE));
+            return SamlFormValidation.checkStringAttributeFormat(groupsAttributeName, SamlSecurityRealm.WARN_RECOMMENDED_TO_SET_THE_GROUPS_ATTRIBUTE);
         }
 
         public FormValidation doCheckUsernameAttributeName(@QueryParameter String usernameAttributeName) {
-            return SamlFormValidation.checkStringAttributeFormat(usernameAttributeName, FormValidation.warning(SamlSecurityRealm.WARN_RECOMMENDED_TO_SET_THE_USERNAME_ATTRIBUTE));
+            return SamlFormValidation.checkStringAttributeFormat(usernameAttributeName, SamlSecurityRealm.WARN_RECOMMENDED_TO_SET_THE_USERNAME_ATTRIBUTE);
         }
 
         public FormValidation doCheckEmailAttributeName(@QueryParameter String emailAttributeName) {
-            return SamlFormValidation.checkStringAttributeFormat(emailAttributeName, FormValidation.warning(SamlSecurityRealm.WARN_RECOMMENDED_TO_SET_THE_EMAIL_ATTRIBUTE));
+            return SamlFormValidation.checkStringAttributeFormat(emailAttributeName, SamlSecurityRealm.WARN_RECOMMENDED_TO_SET_THE_EMAIL_ATTRIBUTE);
         }
 
         public FormValidation doCheckMaximumAuthenticationLifetime(@QueryParameter String maximumAuthenticationLifetime) {

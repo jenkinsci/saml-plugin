@@ -24,10 +24,10 @@ class SamlFormValidation {
 
     }
 
-    public static FormValidation checkStringAttributeFormat(String value, FormValidation validation) {
+    public static FormValidation checkStringAttributeFormat(String value, String message) {
 
         if (StringUtils.isEmpty(value)) {
-            return validation;
+            return FormValidation.warning(message);
         }
 
         if (StringUtils.isBlank(value)) {
