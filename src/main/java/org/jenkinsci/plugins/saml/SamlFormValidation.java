@@ -8,7 +8,7 @@ import java.net.URL;
 
 import static org.jenkinsci.plugins.saml.SamlSecurityRealm.*;
 
-class SamlFormValidation extends FormValidation {
+class SamlFormValidation {
 
     public static FormValidation checkStringFormat(String value) {
 
@@ -71,11 +71,6 @@ class SamlFormValidation extends FormValidation {
         }
 
         return FormValidation.ok();
-    }
-
-    @Override
-    public String renderHtml() {
-        throw new UnsupportedOperationException();
     }
 
 }
