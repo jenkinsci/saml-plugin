@@ -241,7 +241,7 @@ Caused by: org.opensaml.messaging.decoder.MessageDecodingException: Request did 
 
 ### No valid subject assertion found in response
 
-Check that the `SP Entry ID` it is the same in the SP (Jenkins) and IdP, by defaulr Jenkins uses `JENKINS_URL/securityRealm/finishLogin` you can change this value if you use the SAML Plugin's Advanced Setting named "SP Entity ID".
+Check that the `SP Entry ID` it is the same in the SP (Jenkins) and IdP, by default Jenkins uses `JENKINS_URL/securityRealm/finishLogin` you can change this value if you use the SAML Plugin's Advanced Setting named "SP Entity ID".
 
 ```
 org.pac4j.saml.exceptions.SAMLException: No valid subject assertion found in response 
