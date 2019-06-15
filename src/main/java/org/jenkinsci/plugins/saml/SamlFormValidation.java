@@ -2,13 +2,18 @@ package org.jenkinsci.plugins.saml;
 
 import hudson.util.FormValidation;
 import org.apache.commons.lang.StringUtils;
+import org.kohsuke.accmod.Restricted;
+import org.kohsuke.accmod.restrictions.NoExternalUse;
 
 import java.net.MalformedURLException;
 import java.net.URL;
 
 import static org.jenkinsci.plugins.saml.SamlSecurityRealm.*;
 
+@Restricted(NoExternalUse.class)
 class SamlFormValidation {
+
+    private SamlFormValidation(){}
 
     public static FormValidation checkStringFormat(String value) {
 
