@@ -141,7 +141,7 @@ public class SamlFormValidationsTest {
         assertEquals(descriptor.doCheckEmailAttributeName(null).kind, Kind.OK);
         assertEquals(descriptor.doCheckEmailAttributeName("").kind, Kind.OK);
         assertEquals(descriptor.doCheckEmailAttributeName(" ").kind, Kind.ERROR);
-        assertEquals(descriptor.doCheckEmailAttributeName("value").kind, Kind.OK);
+        assertEquals(descriptor.doCheckEmailAttributeName("Test@example.com").kind, Kind.OK);
     }
 
     @LocalData("testReadSimpleConfigurationAdvancedConfiguration")

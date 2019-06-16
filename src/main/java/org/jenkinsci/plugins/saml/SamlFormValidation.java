@@ -9,6 +9,7 @@ import javax.mail.internet.AddressException;
 import javax.mail.internet.InternetAddress;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.text.Normalizer;
 
 import static org.jenkinsci.plugins.saml.SamlSecurityRealm.*;
 
@@ -48,13 +49,19 @@ class SamlFormValidation {
     public static FormValidation checkEmailFormat(String value, String message) {
 
         try {
-            if(StringUtils.isEmpty(value)) {
+            if(!StringUtils.isEmpty(value)) {
                 InternetAddress ia = new InternetAddress(value);
                 ia.validate();
+            }
+            else {
+                FormValidation.warning(message);
             }
         }
         catch (AddressException ae) {
             return FormValidation.error(message);
+        }
+        catch (NullPointerException ne) {
+            return FormValidation.warning(message);
         }
 
         return FormValidation.ok();
