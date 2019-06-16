@@ -29,9 +29,9 @@ class SamlFormValidation {
 
     }
 
-    public static FormValidation checkStringAttributeFormat(String value, String message) {
+    public static FormValidation checkStringAttributeFormat(String value, String message, boolean warn) {
 
-        if (StringUtils.isEmpty(value)) {
+        if (warn && StringUtils.isEmpty(value)) {
             return FormValidation.warning(message);
         }
 
