@@ -5,6 +5,8 @@ import org.apache.commons.lang.StringUtils;
 import org.kohsuke.accmod.Restricted;
 import org.kohsuke.accmod.restrictions.NoExternalUse;
 
+import javax.mail.internet.AddressException;
+import javax.mail.internet.InternetAddress;
 import java.net.MalformedURLException;
 import java.net.URL;
 
@@ -37,6 +39,22 @@ class SamlFormValidation {
 
         if (StringUtils.isBlank(value)) {
             return FormValidation.error(ERROR_ONLY_SPACES_FIELD_VALUE);
+        }
+
+        return FormValidation.ok();
+
+    }
+
+    public static FormValidation checkEmailFormat(String value, String message) {
+
+        try {
+            if(StringUtils.isEmpty(value)) {
+                InternetAddress ia = new InternetAddress(value);
+                ia.validate();
+            }
+        }
+        catch (AddressException ae) {
+            return FormValidation.error(message);
         }
 
         return FormValidation.ok();
