@@ -68,7 +68,7 @@ public class SamlUserDetails implements UserDetails {
 
     @Override
     public String toString() {
-        final StringBuffer sb = new StringBuffer("SamlUserDetails{");
+        final StringBuilder sb = new StringBuilder("SamlUserDetails{");
         sb.append("username='").append(getUsername()).append('\'');
         sb.append(", authorities=").append(getAuthorities() == null ? "null" : Arrays.asList(getAuthorities()).toString()).append('\'');
         sb.append(", isAccountNonExpired='").append(isAccountNonExpired()).append('\'');

@@ -45,4 +45,19 @@ public final class SamlAuthenticationToken extends AbstractAuthenticationToken {
         return "SAML does not use passwords";
     }
 
+    @Override
+    public boolean equals(Object obj) {
+        if(obj instanceof SamlAuthenticationToken){
+            return userDetails.equals(obj);
+        }
+        else {
+            return false;
+        }
+    }
+
+    @Override
+    public int hashCode() {
+        return userDetails.hashCode();
+    }
+
 }

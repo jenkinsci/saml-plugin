@@ -34,7 +34,7 @@ public class SamlCrumbExclusion extends CrumbExclusion {
             LOG.fine("SamlCrumbExclusion.shouldExclude empty");
             return false;
         }
-        if (pathInfo.indexOf(SamlSecurityRealm.CONSUMER_SERVICE_URL_PATH) == 1) {
+        if (pathInfo.indexOf(SamlSecurityRealm.CONSUMER_SERVICE_URL_PATH, 1) > -1) {
             LOG.fine("SamlCrumbExclusion.shouldExclude excluding '" + pathInfo + "'");
             return true;
         } else {

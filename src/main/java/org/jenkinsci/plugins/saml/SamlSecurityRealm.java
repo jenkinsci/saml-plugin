@@ -195,13 +195,11 @@ public class SamlSecurityRealm extends SecurityRealm {
         }
 
         File idpMetadataFile = new File(getIDPMetadataFilePath());
-        if (!idpMetadataFile.exists()){
-            if (idpMetadataConfiguration != null && idpMetadataConfiguration.getXml() != null){
-                try {
-                    idpMetadataConfiguration.createIdPMetadataFile();
-                } catch (IOException e) {
-                    LOG.log(Level.SEVERE, e.getMessage(), e);
-                }
+        if (!idpMetadataFile.exists() && idpMetadataConfiguration != null && idpMetadataConfiguration.getXml() != null){
+            try {
+                idpMetadataConfiguration.createIdPMetadataFile();
+            } catch (IOException e) {
+                LOG.log(Level.SEVERE, e.getMessage(), e);
             }
         }
 
@@ -272,7 +270,7 @@ public class SamlSecurityRealm extends SecurityRealm {
      */
     private String calculateSafeRedirect(String from, String referer) {
         String redirectURL;
-        String rootUrl = Jenkins.getInstance().getRootUrl();
+        String rootUrl = baseUrl();
         if (from != null && Util.isSafeToRedirectTo(from)) {
             redirectURL = from;
         } else {
@@ -282,7 +280,7 @@ public class SamlSecurityRealm extends SecurityRealm {
                 redirectURL = rootUrl;
             }
         }
-        LOG.fine("Safe URL redirection: " + redirectURL);
+        LOG.fine(String.format("Safe URL redirection: {0}", redirectURL));
         return redirectURL;
     }
 
@@ -351,7 +349,7 @@ public class SamlSecurityRealm extends SecurityRealm {
     }
 
     private String getEffectiveLogoutUrl() {
-        return StringUtils.isNotBlank(getLogoutUrl()) ? getLogoutUrl() : Jenkins.getInstance().getRootUrl() + SamlLogoutAction.POST_LOGOUT_URL;
+        return StringUtils.isNotBlank(getLogoutUrl()) ? getLogoutUrl() : Jenkins.getInstanceOrNull().getRootUrl() + SamlLogoutAction.POST_LOGOUT_URL;
     }
 
     /**
@@ -417,7 +415,12 @@ public class SamlSecurityRealm extends SecurityRealm {
     }
 
     private String baseUrl() {
-        return Jenkins.getInstance().getRootUrl();
+        Jenkins j = Jenkins.getInstanceOrNull();
+        String baseUrl = null;
+        if(j != null) {
+            baseUrl = j.getRootUrl();
+        }
+        return baseUrl;
     }
 
     /**
@@ -476,7 +479,7 @@ public class SamlSecurityRealm extends SecurityRealm {
         }
 
         // build list of authorities
-        List<GrantedAuthority> authorities = new ArrayList<GrantedAuthority>();
+        List<GrantedAuthority> authorities = new ArrayList<>();
         authorities.add(AUTHENTICATED_AUTHORITY);
         if (!groups.isEmpty()) {
             for (Object group : groups) {
@@ -553,11 +556,21 @@ public class SamlSecurityRealm extends SecurityRealm {
     }
 
     static String getIDPMetadataFilePath() {
-        return jenkins.model.Jenkins.getInstance().getRootDir().getAbsolutePath() + IDP_METADATA_FILE_NAME;
+        Jenkins j = jenkins.model.Jenkins.getInstanceOrNull();
+        String idpMetadataFilePath = null;
+        if(j != null) {
+            idpMetadataFilePath = j.getRootDir().getAbsolutePath() + IDP_METADATA_FILE_NAME;
+        }
+        return idpMetadataFilePath;
     }
 
     static String getSPMetadataFilePath() {
-        return jenkins.model.Jenkins.getInstance().getRootDir().getAbsolutePath() + SP_METADATA_FILE_NAME;
+        Jenkins j = jenkins.model.Jenkins.getInstanceOrNull();
+        String spMetaDataFilePath = null;
+        if(j != null) {
+            spMetaDataFilePath = j.getRootDir().getAbsolutePath() + SP_METADATA_FILE_NAME;
+        }
+        return spMetaDataFilePath;
     }
 
     /**
@@ -584,7 +597,8 @@ public class SamlSecurityRealm extends SecurityRealm {
         LOG.log(Level.FINE, "Doing Logout {}", auth.getPrincipal());
         // if we just redirect to the root and anonymous does not have Overall read then we will start a login all over again.
         // we are actually anonymous here as the security context has been cleared
-        if (Jenkins.getInstance().hasPermission(Jenkins.READ) && StringUtils.isBlank(getLogoutUrl())) {
+        Jenkins jenkins = Jenkins.getInstanceOrNull();
+        if (jenkins != null && jenkins.hasPermission(Jenkins.READ) && StringUtils.isBlank(getLogoutUrl())) {
             return super.getPostLogOutUrl(req, auth);
         }
         return getEffectiveLogoutUrl();

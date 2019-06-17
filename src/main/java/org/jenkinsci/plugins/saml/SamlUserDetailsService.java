@@ -25,7 +25,6 @@ import org.acegisecurity.Authentication;
 import org.acegisecurity.GrantedAuthority;
 import org.acegisecurity.userdetails.UserDetailsService;
 import org.acegisecurity.userdetails.UsernameNotFoundException;
-import org.springframework.dao.DataAccessException;
 
 import javax.annotation.Nonnull;
 import java.util.ArrayList;
@@ -39,11 +38,11 @@ import java.util.List;
  */
 public class SamlUserDetailsService implements UserDetailsService {
 
-    public SamlUserDetails loadUserByUsername(@Nonnull String username) throws UsernameNotFoundException, DataAccessException {
+    public SamlUserDetails loadUserByUsername(@Nonnull String username) {
 
         // try to obtain user details from current authentication details
         Authentication auth = Jenkins.getAuthentication();
-        if (auth != null && username.compareTo(auth.getName()) == 0 && auth instanceof SamlAuthenticationToken) {
+        if (username.compareTo(auth.getName()) == 0 && auth instanceof SamlAuthenticationToken) {
             return (SamlUserDetails) auth.getDetails();
         }
 
@@ -53,7 +52,7 @@ public class SamlUserDetailsService implements UserDetailsService {
             throw new UsernameNotFoundException(username);
         }
 
-        List<GrantedAuthority> authorities = new ArrayList<GrantedAuthority>();
+        List<GrantedAuthority> authorities = new ArrayList<>();
         authorities.add(SecurityRealm.AUTHENTICATED_AUTHORITY);
 
         if (username.compareTo(user.getId()) == 0) {
@@ -67,8 +66,6 @@ public class SamlUserDetailsService implements UserDetailsService {
                 }
             }
         }
-
-        SamlUserDetails userDetails = new SamlUserDetails(user.getId(), authorities.toArray(new GrantedAuthority[0]));
-        return userDetails;
+        return new SamlUserDetails(user.getId(), authorities.toArray(new GrantedAuthority[0]));
     }
 }
