@@ -349,13 +349,7 @@ public class SamlSecurityRealm extends SecurityRealm {
     }
 
     private String getEffectiveLogoutUrl() {
-        Jenkins j = Jenkins.getInstanceOrNull();
-        if(j != null) {
-            return StringUtils.isNotBlank(getLogoutUrl()) ? getLogoutUrl() : j.getRootUrl() + SamlLogoutAction.POST_LOGOUT_URL;
-        }
-        else {
-            return null;
-        }
+            return StringUtils.isNotBlank(getLogoutUrl()) ? getLogoutUrl() : Jenkins.get().getRootUrl() + SamlLogoutAction.POST_LOGOUT_URL;
     }
 
     /**
@@ -421,12 +415,7 @@ public class SamlSecurityRealm extends SecurityRealm {
     }
 
     private String baseUrl() {
-        Jenkins j = Jenkins.getInstanceOrNull();
-        String baseUrl = null;
-        if(j != null) {
-            baseUrl = j.getRootUrl();
-        }
-        return baseUrl;
+        return  Jenkins.get().getRootUrl();
     }
 
     /**
@@ -562,21 +551,11 @@ public class SamlSecurityRealm extends SecurityRealm {
     }
 
     static String getIDPMetadataFilePath() {
-        Jenkins j = jenkins.model.Jenkins.getInstanceOrNull();
-        String idpMetadataFilePath = null;
-        if(j != null) {
-            idpMetadataFilePath = j.getRootDir().getAbsolutePath() + IDP_METADATA_FILE_NAME;
-        }
-        return idpMetadataFilePath;
+        return Jenkins.get().getRootDir().getAbsolutePath() + IDP_METADATA_FILE_NAME;
     }
 
     static String getSPMetadataFilePath() {
-        Jenkins j = jenkins.model.Jenkins.getInstanceOrNull();
-        String spMetaDataFilePath = null;
-        if(j != null) {
-            spMetaDataFilePath = j.getRootDir().getAbsolutePath() + SP_METADATA_FILE_NAME;
-        }
-        return spMetaDataFilePath;
+        return Jenkins.get().getRootDir().getAbsolutePath() + SP_METADATA_FILE_NAME;
     }
 
     /**
@@ -603,8 +582,7 @@ public class SamlSecurityRealm extends SecurityRealm {
         LOG.log(Level.FINE, "Doing Logout {}", auth.getPrincipal());
         // if we just redirect to the root and anonymous does not have Overall read then we will start a login all over again.
         // we are actually anonymous here as the security context has been cleared
-        Jenkins jenkins = Jenkins.getInstanceOrNull();
-        if (jenkins != null && jenkins.hasPermission(Jenkins.READ) && StringUtils.isBlank(getLogoutUrl())) {
+        if (Jenkins.get().hasPermission(Jenkins.READ) && StringUtils.isBlank(getLogoutUrl())) {
             return super.getPostLogOutUrl(req, auth);
         }
         return getEffectiveLogoutUrl();
