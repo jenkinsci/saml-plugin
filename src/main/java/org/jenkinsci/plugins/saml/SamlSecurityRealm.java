@@ -348,8 +348,14 @@ public class SamlSecurityRealm extends SecurityRealm {
         return HttpResponses.redirectTo(redirectUrl);
     }
 
-    private String getEffectiveLogoutUrl() throws NullPointerException {
-        return StringUtils.isNotBlank(getLogoutUrl()) ? getLogoutUrl() : Jenkins.getInstanceOrNull().getRootUrl() + SamlLogoutAction.POST_LOGOUT_URL;
+    private String getEffectiveLogoutUrl() {
+        Jenkins j = Jenkins.getInstanceOrNull();
+        if(j != null) {
+            return StringUtils.isNotBlank(getLogoutUrl()) ? getLogoutUrl() : j.getRootUrl() + SamlLogoutAction.POST_LOGOUT_URL;
+        }
+        else {
+            return null;
+        }
     }
 
     /**
