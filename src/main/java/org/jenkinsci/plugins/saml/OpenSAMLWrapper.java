@@ -28,7 +28,6 @@ import org.pac4j.saml.client.SAML2ClientConfiguration;
 import java.util.logging.Logger;
 
 import static java.util.logging.Level.*;
-import static org.opensaml.saml.common.xml.SAMLConstants.SAML2_REDIRECT_BINDING_URI;
 
 /**
  * Overall wrapper to all operation using OpenSAML library, this allow to load the Service Loaders properly
