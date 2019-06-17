@@ -58,8 +58,8 @@ public class UpdateMetadataFromURLPeriodicWork extends AsyncAperiodicWork {
      */
     private long getConfiguredPeriod() {
         long ret = 0;
-        jenkins.model.Jenkins j = jenkins.model.Jenkins.getInstance();
-        if (j.getSecurityRealm() instanceof SamlSecurityRealm) {
+        jenkins.model.Jenkins j = jenkins.model.Jenkins.getInstanceOrNull();
+        if (j != null && (j.getSecurityRealm() instanceof SamlSecurityRealm)) {
             SamlSecurityRealm samlSecurityRealm = (SamlSecurityRealm) j.getSecurityRealm();
             IdpMetadataConfiguration config = samlSecurityRealm.getIdpMetadataConfiguration();
             if(config != null && config.getPeriod() != null && StringUtils.isNotBlank(config.getUrl())) {
@@ -83,13 +83,13 @@ public class UpdateMetadataFromURLPeriodicWork extends AsyncAperiodicWork {
      * <p>if the period configured is 0 it returns directly, do nothing.</p>
      */
     @Override
-    protected void execute(hudson.model.TaskListener listener) throws IOException, InterruptedException {
+    protected void execute(hudson.model.TaskListener listener) {
         if (getConfiguredPeriod() == 0) {
             return;
         }
 
-        Jenkins j = Jenkins.getInstance();
-        if (j.getSecurityRealm() instanceof SamlSecurityRealm) {
+        Jenkins j = Jenkins.getInstanceOrNull();
+        if (j != null && (j.getSecurityRealm() instanceof SamlSecurityRealm)) {
             SamlSecurityRealm samlSecurityRealm = (SamlSecurityRealm) j.getSecurityRealm();
             try {
                 samlSecurityRealm.getIdpMetadataConfiguration().updateIdPMetadata();
