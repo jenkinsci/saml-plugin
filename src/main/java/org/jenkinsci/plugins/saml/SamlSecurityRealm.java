@@ -280,7 +280,7 @@ public class SamlSecurityRealm extends SecurityRealm {
                 redirectURL = rootUrl;
             }
         }
-        LOG.fine(String.format("Safe URL redirection: {0}", redirectURL));
+        LOG.fine("Safe URL redirection: " + redirectURL);
         return redirectURL;
     }
 
