@@ -75,7 +75,7 @@ public class BundleKeyStore {
     private transient XmlFile config = null;
 
     public BundleKeyStore(){
-        Jenkins jenkins = Jenkins.getInstance();
+        Jenkins jenkins = Jenkins.get();
         File jdir = jenkins.getRootDir();
         File configFile = new File(jdir, SAML_JENKINS_KEYSTORE_XML);
         config = new XmlFile(configFile);
@@ -96,7 +96,7 @@ public class BundleKeyStore {
     public synchronized void init() {
         try {
             if (keystore == null || !keystoreFileExists()) {
-                String jenkinsHome = jenkins.model.Jenkins.getInstance().getRootDir().getPath();
+                String jenkinsHome = jenkins.model.Jenkins.get().getRootDir().getPath();
                 keystore = java.nio.file.Paths.get(jenkinsHome, SAML_JENKINS_KEYSTORE_JKS).toFile();
                 keystorePath = "file:" + keystore.getPath();
             }
@@ -231,8 +231,7 @@ public class BundleKeyStore {
         KeyPairGenerator keyGen = KeyPairGenerator.getInstance(KEY_ALG, PROVIDER);
         SecureRandom prng = new SecureRandom();
         keyGen.initialize(keySize, prng);
-        KeyPair keyPair = keyGen.generateKeyPair();
-        return keyPair;
+        return keyGen.generateKeyPair();
     }
 
     /**
@@ -274,9 +273,7 @@ public class BundleKeyStore {
 
         X509CertificateHolder certHldr = builder.build(
                 new JcaContentSignerBuilder(SIGNATURE_ALGORITHM).build(keyPair.getPrivate()));
-        X509Certificate cert = new JcaX509CertificateConverter().getCertificate(certHldr);
-
-        return cert;
+        return new JcaX509CertificateConverter().getCertificate(certHldr);
     }
 
     public String getKeystorePath() {

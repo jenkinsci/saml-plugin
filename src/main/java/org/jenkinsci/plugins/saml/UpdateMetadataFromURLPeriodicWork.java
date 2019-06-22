@@ -58,8 +58,8 @@ public class UpdateMetadataFromURLPeriodicWork extends AsyncAperiodicWork {
      */
     private long getConfiguredPeriod() {
         long ret = 0;
-        jenkins.model.Jenkins j = jenkins.model.Jenkins.getInstanceOrNull();
-        if (j != null && (j.getSecurityRealm() instanceof SamlSecurityRealm)) {
+        jenkins.model.Jenkins j = jenkins.model.Jenkins.get();
+        if (j.getSecurityRealm() instanceof SamlSecurityRealm) {
             SamlSecurityRealm samlSecurityRealm = (SamlSecurityRealm) j.getSecurityRealm();
             IdpMetadataConfiguration config = samlSecurityRealm.getIdpMetadataConfiguration();
             if(config != null && config.getPeriod() != null && StringUtils.isNotBlank(config.getUrl())) {
@@ -88,8 +88,8 @@ public class UpdateMetadataFromURLPeriodicWork extends AsyncAperiodicWork {
             return;
         }
 
-        Jenkins j = Jenkins.getInstanceOrNull();
-        if (j != null && (j.getSecurityRealm() instanceof SamlSecurityRealm)) {
+        Jenkins j = Jenkins.get();
+        if (j.getSecurityRealm() instanceof SamlSecurityRealm) {
             SamlSecurityRealm samlSecurityRealm = (SamlSecurityRealm) j.getSecurityRealm();
             try {
                 samlSecurityRealm.getIdpMetadataConfiguration().updateIdPMetadata();

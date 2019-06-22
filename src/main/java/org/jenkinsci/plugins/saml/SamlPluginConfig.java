@@ -112,11 +112,7 @@ public class SamlPluginConfig {
     }
 
     public String baseUrl() {
-        Jenkins j = Jenkins.getInstanceOrNull();
-        if(j != null) {
-            return j.getRootUrl();
-        }
-        return  null;
+        return Jenkins.get().getRootUrl();
     }
 
     public IdpMetadataConfiguration getIdpMetadataConfiguration() {

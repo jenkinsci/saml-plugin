@@ -141,13 +141,11 @@ public class LoginDetailsProperty extends UserProperty {
         @Override
         protected void loggedIn(@javax.annotation.Nonnull String username) {
 
-            Jenkins j = Jenkins.getInstanceOrNull();
-            if (j != null) {
-                SecurityRealm realm = j.getSecurityRealm();
-                if (!(realm instanceof SamlSecurityRealm)) {
-                    return;
-                }
+            SecurityRealm realm = Jenkins.get().getSecurityRealm();
+            if (!(realm instanceof SamlSecurityRealm)) {
+                return;
             }
+
 
             try {
                 User u = User.getOrCreateByIdOrFullName(username);
