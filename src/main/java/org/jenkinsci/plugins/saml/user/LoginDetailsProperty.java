@@ -148,7 +148,7 @@ public class LoginDetailsProperty extends UserProperty {
 
 
             try {
-                User u = User.getOrCreateByIdOrFullName(username);
+                User u = User.getById(username, true);
                 LoginDetailsProperty o = u.getProperty(LoginDetailsProperty.class);
                 if (o == null) {
                     o = new LoginDetailsProperty();
