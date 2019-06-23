@@ -17,6 +17,7 @@ under the License. */
 package org.jenkinsci.plugins.saml.user;
 
 import edu.umd.cs.findbugs.annotations.NonNull;
+import hudson.Extension;
 import hudson.model.Descriptor.FormException;
 import hudson.model.User;
 import hudson.model.UserProperty;
@@ -115,7 +116,7 @@ public class SamlCustomProperty extends UserProperty {
         return this;
     }
 
-    @hudson.Extension
+    @Extension
     public static final class DescriptorImpl extends UserPropertyDescriptor {
         public String getDisplayName() {
             return "Saml Custom Attributes property";
