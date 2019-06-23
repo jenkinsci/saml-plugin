@@ -25,6 +25,7 @@ import hudson.model.Descriptor;
 import hudson.util.FormValidation;
 import org.apache.commons.lang.StringUtils;
 import org.kohsuke.stapler.DataBoundConstructor;
+import org.kohsuke.stapler.QueryParameter;
 
 
 /**
@@ -90,16 +91,16 @@ public class SamlAdvancedConfiguration extends AbstractDescribableImpl<SamlAdvan
         }
 
 
-        public FormValidation doCheckAuthnContextClassRef(@org.kohsuke.stapler.QueryParameter String authnContextClassRef) {
+        public FormValidation doCheckAuthnContextClassRef(@QueryParameter String authnContextClassRef) {
             return SamlFormValidation.checkStringFormat(authnContextClassRef);
         }
 
 
-        public FormValidation doCheckSpEntityId(@org.kohsuke.stapler.QueryParameter String spEntityId) {
+        public FormValidation doCheckSpEntityId(@QueryParameter String spEntityId) {
             return SamlFormValidation.checkStringFormat(spEntityId);
         }
 
-        public FormValidation doCheckMaximumSessionLifetime(@org.kohsuke.stapler.QueryParameter String maximumSessionLifetime) {
+        public FormValidation doCheckMaximumSessionLifetime(@QueryParameter String maximumSessionLifetime) {
             return SamlFormValidation.checkIntegerFormat(maximumSessionLifetime);
 
         }
