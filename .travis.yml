@@ -1,8 +1,0 @@
-language: java
-addons:
-  sonarcloud:
-    organization: "chrisro89-github"
-    token:
-      secure: "afda2ec5584b57023ef0b3ca5216053bd512edce"
-script:
-  - sonar-scanner
