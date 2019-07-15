@@ -104,5 +104,6 @@ public class SamlAdvancedConfiguration extends AbstractDescribableImpl<SamlAdvan
             return SamlFormValidation.checkIntegerFormat(maximumSessionLifetime);
 
         }
+
     }
 }
