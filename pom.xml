@@ -231,7 +231,6 @@ under the License.
       <version>3.4.3</version>
       <exclusions>
         <exclusion>
-
           <groupId>org.slf4j</groupId>
           <artifactId>slf4j-api</artifactId>
         </exclusion>
@@ -244,6 +243,11 @@ under the License.
     <dependency>
       <groupId>org.opensaml</groupId>
       <artifactId>opensaml-messaging-impl</artifactId>
+      <version>3.4.3</version>
+    </dependency>
+    <dependency>
+      <groupId>org.opensaml</groupId>
+      <artifactId>opensaml-messaging-api</artifactId>
       <version>3.4.3</version>
     </dependency>
     <dependency>
