@@ -41,7 +41,9 @@ import org.bouncycastle.operator.jcajce.JcaContentSignerBuilder;
 import hudson.XmlFile;
 import hudson.util.Secret;
 import jenkins.model.Jenkins;
+
 import static java.util.logging.Level.WARNING;
+import static java.util.logging.Level.SEVERE;
 
 /**
  * Pac4j requires to set a keystore for encryption operations,
@@ -119,7 +121,9 @@ public class BundleKeyStore {
                                  + config.getFile().getAbsolutePath(), e);
             }
         } catch (Exception e) {
-            LOG.warning("Using bundled keystore : " + e.getMessage());
+            LOG.log(SEVERE, "Error accessing to " + SAML_JENKINS_KEYSTORE_JKS + " keystore file, check the " +
+                    "troubleshooting guide https://github.com/jenkinsci/saml-plugin/blob/master/doc/TROUBLESHOOTING.md", e);
+            LOG.warning("Using bundled keystore : " + PAC4J_DEMO_KEYSTORE);
             ksPassword = Secret.fromString(PAC4J_DEMO_PASSWD);
             ksPkPassword =  Secret.fromString(PAC4J_DEMO_PASSWD);
             keystorePath = PAC4J_DEMO_KEYSTORE;

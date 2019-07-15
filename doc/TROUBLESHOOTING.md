@@ -241,7 +241,7 @@ Caused by: org.opensaml.messaging.decoder.MessageDecodingException: Request did 
 
 ### No valid subject assertion found in response
 
-Check that the `SP Entry ID` it is the same in the SP (Jenkins) and IdP, by defaulr Jenkins uses `JENKINS_URL/securityRealm/finishLogin` you can change this value if you use the SAML Plugin's Advanced Setting named "SP Entity ID".
+Check that the `SP Entry ID` it is the same in the SP (Jenkins) and IdP, by default Jenkins uses `JENKINS_URL/securityRealm/finishLogin` you can change this value if you use the SAML Plugin's Advanced Setting named "SP Entity ID".
 
 ```
 org.pac4j.saml.exceptions.SAMLException: No valid subject assertion found in response 
@@ -305,4 +305,50 @@ SEVERE: Current assertion validation failed, continue with the next oneorg.pac4j
   at org.eclipse.jetty.util.thread.QueuedThreadPool.runJob(QueuedThreadPool.java:762)
   at org.eclipse.jetty.util.thread.QueuedThreadPool$2.run(QueuedThreadPool.java:680)
   at java.lang.Thread.run(Thread.java:748)
+```
+
+### Unable to create/read keystore
+
+The key store is needed by the pac4j library even do you do not use encryption,
+because of that the plugin manages a dummy keystore, it is created and the key is maintained in case it expired.
+It should be transparent for the user, we saw some cases that cannot write the JENKINS_HOME/saml-jenkins-keystore.jks
+and also fails to read the keystore inside the jar.
+
+```
+WARNING: Using bundled keystore : /srv/jenkins/home/saml-jenkins-keystore.jks (Permission denied)
+Jun 19, 2019 8:19:44 AM org.jenkinsci.plugins.saml.OpenSAMLWrapper createSAML2Client
+WARNING: Using bundled keystore : resource:samlKeystore.jks
+```
+
+```
+Stack trace
+org.pac4j.core.exception.TechnicalException: Unsupported resource format: jar:file:/srv/jenkins/home/plugins/saml/WEB-INF/lib/saml.jar!/samlKeystore.jks. Use a relative or absolute path
+	at org.pac4j.core.util.CommonHelper$1.getFilename(CommonHelper.java:373)
+	at org.pac4j.saml.client.SAML2ClientConfiguration.getKeystorePath(SAML2ClientConfiguration.java:313)
+	at org.pac4j.saml.crypto.KeyStoreCredentialProvider.<init>(KeyStoreCredentialProvider.java:92)
+	at org.pac4j.saml.client.SAML2Client.initCredentialProvider(SAML2Client.java:174)
+	at org.pac4j.saml.client.SAML2Client.internalInit(SAML2Client.java:111)
+	at org.pac4j.core.util.InitializableWebObject.init(InitializableWebObject.java:24)
+	at org.jenkinsci.plugins.saml.OpenSAMLWrapper.createSAML2Client(OpenSAMLWrapper.java:145)
+	at org.jenkinsci.plugins.saml.SamlRedirectActionWrapper.process(SamlRedirectActionWrapper.java:45)
+	at org.jenkinsci.plugins.saml.SamlRedirectActionWrapper.process(SamlRedirectActionWrapper.java:30)
+	at org.jenkinsci.plugins.saml.OpenSAMLWrapper.get(OpenSAMLWrapper.java:64)
+	at org.jenkinsci.plugins.saml.SamlSecurityRealm.doCommenceLogin(SamlSecurityRealm.java:258)
+	at java.lang.invoke.MethodHandle.invokeWithArguments(MethodHandle.java:627)
+	at org.kohsuke.stapler.Function$MethodFunction.invoke(Function.java:396)
+	at org.kohsuke.stapler.Function$InstanceFunction.invoke(Function.java:408)
+	at org.kohsuke.stapler.Function.bindAndInvoke(Function.java:212)
+	at org.kohsuke.stapler.Function.bindAndInvokeAndServeResponse(Function.java:145)
+	at org.kohsuke.stapler.MetaClass$11.doDispatch(MetaClass.java:537)
+	at org.kohsuke.stapler.NameBasedDispatcher.dispatch(NameBasedDispatcher.java:58)
+	at org.kohsuke.stapler.Stapler.tryInvoke(Stapler.java:739)
+```
+
+The solution is to allow to create the $JENKINS_HOME/saml-jenkins-keystore.jks, remove the existing files and ensure
+Jenkins can create those files.
+
+
+```
+rm $JENKINS_HOME/saml-jenkins-keystore.jks
+rm $JENKINS_HOME/saml-jenkins-keystore.xml
 ```
