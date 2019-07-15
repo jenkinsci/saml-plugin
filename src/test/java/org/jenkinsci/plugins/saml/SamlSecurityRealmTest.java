@@ -172,14 +172,14 @@ public class SamlSecurityRealmTest {
     @WithTimeout(240)
     @Test
     public void testLoadGroupByGroupname() {
-        assertEquals(samlSecurityRealm.loadGroupByGroupname("role500", true).getName(), "role500");
+        assertEquals("role500", samlSecurityRealm.loadGroupByGroupname("role500", true).getName());
     }
 
     @LocalData("testHugeNumberOfUsers")
     @WithTimeout(240)
     @Test
     public void testLoadUserByUsername() {
-        assertEquals(samlSecurityRealm.loadUserByUsername("tesla").getUsername(), "tesla");
+        assertEquals("tesla", samlSecurityRealm.loadUserByUsername("tesla").getUsername());
     }
 
     @LocalData("testReadSimpleConfiguration")
@@ -196,27 +196,27 @@ public class SamlSecurityRealmTest {
                 samlSecurityRealm.getBinding(),
                 samlSecurityRealm.getEncryptionData(),
                 samlSecurityRealm.getAdvancedConfiguration());
-        assertEquals(samlPluginConfig.toString().equals(samlSecurityRealm.getSamlPluginConfig().toString()), true);
+        assertEquals(true, samlPluginConfig.toString().equals(samlSecurityRealm.getSamlPluginConfig().toString()));
 
-        assertEquals(new SamlAdvancedConfiguration(null,null,null, null).toString().contains("SamlAdvancedConfiguration"),true);
-        assertEquals(new SamlAdvancedConfiguration(true,null,null, null).toString().contains("SamlAdvancedConfiguration"),true);
-        assertEquals(new SamlAdvancedConfiguration(true,"","", 1).toString().contains("SamlAdvancedConfiguration"),true);
+        assertEquals(true, new SamlAdvancedConfiguration(null,null,null, null).toString().contains("SamlAdvancedConfiguration"));
+        assertEquals(true, new SamlAdvancedConfiguration(true,null,null, null).toString().contains("SamlAdvancedConfiguration"));
+        assertEquals(true, new SamlAdvancedConfiguration(true,"","", 1).toString().contains("SamlAdvancedConfiguration"));
 
         SamlGroupAuthority authority = new SamlGroupAuthority("role001");
-        assertEquals(authority.toString().equals("role001"),true);
+        assertEquals(true, authority.toString().equals("role001"));
 
         SamlUserDetails userDetails = new SamlUserDetails("tesla",new GrantedAuthority[]{authority});
-        assertEquals(userDetails.toString().contains("tesla") && userDetails.toString().contains("role001"), true);
+        assertEquals(true, userDetails.toString().contains("tesla") && userDetails.toString().contains("role001"));
 
         assertThat(new SamlEncryptionData(null,null,null, null, false).toString(), containsString("SamlEncryptionData"));
         assertThat(new SamlEncryptionData("", Secret.fromString(""), Secret.fromString(""), "", false).toString(), containsString("SamlEncryptionData"));
 
-        assertEquals(new SamlFileResource("fileNotExists").exists(),false);
+        assertEquals(false, new SamlFileResource("fileNotExists").exists());
         SamlFileResource file = new SamlFileResource("fileWillExists","data");
-        assertEquals(file.exists(),true);
-        assertEquals(IOUtils.toByteArray(file.getInputStream()).length>0,true);
+        assertEquals(true, file.exists());
+        assertEquals(true, IOUtils.toByteArray(file.getInputStream()).length>0);
         IOUtils.write("data1",file.getOutputStream());
-        assertEquals(IOUtils.toByteArray(file.getInputStream()).length>0,true);
+        assertEquals(true, IOUtils.toByteArray(file.getInputStream()).length>0);
         file.getFile().delete();
     }
 

@@ -24,7 +24,11 @@ import org.opensaml.core.config.InitializationService;
 import org.pac4j.core.context.J2EContext;
 import org.pac4j.core.context.WebContext;
 import org.pac4j.saml.client.SAML2Client;
-import org.pac4j.saml.client.SAML2ClientConfiguration;
+import org.pac4j.saml.config.SAML2Configuration;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.logging.Logger;
 
 import static java.util.logging.Level.*;
@@ -51,7 +55,7 @@ public abstract class OpenSAMLWrapper<T> {
      *
      * @return process return object
      */
-    public T get() {
+    public T get() throws IOException {
         T ret = null;
         try {
             LOG.finest("adapt TCCL");
@@ -77,7 +81,7 @@ public abstract class OpenSAMLWrapper<T> {
      *
      * @return process return type
      */
-    abstract protected T process();
+    abstract protected T process() throws IOException;
 
     /**
      * @return J2E Context from the current HTTP request and response.
@@ -90,10 +94,10 @@ public abstract class OpenSAMLWrapper<T> {
     /**
      * @return a SAML2Client object to interact with the IdP service.
      */
-    protected SAML2Client createSAML2Client() {
-        final SAML2ClientConfiguration config = new SAML2ClientConfiguration();
+    protected SAML2Client createSAML2Client() throws IOException {
+        final SAML2Configuration config = new SAML2Configuration();
         config.setIdentityProviderMetadataResource(new SamlFileResource(SamlSecurityRealm.getIDPMetadataFilePath()));
-        config.setDestinationBindingType(samlPluginConfig.getBinding());
+        config.setAuthnRequestBindingType(samlPluginConfig.getBinding());
 
         if (samlPluginConfig.getEncryptionData() != null) {
             config.setWantsAssertionsSigned(true);
@@ -101,8 +105,9 @@ public abstract class OpenSAMLWrapper<T> {
             config.setKeystorePassword(samlPluginConfig.getEncryptionData().getKeystorePasswordPlainText());
             config.setPrivateKeyPassword(samlPluginConfig.getEncryptionData().getPrivateKeyPasswordPlainText());
             config.setKeystoreAlias(samlPluginConfig.getEncryptionData().getPrivateKeyAlias());
-            config.setForceSignRedirectBindingAuthnRequest(samlPluginConfig.getEncryptionData().isForceSignRedirectBindingAuthnRequest());
-        } else {
+            config.setAuthnRequestSigned(samlPluginConfig.getEncryptionData().isForceSignRedirectBindingAuthnRequest());
+        }
+        else {
             if (!KS.isValid()) {
                 KS.init();
             }
@@ -113,7 +118,7 @@ public abstract class OpenSAMLWrapper<T> {
             config.setKeystorePassword(KS.getKsPassword());
             config.setPrivateKeyPassword(KS.getKsPkPassword());
             config.setKeystoreAlias(KS.getKsPkAlias());
-            config.setForceSignRedirectBindingAuthnRequest(false);
+            config.setAuthnRequestSigned(false);
         }
 
         config.setMaximumAuthenticationLifetime(samlPluginConfig.getMaximumAuthenticationLifetime());
@@ -132,7 +137,9 @@ public abstract class OpenSAMLWrapper<T> {
             // reference) is set, include it in the request to the IdP, and request
             // that the IdP uses exact matching for authentication types
             if (samlPluginConfig.getAuthnContextClassRef() != null) {
-                config.setAuthnContextClassRef(samlPluginConfig.getAuthnContextClassRef());
+                List<String> authnContextClassRef = new ArrayList<>();
+                authnContextClassRef.add( samlPluginConfig.getAuthnContextClassRef());
+                config.setAuthnContextClassRefs(authnContextClassRef);
                 config.setComparisonType("exact");
             }
         }
@@ -141,7 +148,7 @@ public abstract class OpenSAMLWrapper<T> {
         config.setServiceProviderMetadataResource(new SamlFileResource(SamlSecurityRealm.getSPMetadataFilePath()));
         final SAML2Client saml2Client = new SAML2Client(config);
         saml2Client.setCallbackUrl(samlPluginConfig.getConsumerServiceUrl());
-        saml2Client.init(createWebContext());
+        saml2Client.init();
 
         if (LOG.isLoggable(FINE)) {
             LOG.fine(saml2Client.getServiceProviderMetadataResolver().getMetadata());

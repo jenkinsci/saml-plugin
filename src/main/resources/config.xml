@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<XMLTooling xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:saml1p="urn:oasis:names:tc:SAML:1.0:protocol" xmlns:ds="http://www.w3.org/2000/09/xmldsig#" xmlns:xt="http://www.opensaml.org/xmltooling-config" xmlns="http://www.opensaml.org/xmltooling-config">
+
+    <ObjectProviders>
+
+        <!-- Default Provider -->
+        <ObjectProvider qualifiedName="xt:DEFAULT">
+            <BuilderClass className="org.opensaml.core.xml.XMLObjectBuilder"/>
+            <MarshallingClass className="org.opensaml.core.xml.schema.impl.XSAnyMarshaller"/>
+            <UnmarshallingClass className="org.opensaml.core.xml.schema.impl.XSAnyUnmarshaller"/>
+        </ObjectProvider>
+
+    </ObjectProviders>
+</XMLTooling>

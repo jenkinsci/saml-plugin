@@ -27,6 +27,7 @@ import org.pac4j.saml.credentials.SAML2Credentials;
 import org.pac4j.saml.exceptions.SAMLException;
 import org.pac4j.saml.profile.SAML2Profile;
 
+import java.io.IOException;
 import java.util.logging.Logger;
 
 /**
@@ -46,7 +47,7 @@ public class SamlProfileWrapper extends OpenSAMLWrapper<SAML2Profile> {
      * @return the SAML2Profile of the user returned by the IdP.
      */
     @Override
-    protected SAML2Profile process() {
+    protected SAML2Profile process() throws IOException {
         SAML2Credentials credentials;
         SAML2Profile saml2Profile;
         try {

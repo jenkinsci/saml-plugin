@@ -39,8 +39,8 @@ import org.jenkinsci.plugins.saml.conf.AttributeEntry;
 import org.jenkinsci.plugins.saml.user.SamlCustomProperty;
 import org.kohsuke.stapler.*;
 import org.kohsuke.stapler.interceptor.RequirePOST;
-import org.pac4j.core.client.RedirectAction;
-import org.pac4j.core.client.RedirectAction.RedirectType;
+import org.pac4j.core.redirect.RedirectAction;
+import org.pac4j.core.redirect.RedirectAction.RedirectType;
 import org.springframework.dao.DataAccessException;
 import org.pac4j.saml.profile.SAML2Profile;
 
@@ -48,6 +48,7 @@ import javax.annotation.Nonnull;
 import javax.servlet.http.HttpSession;
 import java.io.*;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -162,7 +163,7 @@ public class SamlSecurityRealm extends SecurityRealm {
         super();
         this.idpMetadataConfiguration = idpMetadataConfiguration;
         this.usernameAttributeName = hudson.Util.fixEmptyAndTrim(usernameAttributeName);
-        this.usernameCaseConversion = org.apache.commons.lang.StringUtils.defaultIfBlank(usernameCaseConversion, DEFAULT_USERNAME_CASE_CONVERSION);
+        this.usernameCaseConversion = StringUtils.defaultIfBlank(usernameCaseConversion, DEFAULT_USERNAME_CASE_CONVERSION);
         this.logoutUrl = hudson.Util.fixEmptyAndTrim(logoutUrl);
         this.displayNameAttributeName = DEFAULT_DISPLAY_NAME_ATTRIBUTE_NAME;
         this.groupsAttributeName = DEFAULT_GROUPS_ATTRIBUTE_NAME;
@@ -176,7 +177,7 @@ public class SamlSecurityRealm extends SecurityRealm {
         if (maximumAuthenticationLifetime != null && maximumAuthenticationLifetime > 0) {
             this.maximumAuthenticationLifetime = maximumAuthenticationLifetime;
         }
-        if (org.apache.commons.lang.StringUtils.isNotBlank(emailAttributeName)) {
+        if (StringUtils.isNotBlank(emailAttributeName)) {
             this.emailAttributeName = hudson.Util.fixEmptyAndTrim(emailAttributeName);
         }
         this.advancedConfiguration = advancedConfiguration;
@@ -244,7 +245,7 @@ public class SamlSecurityRealm extends SecurityRealm {
      * @return the http response.
      */
     public HttpResponse doCommenceLogin(final StaplerRequest request, final StaplerResponse response, @QueryParameter
-            String from, @Header("Referer") final String referer) {
+            String from, @Header("Referer") final String referer) throws IOException {
         LOG.fine("SamlSecurityRealm.doCommenceLogin called. Using consumerServiceUrl " + getSamlPluginConfig().getConsumerServiceUrl());
 
         String redirectOnFinish = calculateSafeRedirect(from, referer);
@@ -292,7 +293,7 @@ public class SamlSecurityRealm extends SecurityRealm {
      * @return the http response.
      */
     @RequirePOST
-    public HttpResponse doFinishLogin(final StaplerRequest request, final StaplerResponse response) {
+    public HttpResponse doFinishLogin(final StaplerRequest request, final StaplerResponse response) throws IOException {
         LOG.finer("SamlSecurityRealm.doFinishLogin called");
         String referer = (String) request.getSession().getAttribute(REFERER_ATTRIBUTE);
         // redirect back to original page
@@ -568,7 +569,7 @@ public class SamlSecurityRealm extends SecurityRealm {
      * @param response http response.
      * @return the http response.
      */
-    public HttpResponse doMetadata(StaplerRequest request, StaplerResponse response) {
+    public HttpResponse doMetadata(StaplerRequest request, StaplerResponse response) throws IOException {
         return new SamlSPMetadataWrapper(getSamlPluginConfig(), request, response).get();
     }
 
@@ -712,7 +713,7 @@ public class SamlSecurityRealm extends SecurityRealm {
     @NonNull
     public List<AttributeEntry> getSamlCustomAttributes() {
         if(samlCustomAttributes == null){
-            return java.util.Collections.emptyList();
+            return Collections.emptyList();
         }
         return samlCustomAttributes;
     }

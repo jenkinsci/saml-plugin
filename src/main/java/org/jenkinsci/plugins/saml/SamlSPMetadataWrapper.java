@@ -23,6 +23,8 @@ import org.kohsuke.stapler.StaplerRequest;
 import org.kohsuke.stapler.StaplerResponse;
 import org.pac4j.saml.client.SAML2Client;
 
+import java.io.IOException;
+
 /**
  * build the Service Provider(SP) metadata from the configuration.
  */
@@ -39,8 +41,8 @@ public class SamlSPMetadataWrapper extends OpenSAMLWrapper<HttpResponse> {
      * @throws IllegalStateException if something goes wrong.
      */
     @Override
-    protected HttpResponse process() throws IllegalStateException {
+    protected HttpResponse process() throws IllegalStateException, IOException {
         final SAML2Client client = createSAML2Client();
-        return HttpResponses.plainText(client.getServiceProviderMetadataResolver().getMetadata());
+        return HttpResponses.text(client.getServiceProviderMetadataResolver().getMetadata());
     }
 }

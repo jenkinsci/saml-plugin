@@ -19,10 +19,12 @@ package org.jenkinsci.plugins.saml;
 
 import org.kohsuke.stapler.StaplerRequest;
 import org.kohsuke.stapler.StaplerResponse;
-import org.pac4j.core.client.RedirectAction;
 import org.pac4j.core.context.WebContext;
 import org.pac4j.core.exception.HttpAction;
+import org.pac4j.core.redirect.RedirectAction;
 import org.pac4j.saml.client.SAML2Client;
+
+import java.io.IOException;
 
 /**
  * Process the current configuration and request to prepare a Redirection to the IdP.
@@ -45,7 +47,7 @@ public class SamlRedirectActionWrapper extends OpenSAMLWrapper<RedirectAction> {
             SAML2Client client = createSAML2Client();
             WebContext context = createWebContext();
             return client.getRedirectAction(context);
-        } catch (HttpAction e) {
+        } catch (HttpAction | IOException e) {
             throw new IllegalStateException(e);
         }
 

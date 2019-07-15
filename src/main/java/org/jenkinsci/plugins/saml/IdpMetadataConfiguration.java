@@ -26,6 +26,7 @@ import java.io.StringWriter;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
+import java.nio.charset.Charset;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -104,7 +105,7 @@ public class IdpMetadataConfiguration extends AbstractDescribableImpl<IdpMetadat
      * @throws IOException in case it can not read the IdP Metadata file.
      */
     public String getIdpMetadata() throws IOException {
-        return FileUtils.readFileToString(new File(SamlSecurityRealm.getIDPMetadataFilePath()));
+        return FileUtils.readFileToString(new File(SamlSecurityRealm.getIDPMetadataFilePath()), Charset.defaultCharset());
     }
 
     /**
@@ -114,7 +115,7 @@ public class IdpMetadataConfiguration extends AbstractDescribableImpl<IdpMetadat
     public void createIdPMetadataFile() throws IOException {
         try {
             if (StringUtils.isNotBlank(xml)) {
-                FileUtils.writeStringToFile(new File(SamlSecurityRealm.getIDPMetadataFilePath()), xml);
+                FileUtils.writeStringToFile(new File(SamlSecurityRealm.getIDPMetadataFilePath()), xml, Charset.defaultCharset(), false);
             } else {
                 updateIdPMetadata();
             }
@@ -141,7 +142,7 @@ public class IdpMetadataConfiguration extends AbstractDescribableImpl<IdpMetadat
                 String idpXml = writer.toString();
                 FormValidation validation = new SamlValidateIdPMetadata(idpXml).get();
                 if (FormValidation.Kind.OK == validation.kind) {
-                    FileUtils.writeStringToFile(new File(SamlSecurityRealm.getIDPMetadataFilePath()), idpXml);
+                    FileUtils.writeStringToFile(new File(SamlSecurityRealm.getIDPMetadataFilePath()), idpXml, Charset.defaultCharset(), false);
                 } else {
                     throw new IllegalArgumentException(validation.getMessage());
                 }
@@ -179,7 +180,7 @@ public class IdpMetadataConfiguration extends AbstractDescribableImpl<IdpMetadat
             return "";
         }
 
-        public FormValidation doTestIdpMetadata(@QueryParameter("xml") String xml) {
+        public FormValidation doTestIdpMetadata(@QueryParameter("xml") String xml) throws IOException {
             if (StringUtils.isBlank(xml)) {
                 return FormValidation.error(ERROR_IDP_METADATA_EMPTY);
             }
@@ -203,10 +204,8 @@ public class IdpMetadataConfiguration extends AbstractDescribableImpl<IdpMetadat
             if (StringUtils.isEmpty(url)) {
                 return FormValidation.ok();
             }
-            try {
-                new URL(url);
-            } catch (MalformedURLException e) {
-                return FormValidation.error(ERROR_MALFORMED_URL, e);
+            if (StringUtils.isNotEmpty(url)) {
+                return SamlFormValidation.checkUrlFormat(url);
             }
             return FormValidation.ok();
         }
