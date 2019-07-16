@@ -90,13 +90,13 @@ public class SamlFormValidationsTest {
         bks.init();
         assertEquals(Kind.WARNING, endescriptor.doTestKeyStore("", Secret.fromString(""), Secret.fromString(""), "").kind);
         assertEquals(Kind.ERROR, endescriptor.doTestKeyStore("none", Secret.fromString(""), Secret.fromString(""), "").kind);
-        assertEquals(Kind.ERROR, endescriptor.doTestKeyStore(bks.getKeystorePath().substring(5), Secret.fromString(""), Secret.fromString(""), "").kind);
-        assertEquals(Kind.ERROR, endescriptor.doTestKeyStore(bks.getKeystorePath().substring(5), Secret.fromString("none"), Secret.fromString(""), "").kind);
-        assertEquals(Kind.ERROR, endescriptor.doTestKeyStore(bks.getKeystorePath().substring(5), Secret.fromString(bks.getKsPassword()), Secret.fromString(""), "").kind);
-        assertEquals(Kind.ERROR, endescriptor.doTestKeyStore(bks.getKeystorePath().substring(5), Secret.fromString(bks.getKsPassword()), Secret.fromString("none"), "").kind);
-        assertEquals(Kind.OK, endescriptor.doTestKeyStore(bks.getKeystorePath().substring(5), Secret.fromString(bks.getKsPassword()), Secret.fromString(bks.getKsPkPassword()), "").kind);
-        assertEquals(Kind.ERROR, endescriptor.doTestKeyStore(bks.getKeystorePath().substring(5), Secret.fromString(bks.getKsPassword()), Secret.fromString(bks.getKsPkPassword()), "none").kind);
-        assertEquals(Kind.OK, endescriptor.doTestKeyStore(bks.getKeystorePath().substring(5), Secret.fromString(bks.getKsPassword()), Secret.fromString(bks.getKsPkPassword()), bks.getKsPkAlias()).kind);
+        assertEquals(Kind.ERROR, endescriptor.doTestKeyStore(bks.getKeystorePath().substring(bks.getKeystorePath().indexOf(":")+1), Secret.fromString(""), Secret.fromString(""), "").kind);
+        assertEquals(Kind.ERROR, endescriptor.doTestKeyStore(bks.getKeystorePath().substring(bks.getKeystorePath().indexOf(":")+1), Secret.fromString("none"), Secret.fromString(""), "").kind);
+        assertEquals(Kind.ERROR, endescriptor.doTestKeyStore(bks.getKeystorePath().substring(bks.getKeystorePath().indexOf(":")+1), Secret.fromString(bks.getKsPassword()), Secret.fromString(""), "").kind);
+        assertEquals(Kind.ERROR, endescriptor.doTestKeyStore(bks.getKeystorePath().substring(bks.getKeystorePath().indexOf(":")+1), Secret.fromString(bks.getKsPassword()), Secret.fromString("none"), "").kind);
+        assertEquals(Kind.OK, endescriptor.doTestKeyStore(bks.getKeystorePath().substring(bks.getKeystorePath().indexOf(":")+1), Secret.fromString(bks.getKsPassword()), Secret.fromString(bks.getKsPkPassword()), "").kind);
+        assertEquals(Kind.ERROR, endescriptor.doTestKeyStore(bks.getKeystorePath().substring(bks.getKeystorePath().indexOf(":")+1), Secret.fromString(bks.getKsPassword()), Secret.fromString(bks.getKsPkPassword()), "none").kind);
+        assertEquals(Kind.OK, endescriptor.doTestKeyStore(bks.getKeystorePath().substring(bks.getKeystorePath().indexOf(":")+1), Secret.fromString(bks.getKsPassword()), Secret.fromString(bks.getKsPkPassword()), bks.getKsPkAlias()).kind);
     }
 
     @LocalData("testReadSimpleConfigurationAdvancedConfiguration")
