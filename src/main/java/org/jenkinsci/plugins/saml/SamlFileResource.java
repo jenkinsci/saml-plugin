@@ -92,7 +92,7 @@ class SamlFileResource implements WritableResource {
 
     @Override
     public String getDescription() {
-        return null;
+        return fileName;
     }
 
     @Override
