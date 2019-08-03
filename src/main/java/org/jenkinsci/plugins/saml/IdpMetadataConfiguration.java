@@ -180,12 +180,19 @@ public class IdpMetadataConfiguration extends AbstractDescribableImpl<IdpMetadat
             return "";
         }
 
-        public FormValidation doTestIdpMetadata(@QueryParameter("xml") String xml) throws IOException {
+        public FormValidation doTestIdpMetadata(@QueryParameter("xml") String xml) {
             if (StringUtils.isBlank(xml)) {
                 return FormValidation.error(ERROR_IDP_METADATA_EMPTY);
             }
+            else {
+                try {
+                    return new SamlValidateIdPMetadata(xml).get();
+                }
+                catch (IOException e) {
+                    return FormValidation.error(e, ERROR_IDP_METADATA_EMPTY);
+                }
 
-            return new SamlValidateIdPMetadata(xml).get();
+            }
         }
 
         public FormValidation doCheckPeriod(@QueryParameter("period") String period) {
