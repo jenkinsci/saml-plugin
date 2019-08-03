@@ -17,6 +17,7 @@ under the License. */
 
 package org.jenkinsci.plugins.saml;
 
+import hudson.util.FormValidation;
 import org.kohsuke.stapler.HttpResponse;
 import org.kohsuke.stapler.HttpResponses;
 import org.kohsuke.stapler.StaplerRequest;
@@ -41,8 +42,15 @@ public class SamlSPMetadataWrapper extends OpenSAMLWrapper<HttpResponse> {
      * @throws IllegalStateException if something goes wrong.
      */
     @Override
-    protected HttpResponse process() throws IllegalStateException, IOException {
-        final SAML2Client client = createSAML2Client();
-        return HttpResponses.text(client.getServiceProviderMetadataResolver().getMetadata());
+    protected HttpResponse process() throws IllegalStateException {
+        String metadata;
+        try {
+            final SAML2Client client = createSAML2Client();
+            metadata = client.getServiceProviderMetadataResolver().getMetadata();
+        }
+        catch (IOException e){
+            return FormValidation.error(e, "The IdP Metadata not valid.");
+        }
+        return HttpResponses.text(metadata);
     }
 }

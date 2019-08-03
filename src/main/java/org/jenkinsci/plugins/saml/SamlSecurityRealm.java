@@ -38,6 +38,7 @@ import org.jenkinsci.plugins.saml.conf.Attribute;
 import org.jenkinsci.plugins.saml.conf.AttributeEntry;
 import org.jenkinsci.plugins.saml.user.SamlCustomProperty;
 import org.kohsuke.stapler.*;
+import org.kohsuke.stapler.framework.errors.ErrorObject;
 import org.kohsuke.stapler.interceptor.RequirePOST;
 import org.pac4j.core.redirect.RedirectAction;
 import org.pac4j.core.redirect.RedirectAction.RedirectType;
@@ -245,13 +246,21 @@ public class SamlSecurityRealm extends SecurityRealm {
      * @return the http response.
      */
     public HttpResponse doCommenceLogin(final StaplerRequest request, final StaplerResponse response, @QueryParameter
-            String from, @Header("Referer") final String referer) throws IOException {
+            String from, @Header("Referer") final String referer) {
         LOG.fine("SamlSecurityRealm.doCommenceLogin called. Using consumerServiceUrl " + getSamlPluginConfig().getConsumerServiceUrl());
+
+        RedirectAction action = null;
 
         String redirectOnFinish = calculateSafeRedirect(from, referer);
         request.getSession().setAttribute(REFERER_ATTRIBUTE, redirectOnFinish);
 
-        RedirectAction action = new SamlRedirectActionWrapper(getSamlPluginConfig(), request, response).get();
+        try {
+            action = new SamlRedirectActionWrapper(getSamlPluginConfig(), request, response).get();
+        }
+        catch (IOException e) {
+            LOG.fine(e.getMessage());
+        }
+
         if (action.getType() == RedirectType.REDIRECT) {
             LOG.fine("REDIRECT : " + action.getLocation());
             return HttpResponses.redirectTo(action.getLocation());

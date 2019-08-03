@@ -43,7 +43,7 @@ public class SamlValidateIdPMetadata extends OpenSAMLWrapper<FormValidation>{
             return FormValidation.error("The IdP Metadata not valid.", e);
         } catch (XMLParserException e) {
             return FormValidation.error("The IdP Metadata not valid XML.", e);
-        }  catch (ComponentInitializationException e) {
+        } catch (ComponentInitializationException e) {
             return FormValidation.error("The IdP Metadata not valid content.", e);
         }
         return FormValidation.ok("Success");
