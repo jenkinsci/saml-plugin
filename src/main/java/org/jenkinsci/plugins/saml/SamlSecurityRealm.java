@@ -44,6 +44,7 @@ import org.pac4j.core.redirect.RedirectAction;
 import org.pac4j.core.redirect.RedirectAction.RedirectType;
 import org.springframework.dao.DataAccessException;
 import org.pac4j.saml.profile.SAML2Profile;
+import sun.rmi.runtime.Log;
 
 import javax.annotation.Nonnull;
 import javax.servlet.http.HttpSession;
@@ -302,7 +303,7 @@ public class SamlSecurityRealm extends SecurityRealm {
      * @return the http response.
      */
     @RequirePOST
-    public HttpResponse doFinishLogin(final StaplerRequest request, final StaplerResponse response) throws IOException {
+    public HttpResponse doFinishLogin(final StaplerRequest request, final StaplerResponse response) {
         LOG.finer("SamlSecurityRealm.doFinishLogin called");
         String referer = (String) request.getSession().getAttribute(REFERER_ATTRIBUTE);
         // redirect back to original page
@@ -320,6 +321,8 @@ public class SamlSecurityRealm extends SecurityRealm {
                     + CHECK_MAX_AUTH_LIFETIME
                     + CHECK_TROUBLESHOOTING_GUIDE, e);
             return HttpResponses.redirectTo(getEffectiveLogoutUrl());
+        } catch (IOException e) {
+            LOG.fine(e.getMessage());
         }
 
         // getId and possibly convert, based on settings
@@ -480,7 +483,7 @@ public class SamlSecurityRealm extends SecurityRealm {
         // prepare list of groups
         List<?> groups = (List<?>) saml2Profile.getAttribute(getGroupsAttributeName());
         if (groups == null) {
-            groups = new ArrayList<String>();
+            groups = new ArrayList<>();
         }
 
         // build list of authorities
@@ -578,8 +581,14 @@ public class SamlSecurityRealm extends SecurityRealm {
      * @param response http response.
      * @return the http response.
      */
-    public HttpResponse doMetadata(StaplerRequest request, StaplerResponse response) throws IOException {
-        return new SamlSPMetadataWrapper(getSamlPluginConfig(), request, response).get();
+    public HttpResponse doMetadata(StaplerRequest request, StaplerResponse response) {
+        HttpResponse metadataWrapper = null;
+        try {
+            metadataWrapper = new SamlSPMetadataWrapper(getSamlPluginConfig(), request, response).get();
+        } catch (IOException e) {
+            LOG.fine(e.getMessage());
+        }
+        return metadataWrapper;
     }
 
     /**
@@ -605,7 +614,7 @@ public class SamlSecurityRealm extends SecurityRealm {
     }
 
     @Override
-    public GroupDetails loadGroupByGroupname(String groupname) throws UsernameNotFoundException, DataAccessException {
+    public GroupDetails loadGroupByGroupname(String groupname) {
         GroupDetails dg = new SamlGroupDetails(groupname);
 
         if (dg.getMembers().isEmpty()) {
@@ -615,8 +624,7 @@ public class SamlSecurityRealm extends SecurityRealm {
     }
 
     @Override
-    public GroupDetails loadGroupByGroupname(String groupname, boolean fetchMembers)
-            throws UsernameNotFoundException, DataAccessException {
+    public GroupDetails loadGroupByGroupname(String groupname, boolean fetchMembers) {
         GroupDetails dg = loadGroupByGroupname(groupname);
         if (fetchMembers) {
             dg.getMembers();
