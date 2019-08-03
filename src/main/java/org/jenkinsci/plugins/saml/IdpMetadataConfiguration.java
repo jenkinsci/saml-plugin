@@ -222,9 +222,11 @@ public class IdpMetadataConfiguration extends AbstractDescribableImpl<IdpMetadat
             try (InputStream in = urlConnection.getInputStream()) {
                 String xml = IOUtils.toString(in,StringUtils.defaultIfEmpty(urlConnection.getContentEncoding(),"UTF-8"));
                 return new SamlValidateIdPMetadata(xml).get();
-            } catch (MalformedURLException e) {
+            }
+            catch (MalformedURLException e) {
                 return FormValidation.error(ERROR_MALFORMED_URL);
-            } catch (IOException e) {
+            }
+            catch (IOException e) {
                 LOG.log(Level.SEVERE, e.getMessage(), e);
                 return FormValidation.error(NOT_POSSIBLE_TO_GET_THE_METADATA + url);
             }
