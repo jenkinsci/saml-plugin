@@ -1,0 +1,58 @@
+jenkins:
+  securityRealm:
+    saml:
+      advancedConfiguration:
+        authnContextClassRef: "anotherContext"
+        forceAuthn: true
+        spEntityId: "mySpEntityId"
+      binding: "urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect"
+      displayNameAttributeName: "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name"
+      emailAttributeName: "fake@mail.com"
+      encryptionData:
+        forceSignRedirectBindingAuthnRequest: true
+        keystorePassword: "{AQAAABAAAAAQW05cASi2RE3zzrl9xskAhhuYAamBbQe0k5Bk9lkDd80=}"
+        keystorePath: "/home/jdk/keystore"
+        privateKeyAlias: "privatealias"
+        privateKeyPassword: "{AQAAABAAAAAQ40qxDUu7fjfmHst04RrBvBm24Om5JBeKAYLnA/9OXZk=}"
+      groupsAttributeName: "http://schemas.xmlsoap.org/claims/Group"
+      idpMetadataConfiguration:
+        period: 2
+        url: "http://fake.ldP.metadata.url"
+        xml: |-
+          <?xml version="1.0"?>
+          <md:EntityDescriptor xmlns:md="urn:oasis:names:tc:SAML:2.0:metadata" xmlns:ds="http://www.w3.org/2000/09/xmldsig#" entityID="simpleSAMLphpIdpHosted">
+            <md:IDPSSODescriptor protocolSupportEnumeration="urn:oasis:names:tc:SAML:2.0:protocol">
+              <md:KeyDescriptor use="signing">
+                <ds:KeyInfo xmlns:ds="http://www.w3.org/2000/09/xmldsig#">
+                  <ds:X509Data>
+                    <ds:X509Certificate>MIIDtTCCAp2gAwIBAgIJAINeCx9sdNHLMA0GCSqGSIb3DQEBBQUAMEUxCzAJBgNVBAYTAkFVMRMwEQYDVQQIEwpTb21lLVN0YXRlMSEwHwYDVQQKExhJbnRlcm5ldCBXaWRnaXRzIFB0eSBMdGQwHhcNMTYxMTE4MTcyMDAwWhcNMjYxMTE4MTcyMDAwWjBFMQswCQYDVQQGEwJBVTETMBEGA1UECBMKU29tZS1TdGF0ZTEhMB8GA1UEChMYSW50ZXJuZXQgV2lkZ2l0cyBQdHkgTHRkMIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAkbkG/8UGDrqNUCpCn3NXGQqG0+oHXeU+htHXash6zhcYb45se+lRoISgh6vSlc2NOVVuNBf1lrFziKdi5dvnbLKkxL+0SOww3ZP3VttzrE1Fk7ZXCU4o2x5P7Mt3UXyx4Ik10OCEybhdR57EuGXnc14QCOn3OH/d05bzlh8WpVz5FrqPmhpGwsqtqwC4CAHWszbklA9nc6jeNwGqeb6JUez6OihBxSUoHulyjqsnNYGobmmK85DSxmZe8uT8SO3xHRvn6UYYjxckh2XzR/NVh+sDEZjCZLP1J9py2MT4HFBh252SNDbboh0BC3/qCmwK/IS0fMy2W/08g6RJwGlkVQIDAQABo4GnMIGkMB0GA1UdDgQWBBQIUCMMqKSMB7npenjd6uiK4QsLljB1BgNVHSMEbjBsgBQIUCMMqKSMB7npenjd6uiK4QsLlqFJpEcwRTELMAkGA1UEBhMCQVUxEzARBgNVBAgTClNvbWUtU3RhdGUxITAfBgNVBAoTGEludGVybmV0IFdpZGdpdHMgUHR5IEx0ZIIJAINeCx9sdNHLMAwGA1UdEwQFMAMBAf8wDQYJKoZIhvcNAQEFBQADggEBAFppKlxgIeYGgM5AnC+1d2btAel0tIX8zYWnDnCcjKyEJTM8ztGq/fXz8KMhTbmtD1ITD5DGaAyEPCRpSoLXybXtp/OeVMO+hNjh+RGV8jSzjSnbMY/cWClYz+v+oW9+CxVN+k6KYPHRrSSDtmOyUVg7NcQnJoPXV7Ch9UKW4oCkom9+rcRYjCTFBq9jsj38OcwRIWLqGa+E8QG26H+MT24B7bSxWakajwjYCFdcI5QA9vEL5q5ZBd8rt2yzlAXZ2bMOynq7gvkg2Yt5uzWeGu0IBonbceEwwQ9Eyid0x4mNg9s8F3e9oMRpvsnA3gm60znRR1jEomFOIVpJoIjU9es=</ds:X509Certificate>
+                  </ds:X509Data>
+                </ds:KeyInfo>
+              </md:KeyDescriptor>
+              <md:KeyDescriptor use="encryption">
+                <ds:KeyInfo xmlns:ds="http://www.w3.org/2000/09/xmldsig#">
+                  <ds:X509Data>
+                    <ds:X509Certificate>MIIDtTCCAp2gAwIBAgIJAINeCx9sdNHLMA0GCSqGSIb3DQEBBQUAMEUxCzAJBgNVBAYTAkFVMRMwEQYDVQQIEwpTb21lLVN0YXRlMSEwHwYDVQQKExhJbnRlcm5ldCBXaWRnaXRzIFB0eSBMdGQwHhcNMTYxMTE4MTcyMDAwWhcNMjYxMTE4MTcyMDAwWjBFMQswCQYDVQQGEwJBVTETMBEGA1UECBMKU29tZS1TdGF0ZTEhMB8GA1UEChMYSW50ZXJuZXQgV2lkZ2l0cyBQdHkgTHRkMIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAkbkG/8UGDrqNUCpCn3NXGQqG0+oHXeU+htHXash6zhcYb45se+lRoISgh6vSlc2NOVVuNBf1lrFziKdi5dvnbLKkxL+0SOww3ZP3VttzrE1Fk7ZXCU4o2x5P7Mt3UXyx4Ik10OCEybhdR57EuGXnc14QCOn3OH/d05bzlh8WpVz5FrqPmhpGwsqtqwC4CAHWszbklA9nc6jeNwGqeb6JUez6OihBxSUoHulyjqsnNYGobmmK85DSxmZe8uT8SO3xHRvn6UYYjxckh2XzR/NVh+sDEZjCZLP1J9py2MT4HFBh252SNDbboh0BC3/qCmwK/IS0fMy2W/08g6RJwGlkVQIDAQABo4GnMIGkMB0GA1UdDgQWBBQIUCMMqKSMB7npenjd6uiK4QsLljB1BgNVHSMEbjBsgBQIUCMMqKSMB7npenjd6uiK4QsLlqFJpEcwRTELMAkGA1UEBhMCQVUxEzARBgNVBAgTClNvbWUtU3RhdGUxITAfBgNVBAoTGEludGVybmV0IFdpZGdpdHMgUHR5IEx0ZIIJAINeCx9sdNHLMAwGA1UdEwQFMAMBAf8wDQYJKoZIhvcNAQEFBQADggEBAFppKlxgIeYGgM5AnC+1d2btAel0tIX8zYWnDnCcjKyEJTM8ztGq/fXz8KMhTbmtD1ITD5DGaAyEPCRpSoLXybXtp/OeVMO+hNjh+RGV8jSzjSnbMY/cWClYz+v+oW9+CxVN+k6KYPHRrSSDtmOyUVg7NcQnJoPXV7Ch9UKW4oCkom9+rcRYjCTFBq9jsj38OcwRIWLqGa+E8QG26H+MT24B7bSxWakajwjYCFdcI5QA9vEL5q5ZBd8rt2yzlAXZ2bMOynq7gvkg2Yt5uzWeGu0IBonbceEwwQ9Eyid0x4mNg9s8F3e9oMRpvsnA3gm60znRR1jEomFOIVpJoIjU9es=</ds:X509Certificate>
+                  </ds:X509Data>
+                </ds:KeyInfo>
+              </md:KeyDescriptor>
+              <md:SingleLogoutService Binding="urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect" Location="http://192.168.99.100:58080/simplesaml/saml2/idp/SingleLogoutService.php"/>
+              <md:NameIDFormat>urn:oasis:names:tc:SAML:2.0:nameid-format:transient</md:NameIDFormat>
+              <md:SingleSignOnService Binding="urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect" Location="http://192.168.99.100:58080/simplesaml/saml2/idp/SSOService.php"/>
+            </md:IDPSSODescriptor>
+            <md:ContactPerson contactType="technical">
+              <md:GivenName>Administrator</md:GivenName>
+              <md:EmailAddress>dublindev@glgroup.com</md:EmailAddress>
+            </md:ContactPerson>
+          </md:EntityDescriptor>
+      logoutUrl: "http://fake.logout.url"
+      maximumAuthenticationLifetime: 86400
+      samlCustomAttributes:
+        - attribute:
+            displayName: "display1"
+            name: "attribute1"
+        - attribute:
+            displayName: "display2"
+            name: "attribute2"
+      usernameAttributeName: "urn:mace:dir:attribute-def:uid"
+      usernameCaseConversion: "none"
