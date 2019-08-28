@@ -91,6 +91,10 @@ public class SamlPluginConfig {
         return getAdvancedConfiguration() != null ? getAdvancedConfiguration().getSpEntityId() : null;
     }
 
+    public String getNameIdPolicyFormat() {
+        return getAdvancedConfiguration() != null ? getAdvancedConfiguration().getNameIdPolicyFormat() : null;
+    }
+
     public SamlEncryptionData getEncryptionData() {
         return encryptionData;
     }

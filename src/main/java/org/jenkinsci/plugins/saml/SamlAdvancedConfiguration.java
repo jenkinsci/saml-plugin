@@ -37,7 +37,7 @@ public class SamlAdvancedConfiguration extends AbstractDescribableImpl<SamlAdvan
     private final Boolean forceAuthn;
     private final String authnContextClassRef;
     private final String spEntityId;
-
+    private final String nameIdPolicyFormat;
     /**
      * @deprecated not used anymore
      */
@@ -48,10 +48,12 @@ public class SamlAdvancedConfiguration extends AbstractDescribableImpl<SamlAdvan
     public SamlAdvancedConfiguration(Boolean forceAuthn,
                                      String authnContextClassRef,
                                      String spEntityId,
+                                     String nameIdPolicyFormat,
                                      Integer maximumSessionLifetime) {
         this.forceAuthn = (forceAuthn != null) ? forceAuthn : false;
         this.authnContextClassRef = Util.fixEmptyAndTrim(authnContextClassRef);
         this.spEntityId = Util.fixEmptyAndTrim(spEntityId);
+        this.nameIdPolicyFormat = Util.fixEmptyAndTrim(nameIdPolicyFormat);
     }
 
     public Boolean getForceAuthn() {
@@ -66,12 +68,17 @@ public class SamlAdvancedConfiguration extends AbstractDescribableImpl<SamlAdvan
         return spEntityId;
     }
 
+    public String getNameIdPolicyFormat() {
+        return nameIdPolicyFormat;
+    }
+
     @Override
     public String toString() {
         final StringBuffer sb = new StringBuffer("SamlAdvancedConfiguration{");
         sb.append("forceAuthn=").append(getForceAuthn());
         sb.append(", authnContextClassRef='").append(StringUtils.defaultIfBlank(getAuthnContextClassRef(), "none")).append('\'');
         sb.append(", spEntityId='").append(StringUtils.defaultIfBlank(getSpEntityId(), "none")).append('\'');
+        sb.append(", nameIdPolicyFormat='").append(StringUtils.defaultIfBlank(getNameIdPolicyFormat(), "none")).append('\'');
         sb.append('}');
         return sb.toString();
     }
@@ -99,6 +106,10 @@ public class SamlAdvancedConfiguration extends AbstractDescribableImpl<SamlAdvan
 
         public FormValidation doCheckSpEntityId(@org.kohsuke.stapler.QueryParameter String spEntityId) {
             return SamlFormValidation.checkStringFormat(spEntityId);
+        }
+
+        public FormValidation doCheckNameIdPolicyFormat(@org.kohsuke.stapler.QueryParameter String nameIdPolicyFormat) {
+            return SamlFormValidation.checkStringFormat(nameIdPolicyFormat);
         }
 
         public FormValidation doCheckMaximumSessionLifetime(@org.kohsuke.stapler.QueryParameter String maximumSessionLifetime) {

@@ -115,7 +115,7 @@ public abstract class OpenSAMLWrapper<T> {
             config.setKeystoreAlias(KS.getKsPkAlias());
             config.setForceSignRedirectBindingAuthnRequest(false);
         }
-        config.setNameIdPolicyFormat("urn:oasis:names:tc:SAML:1.1:nameid-format:unspecified");
+
         config.setMaximumAuthenticationLifetime(samlPluginConfig.getMaximumAuthenticationLifetime());
 
         if (samlPluginConfig.getAdvancedConfiguration() != null) {
@@ -134,6 +134,10 @@ public abstract class OpenSAMLWrapper<T> {
             if (samlPluginConfig.getAuthnContextClassRef() != null) {
                 config.setAuthnContextClassRef(samlPluginConfig.getAuthnContextClassRef());
                 config.setComparisonType("exact");
+            }
+
+            if(samlPluginConfig.getNameIdPolicyFormat() != null) {
+                config.setNameIdPolicyFormat(samlPluginConfig.getNameIdPolicyFormat());
             }
         }
 

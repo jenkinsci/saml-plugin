@@ -198,9 +198,9 @@ public class SamlSecurityRealmTest {
                 samlSecurityRealm.getAdvancedConfiguration());
         assertEquals(samlPluginConfig.toString().equals(samlSecurityRealm.getSamlPluginConfig().toString()), true);
 
-        assertEquals(new SamlAdvancedConfiguration(null,null,null, null).toString().contains("SamlAdvancedConfiguration"),true);
-        assertEquals(new SamlAdvancedConfiguration(true,null,null, null).toString().contains("SamlAdvancedConfiguration"),true);
-        assertEquals(new SamlAdvancedConfiguration(true,"","", 1).toString().contains("SamlAdvancedConfiguration"),true);
+        assertEquals(new SamlAdvancedConfiguration(null,null,null, null, null).toString().contains("SamlAdvancedConfiguration"),true);
+        assertEquals(new SamlAdvancedConfiguration(true,null,null, null, null).toString().contains("SamlAdvancedConfiguration"),true);
+        assertEquals(new SamlAdvancedConfiguration(true,"","", "", 1).toString().contains("SamlAdvancedConfiguration"),true);
 
         SamlGroupAuthority authority = new SamlGroupAuthority("role001");
         assertEquals(authority.toString().equals("role001"),true);
