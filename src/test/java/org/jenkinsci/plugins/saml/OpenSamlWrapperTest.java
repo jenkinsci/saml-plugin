@@ -67,7 +67,7 @@ public class OpenSamlWrapperTest {
         // Some random checks as the full XML comparison fails because of reformatting on processing
         assertThat(result, containsString("EntityDescriptor"));
         assertThat(result, containsString("<md:NameIDFormat>urn:oasis:names:tc:SAML:2.0:nameid-format:transient</md:NameIDFormat>"));
-        assertThat(result, containsString("<ds:X509Certificate>"));
+        assertThat(result, containsString("<md:SPSSODescriptor"));
     }
 
 
