@@ -15,7 +15,7 @@
     </f:entry>
     <f:validateButton title="Test keystore" progress="Testing..." method="testKeyStore"
                       with="keystorePath,keystorePassword,privateKeyPassword,privateKeyAlias"/>
-    <f:entry title="Disable Signature Redirect Binding Auth Request" field="forceSignRedirectBindingAuthnRequest" help="/plugin/saml/help/forceSignRedirectBindingAuthnRequest.html">
+    <f:entry title="Disable Auth Request Signature" field="forceSignRedirectBindingAuthnRequest" help="/plugin/saml/help/forceSignRedirectBindingAuthnRequest.html">
         <f:checkbox/>
     </f:entry>
 </j:jelly>

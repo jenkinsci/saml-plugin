@@ -1,4 +1,7 @@
 <div>
-    Disable signature of the Redirect Binding Auth Request (urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect)
-    It is not possible to disable the signature in HTTP-POST binding.
+    Disable signature of the Auth Request.
+
+    <pre>
+        &lt;md:SPSSODescriptor AuthnRequestsSigned="false" ...&gt;
+    </pre>
 </div>

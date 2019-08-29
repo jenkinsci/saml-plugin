@@ -24,7 +24,7 @@ import org.opensaml.core.config.InitializationService;
 import org.pac4j.core.context.J2EContext;
 import org.pac4j.core.context.WebContext;
 import org.pac4j.saml.client.SAML2Client;
-import org.pac4j.saml.client.SAML2ClientConfiguration;
+
 import java.util.logging.Logger;
 
 import static java.util.logging.Level.*;
@@ -86,12 +86,11 @@ public abstract class OpenSAMLWrapper<T> {
         return new J2EContext(request, response);
     }
 
-
     /**
      * @return a SAML2Client object to interact with the IdP service.
      */
     protected SAML2Client createSAML2Client() {
-        final SAML2ClientConfiguration config = new SAML2ClientConfiguration();
+        final SAML2ClientConfigurationCustom config = new SAML2ClientConfigurationCustom();
         config.setIdentityProviderMetadataResource(new SamlFileResource(SamlSecurityRealm.getIDPMetadataFilePath()));
         config.setDestinationBindingType(samlPluginConfig.getBinding());
 
@@ -101,7 +100,7 @@ public abstract class OpenSAMLWrapper<T> {
             config.setKeystorePassword(samlPluginConfig.getEncryptionData().getKeystorePasswordPlainText());
             config.setPrivateKeyPassword(samlPluginConfig.getEncryptionData().getPrivateKeyPasswordPlainText());
             config.setKeystoreAlias(samlPluginConfig.getEncryptionData().getPrivateKeyAlias());
-            config.setForceSignRedirectBindingAuthnRequest(samlPluginConfig.getEncryptionData().isForceSignRedirectBindingAuthnRequest());
+            config.setAuthnRequestSigned(samlPluginConfig.getEncryptionData().isForceSignRedirectBindingAuthnRequest());
         } else {
             if (!KS.isValid()) {
                 KS.init();
@@ -113,7 +112,7 @@ public abstract class OpenSAMLWrapper<T> {
             config.setKeystorePassword(KS.getKsPassword());
             config.setPrivateKeyPassword(KS.getKsPkPassword());
             config.setKeystoreAlias(KS.getKsPkAlias());
-            config.setForceSignRedirectBindingAuthnRequest(false);
+            config.setAuthnRequestSigned(false);
         }
 
         config.setMaximumAuthenticationLifetime(samlPluginConfig.getMaximumAuthenticationLifetime());
