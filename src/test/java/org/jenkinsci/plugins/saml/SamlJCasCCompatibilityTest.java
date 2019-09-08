@@ -64,6 +64,6 @@ public class SamlJCasCCompatibilityTest extends RoundTripAbstractTest {
 
     @Override
     protected String stringInLogExpected() {
-        return "Setting class org.jenkinsci.plugins.saml.SamlSecurityRealm. emailAttributeName = fake@mail.com";
+        return "Setting class org.jenkinsci.plugins.saml.SamlSecurityRealm.emailAttributeName = fake@mail.com";
     }
 }
