@@ -32,7 +32,7 @@ under the License.
   <version>${revision}${changelist}</version>
   <packaging>hpi</packaging>
   <name>SAML Plugin</name>
-  <url>https://wiki.jenkins.io/display/JENKINS/SAML+Plugin</url>
+  <url>https://github.com/jenkinsci/saml-plugin</url>
 
   <scm>
     <connection>scm:git:git://github.com/jenkinsci/saml-plugin.git</connection>
