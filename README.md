@@ -5,7 +5,8 @@ A SAML 2.0 Plugin for the Jenkins Continuous Integration server
 
 Changelog
 -------------------
-[Changelog](CHANGELOG.md)
+* For 1.1.3 and newer versions, see [GitHub Releases](https://github.com/jenkinsci/saml-plugin/releases)
+* For previous versions, see [this file](./CHANGELOG.md)
 
 Configure
 -------------------

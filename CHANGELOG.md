@@ -1,5 +1,13 @@
 Changelog
 -------------------
+
+| WARNING: Changelogs have been moved to [GitHub Releases](https://github.com/jenkinsci/saml-plugin/releases) |
+| --- |
+
+ ### Newer versions
+
+ * See [GitHub Releases](https://github.com/jenkinsci/saml-plugin/releases)
+ 
 * 1.1.2 (Dec 16 2018)
   * [JENKINS-55216](https://issues.jenkins-ci.org/browse/JENKINS-55216) Remove MaximumSessionLifetime setting
   * [JENKINS-55205](https://issues.jenkins-ci.org/browse/JENKINS-55205) Review findbugs error with some OS+JDK
