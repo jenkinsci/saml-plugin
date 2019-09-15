@@ -143,19 +143,19 @@ public class SamlEncryptionData extends AbstractDescribableImpl<SamlEncryptionDa
         }
 
         public FormValidation doCheckKeystorePath(@QueryParameter String keystorePath) {
-            return SamlFormValidation.checkStringFormat(keystorePath);
+            return SamlFormValidation.checkStringAttributeFormat(keystorePath, WARN_KEYSTORE_NOT_SET, true);
         }
 
         public FormValidation doCheckPrivateKeyAlias(@QueryParameter String privateKeyAlias) {
-            return SamlFormValidation.checkStringFormat(privateKeyAlias);
+            return SamlFormValidation.checkStringAttributeFormat(privateKeyAlias, WARN_PRIVATE_KEY_ALIAS_NOT_SET, true);
         }
 
         public FormValidation doCheckKeystorePassword(@QueryParameter String keystorePassword) {
-            return SamlFormValidation.checkStringFormat(keystorePassword);
+            return SamlFormValidation.checkStringAttributeFormat(keystorePassword, WARN_PRIVATE_KEYSTORE_PASS_NOT_SET, true);
         }
 
         public FormValidation doCheckPrivateKeyPassword(@QueryParameter String privateKeyPassword) {
-            return SamlFormValidation.checkStringFormat(privateKeyPassword);
+            return SamlFormValidation.checkStringAttributeFormat(privateKeyPassword, WARN_PRIVATE_KEY_PASS_NOT_SET, true);
         }
 
         public FormValidation doTestKeyStore(@QueryParameter("keystorePath") String keystorePath,

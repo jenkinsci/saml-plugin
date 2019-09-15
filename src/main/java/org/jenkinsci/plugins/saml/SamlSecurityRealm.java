@@ -101,6 +101,10 @@ public class SamlSecurityRealm extends SecurityRealm {
     public static final String CHECK_TROUBLESHOOTING_GUIDE = "\nIf you have issues check the troubleshoting guide at https://github.com/jenkinsci/saml-plugin/blob/master/doc/TROUBLESHOOTING.md";
     public static final String CHECK_MAX_AUTH_LIFETIME = "\nFor more info check 'Maximum Authentication Lifetime' at https://github.com/jenkinsci/saml-plugin/blob/master/doc/CONFIGURE.md#configuring-plugin-settings";
 
+    public static final String WARN_KEYSTORE_NOT_SET = "Keystore is not set";
+    public static final String WARN_PRIVATE_KEY_ALIAS_NOT_SET = "Key alias is not set";
+    public static final String WARN_PRIVATE_KEYSTORE_PASS_NOT_SET = "Keystore password is not set";
+    public static final String WARN_PRIVATE_KEY_PASS_NOT_SET = "Key password is not set";
     /**
      * configuration settings.
      */

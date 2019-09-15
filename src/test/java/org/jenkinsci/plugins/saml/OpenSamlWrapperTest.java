@@ -17,6 +17,7 @@ under the License. */
 
 package org.jenkinsci.plugins.saml;
 
+import hudson.util.Secret;
 import org.apache.commons.io.IOUtils;
 import org.junit.Rule;
 import org.junit.Test;
@@ -70,6 +71,31 @@ public class OpenSamlWrapperTest {
         assertThat(result, containsString("<md:SPSSODescriptor"));
     }
 
+    @Test
+    public void metadataWrapperWitEncrytionConfigured() throws IOException, ServletException {
+        String metadata = IOUtils.toString(this.getClass().getClassLoader().getResourceAsStream("org/jenkinsci/plugins/saml/OpenSamlWrapperTest/metadataWrapper/metadata.xml"));
+        BundleKeyStore ks = new BundleKeyStore();
+        SamlEncryptionData encryptionData = new SamlEncryptionData(ks.getKeystorePath(),
+                Secret.fromString(ks.getKsPassword()), Secret.fromString(ks.getKsPkPassword()), ks.getKsPkAlias(), true);
+        SamlSecurityRealm samlSecurity = new SamlSecurityRealm(new IdpMetadataConfiguration(metadata),
+                "displayName", "groups", 10000,
+                "uid", "email", "/logout", null,
+                encryptionData, "none",SAML2_REDIRECT_BINDING_URI,
+                java.util.Collections.emptyList());
+        jenkinsRule.jenkins.setSecurityRealm(samlSecurity);
+        SamlSPMetadataWrapper samlSPMetadataWrapper = new SamlSPMetadataWrapper(samlSecurity.getSamlPluginConfig(), null, null);
+        HttpResponse process = samlSPMetadataWrapper.get();
+        StaplerResponse mockResponse = Mockito.mock(StaplerResponse.class);
+        StringWriter stringWriter = new StringWriter();
+        when(mockResponse.getWriter()).thenReturn(new PrintWriter(stringWriter));
+        process.generateResponse(null, mockResponse, null);
+        String result = stringWriter.toString();
+        // Some random checks as the full XML comparison fails because of reformatting on processing
+        assertThat(result, containsString("EntityDescriptor"));
+        assertThat(result, containsString("<md:NameIDFormat>urn:oasis:names:tc:SAML:2.0:nameid-format:transient</md:NameIDFormat>"));
+        assertThat(result, containsString("<md:SPSSODescriptor"));
+        assertThat(result, containsString("<ds:X509Certificate>"));
+    }
 
     //TODO [kuisathaverat] incomplete
     public void profileWrapper() throws Exception {
