@@ -69,8 +69,12 @@ public class SamlEncryptionData extends AbstractDescribableImpl<SamlEncryptionDa
     public SamlEncryptionData(String keystorePath, Secret keystorePassword, Secret privateKeyPassword, String privateKeyAlias,
                               boolean forceSignRedirectBindingAuthnRequest) {
         this.keystorePath = Util.fixEmptyAndTrim(keystorePath);
-        this.keystorePasswordSecret = keystorePassword != null ? keystorePassword : Secret.fromString("");
-        this.privateKeyPasswordSecret = privateKeyPassword != null ? privateKeyPassword : Secret.fromString("");
+        if(keystorePassword != null && StringUtils.isNotEmpty(keystorePassword.getPlainText())){
+            this.keystorePasswordSecret = keystorePassword;
+        }
+        if(privateKeyPassword != null && StringUtils.isNotEmpty(privateKeyPassword.getPlainText())){
+            this.privateKeyPasswordSecret = privateKeyPassword;
+        }
         this.privateKeyAlias = Util.fixEmptyAndTrim(privateKeyAlias);
         this.forceSignRedirectBindingAuthnRequest = forceSignRedirectBindingAuthnRequest;
     }
@@ -79,20 +83,20 @@ public class SamlEncryptionData extends AbstractDescribableImpl<SamlEncryptionDa
         return keystorePath;
     }
 
-    public @Nonnull Secret getKeystorePassword() {
+    public @CheckForNull Secret getKeystorePassword() {
         return keystorePasswordSecret;
     }
 
     public @CheckForNull String getKeystorePasswordPlainText() {
-        return Util.fixEmptyAndTrim(keystorePasswordSecret.getPlainText());
+        return keystorePasswordSecret != null ? Util.fixEmptyAndTrim(keystorePasswordSecret.getPlainText()) : null;
     }
 
-    public @Nonnull Secret getPrivateKeyPassword() {
+    public @CheckForNull Secret getPrivateKeyPassword() {
         return privateKeyPasswordSecret;
     }
 
     public @CheckForNull String getPrivateKeyPasswordPlainText() {
-        return Util.fixEmptyAndTrim(privateKeyPasswordSecret.getPlainText());
+        return privateKeyPasswordSecret != null ? Util.fixEmptyAndTrim(privateKeyPasswordSecret.getPlainText()) : null;
     }
 
     public String getPrivateKeyAlias() {

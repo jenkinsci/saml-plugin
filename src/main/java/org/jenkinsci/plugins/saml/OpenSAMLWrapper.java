@@ -17,6 +17,7 @@ under the License. */
 
 package org.jenkinsci.plugins.saml;
 
+import org.apache.commons.lang.StringUtils;
 import org.kohsuke.stapler.StaplerRequest;
 import org.kohsuke.stapler.StaplerResponse;
 import org.opensaml.core.config.InitializationException;
@@ -93,14 +94,20 @@ public abstract class OpenSAMLWrapper<T> {
         final SAML2ClientConfigurationCustom config = new SAML2ClientConfigurationCustom();
         config.setIdentityProviderMetadataResource(new SamlFileResource(SamlSecurityRealm.getIDPMetadataFilePath()));
         config.setDestinationBindingType(samlPluginConfig.getBinding());
+        config.setWantsAssertionsSigned(true);
 
-        if (samlPluginConfig.getEncryptionData() != null) {
-            config.setWantsAssertionsSigned(true);
-            config.setKeystorePath(samlPluginConfig.getEncryptionData().getKeystorePath());
-            config.setKeystorePassword(samlPluginConfig.getEncryptionData().getKeystorePasswordPlainText());
-            config.setPrivateKeyPassword(samlPluginConfig.getEncryptionData().getPrivateKeyPasswordPlainText());
-            config.setKeystoreAlias(samlPluginConfig.getEncryptionData().getPrivateKeyAlias());
-            config.setAuthnRequestSigned(samlPluginConfig.getEncryptionData().isForceSignRedirectBindingAuthnRequest());
+        SamlEncryptionData encryptionData = samlPluginConfig.getEncryptionData();
+        if (encryptionData != null) {
+            config.setAuthnRequestSigned(encryptionData.isForceSignRedirectBindingAuthnRequest());
+        } else {
+            config.setAuthnRequestSigned(false);
+        }
+
+        if(encryptionData != null && StringUtils.isNotBlank(encryptionData.getKeystorePath())){
+            config.setKeystorePath(encryptionData.getKeystorePath());
+            config.setKeystorePassword(encryptionData.getKeystorePasswordPlainText());
+            config.setPrivateKeyPassword(encryptionData.getPrivateKeyPasswordPlainText());
+            config.setKeystoreAlias(encryptionData.getPrivateKeyAlias());
         } else {
             if (!KS.isValid()) {
                 KS.init();
@@ -112,7 +119,6 @@ public abstract class OpenSAMLWrapper<T> {
             config.setKeystorePassword(KS.getKsPassword());
             config.setPrivateKeyPassword(KS.getKsPkPassword());
             config.setKeystoreAlias(KS.getKsPkAlias());
-            config.setAuthnRequestSigned(false);
         }
 
         config.setMaximumAuthenticationLifetime(samlPluginConfig.getMaximumAuthenticationLifetime());
