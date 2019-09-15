@@ -661,7 +661,7 @@ public class SamlSecurityRealm extends SecurityRealm {
         }
 
         public FormValidation doCheckEmailAttributeName(@QueryParameter String emailAttributeName) {
-            return SamlFormValidation.checkEmailFormat(emailAttributeName, SamlSecurityRealm.WARN_RECOMMENDED_TO_SET_THE_EMAIL_ATTRIBUTE);
+            return SamlFormValidation.checkStringAttributeFormat(emailAttributeName, SamlSecurityRealm.WARN_RECOMMENDED_TO_SET_THE_EMAIL_ATTRIBUTE, true);
         }
 
         public FormValidation doCheckMaximumAuthenticationLifetime(@QueryParameter String maximumAuthenticationLifetime) {
