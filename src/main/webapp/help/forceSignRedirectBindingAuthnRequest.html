@@ -1,7 +1,7 @@
 <div>
-    Disable signature of the Auth Request.
+    Enable signature of the Auth Request. If you enable it the encryption and signing key would available in the SP metadata file and URL (JENKINS_URL/securityRealm/metadata).
 
     <pre>
-        &lt;md:SPSSODescriptor AuthnRequestsSigned="false" ...&gt;
+        &lt;md:SPSSODescriptor AuthnRequestsSigned="true" ...&gt;
     </pre>
 </div>
