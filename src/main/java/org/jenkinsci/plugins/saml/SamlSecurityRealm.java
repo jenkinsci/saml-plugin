@@ -67,8 +67,8 @@ public class SamlSecurityRealm extends SecurityRealm {
     public static final String DEFAULT_GROUPS_ATTRIBUTE_NAME = "http://schemas.xmlsoap.org/claims/Group";
     public static final int DEFAULT_MAXIMUM_AUTHENTICATION_LIFETIME = 24 * 60 * 60; // 24h
     public static final String DEFAULT_USERNAME_CASE_CONVERSION = "none";
-    public static final String SP_METADATA_FILE_NAME = "/saml-sp-metadata.xml";
-    public static final String IDP_METADATA_FILE_NAME = "/saml-idp-metadata.xml";
+    public static final String SP_METADATA_FILE_NAME = File.separator + "saml-sp-metadata.xml";
+    public static final String IDP_METADATA_FILE_NAME = File.separator + "saml-idp-metadata.xml";
 
     /**
      * form validation messages.
