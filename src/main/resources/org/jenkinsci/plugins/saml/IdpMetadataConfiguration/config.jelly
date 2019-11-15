@@ -10,7 +10,7 @@
         <f:textbox/>
     </f:entry>
     <f:entry title="Refresh Period" field="period" help="/plugin/saml/help/metadataPeriod.html"
-             description="Minutes between downloads od the IdP Metadata">
+             description="Minutes between downloads of the IdP Metadata">
         <f:number clazz="required number" min="0" default="0"/>
     </f:entry>
     <f:validateButton title="Validate IdP Metadata URL" progress="Validate..." method="testIdpMetadataURL"
