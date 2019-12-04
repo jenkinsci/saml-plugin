@@ -27,12 +27,12 @@ The IdP metadata should looks like this one, the main data are the `entityID`, `
                 </ds:X509Data>
             </ds:KeyInfo>
         </KeyDescriptor>
-    <!-- Supported Name Identifier Formats -->
-    <NameIDFormat>urn:oasis:names:tc:SAML:2.0:nameid-format:transient</NameIDFormat>
-    <!-- AuthenticationRequest Consumer endpoint -->
-    <SingleSignOnService Binding="urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect" Location="https://SAML_SERVER/idp"/>
-    <SingleLogoutService Binding="urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect" Location="https://SAML_SERVER/idp"/>
-</IDPSSODescriptor>
+        <!-- Supported Name Identifier Formats -->
+        <NameIDFormat>urn:oasis:names:tc:SAML:2.0:nameid-format:transient</NameIDFormat>
+        <!-- AuthenticationRequest Consumer endpoint -->
+        <SingleSignOnService Binding="urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect" Location="https://SAML_SERVER/idp"/>
+        <SingleLogoutService Binding="urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect" Location="https://SAML_SERVER/idp"/>
+    </IDPSSODescriptor>
 </EntityDescriptor>
 ```
 
@@ -211,7 +211,7 @@ Caused by: java.lang.IllegalArgumentException: Illegal base64 character d
     at org.jenkinsci.plugins.saml.SamlSecurityRealm.doFinishLogin(SamlSecurityRealm.java:258)
 ```
 
-### The SAMLResponse is not correct bsae64 encode
+### The SAMLResponse is not correct base64 encode
 
 The SAMLResponse message is not valid because the `SAMLResponse` value is not in Base64 format or it is corrupted.
 
@@ -271,6 +271,7 @@ at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:114
 at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:624) 
 at java.lang.Thread.run(Thread.java:748)
 ```
+
 ### Authentication issue instant is too old or in the future
 
 You should check that your `Maximum Authentication Lifetime` setting is the same that your Idp has, if Jenkins has a lower value you will see this error. The solution is to set `Maximum Authentication Lifetime` to your token validity. Another workaround is to set `Advanced Configuration/Force Authentication` but this will as for login everytime the session expires.
@@ -352,3 +353,33 @@ Jenkins can create those files.
 rm $JENKINS_HOME/saml-jenkins-keystore.jks
 rm $JENKINS_HOME/saml-jenkins-keystore.xml
 ```
+
+### Intended destination ${URL} doesn't match any of the endpoint URLs on endpoint
+
+```
+2019-11-27 16:55:46.826+0000 [id=4549]	WARNING	o.j.p.saml.SamlSecurityRealm#doFinishLogin: Unable to validate the SAML Response: org.pac4j.saml.exceptions.SAMLException: Intended destination https://JENKINS_SERVER/securityRealm/finishLogin doesn't match any of the endpoint URLs on endpoint http://JENKINS_SERVER/securityRealm/finishLogin; nested exception is org.pac4j.saml.exceptions.SAMLException: org.pac4j.saml.exceptions.SAMLException: Intended destination https://JENKINS_SERVER/securityRealm/finishLogin doesn't match any of the endpoint URLs on endpoint http://JENKINS_SERVER/securityRealm/finishLogin
+For more info check 'Maximum Authentication Lifetime' at https://github.com/jenkinsci/saml-plugin/blob/master/doc/CONFIGURE.md#configuring-plugin-settings
+If you have issues check the troubleshoting guide at https://github.com/jenkinsci/saml-plugin/blob/master/doc/TROUBLESHOOTING.md
+org.pac4j.saml.exceptions.SAMLException: Intended destination https://JENKINS_SERVER/securityRealm/finishLogin doesn't match any of the endpoint URLs on endpoint http://JENKINS_SERVER/securityRealm/finishLogin
+	at org.pac4j.saml.sso.impl.SAML2DefaultResponseValidator.verifyEndpoint(SAML2DefaultResponseValidator.java:280)
+Caused: org.pac4j.saml.exceptions.SAMLException
+	at org.pac4j.saml.sso.impl.SAML2DefaultResponseValidator.verifyEndpoint(SAML2DefaultResponseValidator.java:283)
+	at org.pac4j.saml.sso.impl.SAML2DefaultResponseValidator.validateSamlProtocolResponse(SAML2DefaultResponseValidator.java:234)
+	at org.pac4j.saml.sso.impl.SAML2DefaultResponseValidator.validate(SAML2DefaultResponseValidator.java:132)
+	at org.pac4j.saml.sso.impl.SAML2WebSSOMessageReceiver.receiveMessage(SAML2WebSSOMessageReceiver.java:77)
+	at org.pac4j.saml.sso.impl.SAML2WebSSOProfileHandler.receive(SAML2WebSSOProfileHandler.java:35)
+	at org.pac4j.saml.client.SAML2Client.retrieveCredentials(SAML2Client.java:225)
+	at org.pac4j.saml.client.SAML2Client.retrieveCredentials(SAML2Client.java:60)
+	at org.pac4j.core.client.IndirectClient.getCredentials(IndirectClient.java:106)
+	at org.jenkinsci.plugins.saml.SamlProfileWrapper.process(SamlProfileWrapper.java:55)
+Caused: org.acegisecurity.BadCredentialsException: org.pac4j.saml.exceptions.SAMLException: Intended destination https://JENKINS_SERVER/securityRealm/finishLogin doesn't match any of the endpoint URLs on endpoint http://JENKINS_SERVER/securityRealm/finishLogin; nested exception is org.pac4j.saml.exceptions.SAMLException: org.pac4j.saml.exceptions.SAMLException: Intended destination https://JENKINS_SERVER/securityRealm/finishLogin doesn't match any of the endpoint URLs on endpoint http://JENKINS_SERVER/securityRealm/finishLogin
+	at org.jenkinsci.plugins.saml.SamlProfileWrapper.process(SamlProfileWrapper.java:59)
+	at org.jenkinsci.plugins.saml.SamlProfileWrapper.process(SamlProfileWrapper.java:35)
+	at org.jenkinsci.plugins.saml.OpenSAMLWrapper.get(OpenSAMLWrapper.java:64)
+	at org.jenkinsci.plugins.saml.SamlSecurityRealm.doFinishLogin(SamlSecurityRealm.java:311)
+```
+
+This specific exception if read carefully shows that the intended destination has `https` protocol but the endpoint URL is using `http` but otherwise they are equal. 
+
+* Check that HTTPS is enabled on Jenkins or Reverse Proxy
+* Make sure that "Jenkins Location" in System Configuration is set to the `https` URL
