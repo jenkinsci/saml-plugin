@@ -116,6 +116,10 @@ under the License.
           <groupId>org.apache.httpcomponents</groupId>
           <artifactId>httpclient</artifactId>
         </exclusion>
+        <exclusion>
+          <artifactId>cryptacular</artifactId>
+          <groupId>org.cryptacular</groupId>
+        </exclusion>
       </exclusions>
     </dependency>
     <dependency>
