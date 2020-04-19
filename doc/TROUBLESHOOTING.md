@@ -383,3 +383,18 @@ This specific exception if read carefully shows that the intended destination ha
 
 * Check that HTTPS is enabled on Jenkins or Reverse Proxy
 * Make sure that "Jenkins Location" in System Configuration is set to the `https` URL
+
+## It is not possible to disable signature with HTTP redirect binding
+
+Disabling signing setting does not work with redirect binding, 
+It happens since we update the pac4j library on 1.0.2. 
+In 1.9.9 pac4j library `forceSignRedirectBindingAuthnRequest` 
+and `authnRequestSigned` do not work as expected. 
+Indeed it is not possible to change the value of authnRequestSigned, 
+We've to extend the class to overwrite the `isAuthnRequestSigned()` method 
+and add a `setAuthnRequestSigned()` method, 
+but this workaround only works with POST binding. 
+It is not possible to upgrade the library again because it uses a newer version of Sprint 
+and Jenkins Core uses an old one. 
+So the only solution is to stop using pac4j library, 
+and use OpenSAML library directly, but this is a reimplementation of the plugin.

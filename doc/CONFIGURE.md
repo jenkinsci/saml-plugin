@@ -58,6 +58,7 @@ this key would be recreate when it expires, by default the key is not exposed in
   * **Private Key password** - The password used in the -keypass argument of keytool.
   * **Auth Request Signature** - Enable signature of the Redirect Binding Auth Request,
   If you enable it the encryption and signing key would available in the SP metadata file and URL (JENKINS_URL/securityRealm/metadata).
+  The disable of signing auth request does not work with HTTP redirection binging, it only works for POST binding.
   
 The attribute is sometimes called a claim, and for some IdPs it has a fixed structure, e.g. a URI. So in some documentation,
 you might see the term URI of the claim instead of the name of the attribute.

@@ -1,6 +1,6 @@
 <div>
     Enable signature of the Auth Request. If you enable it the encryption and signing key would available in the SP metadata file and URL (JENKINS_URL/securityRealm/metadata).
-
+    The disable of signing auth request does not work with HTTP redirection binging, it only works for POST binding.
     <pre>
         &lt;md:SPSSODescriptor AuthnRequestsSigned="true" ...&gt;
     </pre>
