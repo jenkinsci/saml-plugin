@@ -128,15 +128,6 @@ public class LoginDetailsProperty extends UserProperty {
      */
     @Extension
     public static class SecurityListenerImpl extends jenkins.security.SecurityListener {
-        @Override
-        protected void authenticated(@javax.annotation.Nonnull org.acegisecurity.userdetails.UserDetails details) {
-            //NOOP
-        }
-
-        @Override
-        protected void failedToAuthenticate(@javax.annotation.Nonnull String username) {
-            //NOOP
-        }
 
         @Override
         protected void loggedIn(@javax.annotation.Nonnull String username) {
@@ -163,15 +154,6 @@ public class LoginDetailsProperty extends UserProperty {
             }
         }
 
-        @Override
-        protected void failedToLogIn(@javax.annotation.Nonnull String username) {
-            //NOOP
-        }
-
-        @Override
-        protected void loggedOut(@javax.annotation.Nonnull String username) {
-            //NOOP
-        }
     }
 
 
