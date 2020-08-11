@@ -176,6 +176,7 @@ under the License.
         <artifactId>cryptacular</artifactId>
         <version>1.2.4</version>
       </dependency>
+      <!-- TODO: remove when CVE-2019-12400 is resolved -->
       <dependency>
         <groupId>org.apache.santuario</groupId>
         <artifactId>xmlsec</artifactId>
