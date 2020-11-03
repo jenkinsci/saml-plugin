@@ -4,11 +4,14 @@ Example: Setting up Active Directory Federation Services (ADFS) to use with Jenk
 *Note:* replace adfs.example.com with the name of your ADFS, replace jenkins.example.com with the name of your Jenkins host.
 
 **On the Jenkins side:**
-Download the IdP file to paste into the Jenkins config from your ADFS. It is generally exposed under the following URL:
+* Download the IdP file to paste into the Jenkins config from your ADFS. It is generally exposed under the following URL:
 
 ```
 https://adfs.example.com/FederationMetadata/2007-06/FederationMetadata.xml
 ```
+
+* Set the system property `-Dorg.apache.xml.security.ignoreLineBreaks=true` when starting Jenkins.
+
 
 **On the Windows side:**
 
@@ -22,7 +25,7 @@ Go through the wizard. The properties at the end should look like indicated on t
 ------------ | -------------
 ![](images/Screen_Shot_2015-12-10_at_16.11.42.png) | ![](images/Screen_Shot_2015-12-10_at_16.11.44.png)
 
-**Encryption:** import key from the JENKIS_HOME/saml-sp.metadata.xml file | **Signature:** import key from the JENKIS_HOME/saml-sp.metadata.xml file
+**Encryption:** import key from the JENKINS_HOME/saml-sp.metadata.xml file | **Signature:** import key from the JENKINS_HOME/saml-sp.metadata.xml file
 ------------ | -------------
 ![](images/Screen_Shot_2015-12-10_at_16.11.46.png) | ![](images/Screen_Shot_2015-12-10_at_16.11.49.png)
 
@@ -51,4 +54,3 @@ Allow all users to connect, or modify depending on your setup: | -
 ![](images/Screen_Shot_2015-12-10_at_16.12.45.png)
 
 
- 
