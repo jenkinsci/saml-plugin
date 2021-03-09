@@ -203,8 +203,7 @@ public class LiveTest {
     }
 
     private static void makeLoginWithUser1(JenkinsRule r) throws Exception {
-        // TODO commenceLogin fails with: SAMLException: Identity provider has no single sign on service available for the selected profileHTTP-Redirect
-        // https://github.com/jenkinsci/saml-plugin/blob/master/doc/TROUBLESHOOTING.md#samlexception-identity-provider-has-no-single-sign-on-service-available-for-the-selected
+        // TODO doCommenceLogin calls HttpResponses.redirectTo yet sends a 500 error (with no diagnostics) rather than the expected 302
         HtmlPage login = r.createWebClient().goTo("");
         assertThat(login.getWebResponse().getContentAsString(), containsString("Enter your username and password")); // SAML service login page
         ((HtmlTextInput) login.getElementById("username")).setText("user1");
