@@ -59,8 +59,8 @@ public class LiveTest {
         samlContainer.stop();
     }
 
-    public static final String SAML2_REDIRECT_BINDING_URI = "HTTP-Redirect";
-    public static final String SAML2_POST_BINDING_URI = "HTTP-POST";
+    public static final String SAML2_REDIRECT_BINDING_URI = "urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect";
+    public static final String SAML2_POST_BINDING_URI = "urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST";
 
     private static final String SERVICE_PROVIDER_ID = "jenkins-dev";
 
