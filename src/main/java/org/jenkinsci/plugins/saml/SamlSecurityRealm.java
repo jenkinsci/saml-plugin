@@ -48,6 +48,7 @@ import javax.annotation.Nonnull;
 import javax.servlet.http.HttpSession;
 import java.io.*;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -336,7 +337,10 @@ public class SamlSecurityRealm extends SecurityRealm {
 
 
         //retrieve user email
-        saveUser |= modifyUserEmail(user, (List<String>) saml2Profile.getAttribute(getEmailAttributeName()));
+        Object _emails = saml2Profile.getAttribute(getEmailAttributeName());
+        @SuppressWarnings("unchecked")
+        List<String> emails = _emails instanceof List ? (List<String>) _emails : _emails instanceof String ? Collections.singletonList((String) _emails) : Collections.emptyList();
+        saveUser |= modifyUserEmail(user, emails);
 
         saveUser |= modifyUserSamlCustomAttributes(user, saml2Profile);
 
