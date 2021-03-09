@@ -203,7 +203,7 @@ public class LiveTest {
     }
 
     private static void makeLoginWithUser1(JenkinsRule r) throws Exception {
-        // TODO doCommenceLogin calls HttpResponses.redirectTo yet sends a 500 error (with no diagnostics) rather than the expected 302
+        // TODO goes through redirects, then serves 403
         HtmlPage login = r.createWebClient().goTo("");
         assertThat(login.getWebResponse().getContentAsString(), containsString("Enter your username and password")); // SAML service login page
         ((HtmlTextInput) login.getElementById("username")).setText("user1");
