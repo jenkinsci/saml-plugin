@@ -230,6 +230,8 @@ public class LiveTest {
         assertThat(login.getWebResponse().getContentAsString(), containsString("Enter your username and password")); // SAML service login page
         ((HtmlTextInput) login.getElementById("username")).setText("user1");
         ((HtmlPasswordInput) login.getElementById("password")).setText("user1pass");
+        wc.setRedirectEnabled(true);
+        wc.setThrowExceptionOnFailingStatusCode(true);
         HtmlPage dashboard = ((HtmlButton) login.getElementsByTagName("button").get(0)).click();
         assertThat(dashboard.getWebResponse().getContentAsString(), allOf(containsString("User 1"), containsString("Manage Jenkins")));
     }
