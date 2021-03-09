@@ -16,8 +16,10 @@
 
 package org.jenkinsci.plugins.saml;
 
+import com.gargoylesoftware.htmlunit.Page;
 import com.gargoylesoftware.htmlunit.html.HtmlButton;
 import com.gargoylesoftware.htmlunit.html.HtmlPage;
+import com.gargoylesoftware.htmlunit.html.HtmlPasswordInput;
 import com.gargoylesoftware.htmlunit.html.HtmlTextInput;
 import hudson.util.Secret;
 import java.io.File;
@@ -203,12 +205,32 @@ public class LiveTest {
     }
 
     private static void makeLoginWithUser1(JenkinsRule r) throws Exception {
-        // TODO goes through redirects, then serves 403
-        HtmlPage login = r.createWebClient().goTo("");
+        JenkinsRule.WebClient wc = r.createWebClient();
+        wc.setRedirectEnabled(false);
+        wc.setThrowExceptionOnFailingStatusCode(false);
+        String loc = r.getURL().toString();
+        HtmlPage login;
+        REDIRECT: // TODO for whatever reason, in default redirectEnabled mode, this winds up giving a 403 from Jenkins
+        while (true) {
+            @SuppressWarnings("deprecation")
+            Page p = wc.getPage(loc);
+            int code = p.getWebResponse().getStatusCode();
+            switch (code) {
+            case 302:
+                loc = p.getWebResponse().getResponseHeaderValue("Location");
+                System.out.println("redirecting to " + loc);
+                break;
+            case 200:
+                login = (HtmlPage) p;
+                break REDIRECT;
+            default:
+                assert false : code;
+            }
+        }
         assertThat(login.getWebResponse().getContentAsString(), containsString("Enter your username and password")); // SAML service login page
         ((HtmlTextInput) login.getElementById("username")).setText("user1");
-        ((HtmlTextInput) login.getElementById("password")).setText("user1pass");
-        HtmlPage dashboard = ((HtmlButton) login.getElementByName("Login")).click();
+        ((HtmlPasswordInput) login.getElementById("password")).setText("user1pass");
+        HtmlPage dashboard = ((HtmlButton) login.getElementsByTagName("button").get(0)).click();
         assertThat(dashboard.getWebResponse().getContentAsString(), allOf(containsString("User 1"), containsString("Manage Jenkins")));
     }
 
