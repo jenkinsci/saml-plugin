@@ -157,7 +157,11 @@ public class IdpMetadataConfiguration extends AbstractDescribableImpl<IdpMetadat
     @Override
     public String toString() {
         final StringBuilder sb = new StringBuilder("IdpMetadataConfiguration{");
-        sb.append("xml='").append(xml).append('\'');
+        if (xml != null) {
+            sb.append("xml='…").append(xml.length()).append(" chars…'");
+        } else {
+            sb.append("xml=null");
+        }
         sb.append(", url='").append(url).append('\'');
         sb.append(", period=").append(period);
         sb.append('}');
