@@ -195,6 +195,7 @@ public class LiveTest {
                 withEnv("SIMPLESAMLPHP_SP_ENTITY_ID", SERVICE_PROVIDER_ID).
                 withEnv("SIMPLESAMLPHP_SP_ASSERTION_CONSUMER_SERVICE", rootUrl + "securityRealm/finishLogin"). // login back URL
                 withEnv("SIMPLESAMLPHP_SP_SINGLE_LOGOUT_SERVICE", rootUrl + "logout"); // unused
+        System.out.println(samlContainer.getEnv());
         samlContainer.start();
         samlContainer.copyFileToContainer(MountableFile.forClasspathResource("org/jenkinsci/plugins/saml/LiveTest/users.php"), "/var/www/simplesamlphp/config/authsources.php"); // users info
         samlContainer.copyFileToContainer(MountableFile.forClasspathResource("org/jenkinsci/plugins/saml/LiveTest/config.php"), "/var/www/simplesamlphp/config/config.php"); // config info,
