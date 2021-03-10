@@ -92,29 +92,33 @@ public class LiveTest {
         }
     }
 
-    /*
     @Test
-    public void authenticationOKFromURL() throws IOException, InterruptedException {
-        jenkins.open(); // navigate to root
-        String rootUrl = jenkins.getCurrentUrl();
-        SAMLContainer samlServer = startSimpleSAML(rootUrl);
+    public void authenticationOKFromURL() throws Throwable {
+        startSimpleSAML(rr.getUrl().toString());
+        String idpMetadataUrl = createIdPMetadataURL();
 
-        GlobalSecurityConfig sc = new GlobalSecurityConfig(jenkins);
-        sc.open();
+        rr.then(new AuthenticationOKFromURL(idpMetadataUrl));
+    }
+    private static class AuthenticationOKFromURL implements RealJenkinsRule.Step {
+        private final String idpMetadataUrl;
+        AuthenticationOKFromURL(String idpMetadataUrl) {
+            this.idpMetadataUrl = idpMetadataUrl;
+        }
+        @Override
+        public void run(JenkinsRule r) throws Throwable {
+            // Authentication
+            SamlSecurityRealm realm = configureBasicSettings(new IdpMetadataConfiguration(idpMetadataUrl, 0L), new SamlAdvancedConfiguration(false, null, SERVICE_PROVIDER_ID, null, /* TODO maximumSessionLifetime unused */null));
+            Jenkins.XSTREAM2.toXMLUTF8(realm, System.out);
+            System.out.println();
+            r.jenkins.setSecurityRealm(realm);
 
-        // Authentication
-        SamlSecurityRealm realm = configureBasicSettings(sc);
-        realm.setUrl(createIdPMetadataURL(samlServer));
+            configureAuthorization();
 
-        configureEncrytion(realm);
-        configureAuthorization(sc);
-
-        waitFor().withTimeout(10, TimeUnit.SECONDS).until(() -> hasContent("Enter your username and password")); // SAML service login page
-
-        // SAML server login
-        makeLoginWithUser1();
+            makeLoginWithUser1(r);
+        }
     }
 
+    /*
     @Test
     public void authenticationOKPostBinding() throws IOException, InterruptedException {
         jenkins.open(); // navigate to root
