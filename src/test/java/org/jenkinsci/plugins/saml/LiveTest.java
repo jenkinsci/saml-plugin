@@ -63,7 +63,6 @@ public class LiveTest {
 
     private static final String SAML2_REDIRECT_BINDING_URI = "urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect";
     private static final String SAML2_POST_BINDING_URI = "urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST";
-
     private static final String SERVICE_PROVIDER_ID = "jenkins-dev";
 
     @Test
@@ -90,7 +89,6 @@ public class LiveTest {
     public void authenticationOKFromURL() throws Throwable {
         startSimpleSAML(rr.getUrl().toString());
         String idpMetadataUrl = createIdPMetadataURL();
-
         rr.then(new AuthenticationOKFromURL(idpMetadataUrl));
     }
     private static class AuthenticationOKFromURL implements RealJenkinsRule.Step {
@@ -142,7 +140,7 @@ public class LiveTest {
         }
         @Override
         public void run(JenkinsRule r) throws Throwable {
-            SamlSecurityRealm realm = configureBasicSettings(new IdpMetadataConfiguration(idpMetadata), new SamlAdvancedConfiguration(false, null, SERVICE_PROVIDER_ID, null, /* TODO maximumSessionLifetime unused */null), SAML2_REDIRECT_BINDING_URI);
+            SamlSecurityRealm realm = configureBasicSettings(new IdpMetadataConfiguration(idpMetadata), new SamlAdvancedConfiguration(false, null, SERVICE_PROVIDER_ID, null, null), SAML2_REDIRECT_BINDING_URI);
             r.jenkins.setSecurityRealm(realm);
             configureAuthorization();
             JenkinsRule.WebClient wc = r.createWebClient();
