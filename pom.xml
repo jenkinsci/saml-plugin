@@ -46,7 +46,7 @@ under the License.
     <changelist>-SNAPSHOT</changelist>
     <jenkins.version>2.277</jenkins.version>
     <java.level>8</java.level>
-    <jenkins-test-harness.version>1497.v663cbf5eb4df</jenkins-test-harness.version> <!-- TODO https://github.com/jenkinsci/jenkins-test-harness/pull/281 -->
+    <jenkins-test-harness.version>1498.v53acb0fd4634</jenkins-test-harness.version>
   </properties>
 
   <licenses>
