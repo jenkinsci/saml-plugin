@@ -61,8 +61,8 @@ public class LiveTest {
         samlContainer.stop();
     }
 
-    public static final String SAML2_REDIRECT_BINDING_URI = "urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect";
-    public static final String SAML2_POST_BINDING_URI = "urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST";
+    private static final String SAML2_REDIRECT_BINDING_URI = "urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect";
+    private static final String SAML2_POST_BINDING_URI = "urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST";
 
     private static final String SERVICE_PROVIDER_ID = "jenkins-dev";
 
@@ -70,7 +70,6 @@ public class LiveTest {
     public void authenticationOK() throws Throwable {
         startSimpleSAML(rr.getUrl().toString());
         String idpMetadata = readIdPMetadataFromURL();
-
         rr.then(new AuthenticationOK(idpMetadata));
     }
     private static class AuthenticationOK implements RealJenkinsRule.Step {
@@ -80,14 +79,9 @@ public class LiveTest {
         }
         @Override
         public void run(JenkinsRule r) throws Throwable {
-            // Authentication
-            SamlSecurityRealm realm = configureBasicSettings(new IdpMetadataConfiguration(idpMetadata), new SamlAdvancedConfiguration(false, null, SERVICE_PROVIDER_ID, null, /* TODO maximumSessionLifetime unused */null));
-            Jenkins.XSTREAM2.toXMLUTF8(realm, System.out);
-            System.out.println();
+            SamlSecurityRealm realm = configureBasicSettings(new IdpMetadataConfiguration(idpMetadata), new SamlAdvancedConfiguration(false, null, SERVICE_PROVIDER_ID, null, /* TODO maximumSessionLifetime unused */null), SAML2_REDIRECT_BINDING_URI);
             r.jenkins.setSecurityRealm(realm);
-
             configureAuthorization();
-
             makeLoginWithUser1(r);
         }
     }
@@ -106,42 +100,36 @@ public class LiveTest {
         }
         @Override
         public void run(JenkinsRule r) throws Throwable {
-            // Authentication
-            SamlSecurityRealm realm = configureBasicSettings(new IdpMetadataConfiguration(idpMetadataUrl, 0L), new SamlAdvancedConfiguration(false, null, SERVICE_PROVIDER_ID, null, /* TODO maximumSessionLifetime unused */null));
+            SamlSecurityRealm realm = configureBasicSettings(new IdpMetadataConfiguration(idpMetadataUrl, 0L), new SamlAdvancedConfiguration(false, null, SERVICE_PROVIDER_ID, null, null), SAML2_REDIRECT_BINDING_URI);
             Jenkins.XSTREAM2.toXMLUTF8(realm, System.out);
             System.out.println();
             r.jenkins.setSecurityRealm(realm);
-
             configureAuthorization();
+            makeLoginWithUser1(r);
+        }
+    }
 
+    @Test
+    public void authenticationOKPostBinding() throws Throwable {
+        startSimpleSAML(rr.getUrl().toString());
+        String idpMetadata = readIdPMetadataFromURL();
+        rr.then(new AuthenticationOKPostBinding(idpMetadata));
+    }
+    private static class AuthenticationOKPostBinding implements RealJenkinsRule.Step {
+        private final String idpMetadata;
+        AuthenticationOKPostBinding(String idpMetadata) {
+            this.idpMetadata = idpMetadata;
+        }
+        @Override
+        public void run(JenkinsRule r) throws Throwable {
+            SamlSecurityRealm realm = configureBasicSettings(new IdpMetadataConfiguration(idpMetadata), new SamlAdvancedConfiguration(false, null, SERVICE_PROVIDER_ID, null, null), SAML2_POST_BINDING_URI);
+            r.jenkins.setSecurityRealm(realm);
+            configureAuthorization();
             makeLoginWithUser1(r);
         }
     }
 
     /*
-    @Test
-    public void authenticationOKPostBinding() throws IOException, InterruptedException {
-        jenkins.open(); // navigate to root
-        String rootUrl = jenkins.getCurrentUrl();
-        SAMLContainer samlServer = startSimpleSAML(rootUrl);
-
-        GlobalSecurityConfig sc = new GlobalSecurityConfig(jenkins);
-        sc.open();
-
-        // Authentication
-        SamlSecurityRealm realm = configureBasicSettings(sc);
-        String idpMetadata = readIdPMetadataFromURL(samlServer);
-        realm.setXml(idpMetadata);
-        realm.setBinding(SAML2_POST_BINDING_URI);
-        configureEncrytion(realm);
-        configureAuthorization(sc);
-
-        waitFor().withTimeout(10, TimeUnit.SECONDS).until(() -> hasContent("Enter your username and password")); // SAML service login page
-
-        // SAML server login
-        makeLoginWithUser1();
-    }
-
     @Test
     public void authenticationFail() throws IOException, InterruptedException {
         jenkins.open(); // navigate to root
@@ -188,12 +176,12 @@ public class LiveTest {
                 grant(Jenkins.READ).everywhere().to("group2"));
     }
 
-    private static SamlSecurityRealm configureBasicSettings(IdpMetadataConfiguration idpMetadataConfiguration, SamlAdvancedConfiguration advancedConfiguration) throws IOException {
+    private static SamlSecurityRealm configureBasicSettings(IdpMetadataConfiguration idpMetadataConfiguration, SamlAdvancedConfiguration advancedConfiguration, String binding) throws IOException {
         // TODO use @DataBoundSetter wherever possible and load defaults from DescriptorImpl
         File samlKey = new File(Jenkins.get().getRootDir(), "saml-key.jks");
         FileUtils.copyURLToFile(LiveTest.class.getResource("LiveTest/saml-key.jks"), samlKey);
         SamlEncryptionData samlEncryptionData = new SamlEncryptionData(samlKey.getAbsolutePath(), Secret.fromString("changeit"), Secret.fromString("changeit"), null, false);
-        return new SamlSecurityRealm(idpMetadataConfiguration, "displayName", "eduPersonAffiliation", 86400, "uid", "email", null, advancedConfiguration, samlEncryptionData, "none", SAML2_REDIRECT_BINDING_URI, Collections.emptyList());
+        return new SamlSecurityRealm(idpMetadataConfiguration, "displayName", "eduPersonAffiliation", 86400, "uid", "email", null, advancedConfiguration, samlEncryptionData, "none", binding, Collections.emptyList());
     }
 
     private void startSimpleSAML(String rootUrl) throws IOException, InterruptedException {
@@ -214,13 +202,14 @@ public class LiveTest {
         wc.setThrowExceptionOnFailingStatusCode(false);
         String loc = r.getURL().toString();
         HtmlPage login;
-        REDIRECT: // TODO for whatever reason, in default redirectEnabled mode, this winds up giving a 403 from Jenkins
+        REDIRECT: // in default redirectEnabled mode, this gets a 403 from Jenkins, perhaps because the redirect to /securityRealm/commenceLogin is via JavaScript not a 302
         while (true) {
             @SuppressWarnings("deprecation")
             Page p = wc.getPage(loc);
             int code = p.getWebResponse().getStatusCode();
             switch (code) {
             case 302:
+            case 303:
                 loc = p.getWebResponse().getResponseHeaderValue("Location");
                 System.out.println("redirecting to " + loc);
                 break;
