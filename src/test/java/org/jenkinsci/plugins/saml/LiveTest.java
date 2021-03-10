@@ -129,35 +129,31 @@ public class LiveTest {
         }
     }
 
-    /*
     @Test
-    public void authenticationFail() throws IOException, InterruptedException {
-        jenkins.open(); // navigate to root
-        String rootUrl = jenkins.getCurrentUrl();
-        SAMLContainer samlServer = startSimpleSAML(rootUrl);
-
-        GlobalSecurityConfig sc = new GlobalSecurityConfig(jenkins);
-        sc.open();
-
-        // Authentication
-        SamlSecurityRealm realm = configureBasicSettings(sc);
-        String idpMetadata = readIdPMetadataFromURL(samlServer);
-        realm.setXml(idpMetadata);
-
-        configureEncrytion(realm);
-        configureAuthorization(sc);
-
-        waitFor().withTimeout(10, TimeUnit.SECONDS).until(() -> hasContent("Enter your username and password")); // SAML service login page
-
-        // SAML server login
-        find(by.id("username")).sendKeys("user1");
-        find(by.id("password")).sendKeys("WrOnGpAsSwOrD");
-        find(by.button("Login")).click();
-
-        waitFor().withTimeout(5, TimeUnit.SECONDS).until(() -> hasContent("Either no user with the given username could be found, or the password you gave was wrong").matchesSafely(driver)); // wait for the login to propagate
-        assertThat(jenkins.getCurrentUrl(), containsString("simplesaml/module.php/core/loginuserpass.php"));
+    public void authenticationFail() throws Throwable {
+        startSimpleSAML(rr.getUrl().toString());
+        String idpMetadata = readIdPMetadataFromURL();
+        rr.then(new AuthenticationFail(idpMetadata));
     }
-    */
+    private static class AuthenticationFail implements RealJenkinsRule.Step {
+        private final String idpMetadata;
+        AuthenticationFail(String idpMetadata) {
+            this.idpMetadata = idpMetadata;
+        }
+        @Override
+        public void run(JenkinsRule r) throws Throwable {
+            SamlSecurityRealm realm = configureBasicSettings(new IdpMetadataConfiguration(idpMetadata), new SamlAdvancedConfiguration(false, null, SERVICE_PROVIDER_ID, null, /* TODO maximumSessionLifetime unused */null), SAML2_REDIRECT_BINDING_URI);
+            r.jenkins.setSecurityRealm(realm);
+            configureAuthorization();
+            JenkinsRule.WebClient wc = r.createWebClient();
+            HtmlPage login = openLogin(wc, r);
+            ((HtmlTextInput) login.getElementById("username")).setText("user1");
+            ((HtmlPasswordInput) login.getElementById("password")).setText("WrOnGpAsSwOrD");
+            HtmlPage fail = ((HtmlButton) login.getElementsByTagName("button").get(0)).click();
+            assertThat(fail.getWebResponse().getContentAsString(), containsString("Either no user with the given username could be found, or the password you gave was wrong"));
+            assertThat(fail.getUrl().toString(), containsString("simplesaml/module.php/core/loginuserpass.php"));
+        }
+    }
 
     private String readIdPMetadataFromURL() throws IOException {
         // get saml metadata from IdP
@@ -196,13 +192,11 @@ public class LiveTest {
         samlContainer.copyFileToContainer(MountableFile.forClasspathResource("org/jenkinsci/plugins/saml/LiveTest/saml20-idp-hosted.php"), "/var/www/simplesamlphp/metadata/saml20-idp-hosted.php"); //IdP advanced configuration
     }
 
-    private static void makeLoginWithUser1(JenkinsRule r) throws Exception {
-        JenkinsRule.WebClient wc = r.createWebClient();
+    private static HtmlPage openLogin(JenkinsRule.WebClient wc, JenkinsRule r) throws Exception {
         wc.setRedirectEnabled(false);
         wc.setThrowExceptionOnFailingStatusCode(false);
         String loc = r.getURL().toString();
-        HtmlPage login;
-        REDIRECT: // in default redirectEnabled mode, this gets a 403 from Jenkins, perhaps because the redirect to /securityRealm/commenceLogin is via JavaScript not a 302
+        // in default redirectEnabled mode, this gets a 403 from Jenkins, perhaps because the redirect to /securityRealm/commenceLogin is via JavaScript not a 302
         while (true) {
             @SuppressWarnings("deprecation")
             Page p = wc.getPage(loc);
@@ -214,17 +208,21 @@ public class LiveTest {
                 System.out.println("redirecting to " + loc);
                 break;
             case 200:
-                login = (HtmlPage) p;
-                break REDIRECT;
+                wc.setRedirectEnabled(true);
+                wc.setThrowExceptionOnFailingStatusCode(true);
+                assertThat(p.getWebResponse().getContentAsString(), containsString("Enter your username and password")); // SAML service login page
+                return (HtmlPage) p;
             default:
                 assert false : code;
             }
         }
-        assertThat(login.getWebResponse().getContentAsString(), containsString("Enter your username and password")); // SAML service login page
+    }
+
+    private static void makeLoginWithUser1(JenkinsRule r) throws Exception {
+        JenkinsRule.WebClient wc = r.createWebClient();
+        HtmlPage login = openLogin(wc, r);
         ((HtmlTextInput) login.getElementById("username")).setText("user1");
         ((HtmlPasswordInput) login.getElementById("password")).setText("user1pass");
-        wc.setRedirectEnabled(true);
-        wc.setThrowExceptionOnFailingStatusCode(true);
         HtmlPage dashboard = ((HtmlButton) login.getElementsByTagName("button").get(0)).click();
         assertThat(dashboard.getWebResponse().getContentAsString(), allOf(containsString("User 1"), containsString("Manage Jenkins")));
     }
