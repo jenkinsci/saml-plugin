@@ -337,9 +337,7 @@ public class SamlSecurityRealm extends SecurityRealm {
 
 
         //retrieve user email
-        Object _emails = saml2Profile.getAttribute(getEmailAttributeName());
-        @SuppressWarnings("unchecked")
-        List<String> emails = _emails instanceof List ? (List<String>) _emails : _emails instanceof String ? Collections.singletonList((String) _emails) : Collections.emptyList();
+        List<String> emails = getListOfValues(saml2Profile.getAttribute(getEmailAttributeName()));
         saveUser |= modifyUserEmail(user, emails);
 
         saveUser |= modifyUserSamlCustomAttributes(user, saml2Profile);
@@ -355,6 +353,23 @@ public class SamlSecurityRealm extends SecurityRealm {
 
         SecurityListener.fireLoggedIn(userDetails.getUsername());
         return HttpResponses.redirectTo(redirectUrl);
+    }
+
+    /**
+     * retrieve the value of an attribute in a list for consistence with the reset of attributes manage.
+     * @param attributeValue
+     * @return the values of the attribute in a list.
+     */
+    @NonNull
+    private List<String> getListOfValues(Object attributeValue) {
+        @SuppressWarnings("unchecked")
+        List<String> listOfValues = Collections.emptyList();
+        if(attributeValue instanceof List) {
+            listOfValues = (List<String>) attributeValue;
+        } else if (attributeValue instanceof String){
+            listOfValues = Collections.singletonList((String) attributeValue);
+        }
+        return listOfValues;
     }
 
     private String getEffectiveLogoutUrl() {
@@ -454,9 +469,9 @@ public class SamlSecurityRealm extends SecurityRealm {
         boolean saveUser = false;
         // retrieve user display name
         String userFullName = null;
-        List<?> names = (List<?>) saml2Profile.getAttribute(getDisplayNameAttributeName());
-        if (names != null && !names.isEmpty()) {
-            userFullName = (String) names.get(0);
+        List<String> names = getListOfValues(saml2Profile.getAttribute(getDisplayNameAttributeName()));
+        if (!names.isEmpty()) {
+            userFullName = names.get(0);
         }
 
         // update user full name if necessary
@@ -477,17 +492,14 @@ public class SamlSecurityRealm extends SecurityRealm {
      */
     private List<GrantedAuthority> loadGrantedAuthorities(SAML2Profile saml2Profile) {
         // prepare list of groups
-        List<?> groups = (List<?>) saml2Profile.getAttribute(getGroupsAttributeName());
-        if (groups == null) {
-            groups = new ArrayList<String>();
-        }
+        List<String> groups = getListOfValues(saml2Profile.getAttribute(getGroupsAttributeName())) ;
 
         // build list of authorities
         List<GrantedAuthority> authorities = new ArrayList<>();
         authorities.add(AUTHENTICATED_AUTHORITY);
         if (!groups.isEmpty()) {
-            for (Object group : groups) {
-                SamlGroupAuthority ga = new SamlGroupAuthority((String) group);
+            for (String group : groups) {
+                SamlGroupAuthority ga = new SamlGroupAuthority(group);
                 authorities.add(ga);
             }
         }
@@ -501,12 +513,12 @@ public class SamlSecurityRealm extends SecurityRealm {
      * @param emails user emails.
      * @return true if the current user is modified.
      */
-    private boolean modifyUserEmail(User user, List<String> emails) {
+    private boolean modifyUserEmail(User user, @NonNull List<String> emails) {
         String userEmail = null;
         boolean saveUser = false;
-        if (emails == null || emails.isEmpty()) {
+        if (emails.isEmpty()) {
             LOG.warning("There is not Email attribute '" + getEmailAttributeName() + "' for user : " + user.getId());
-            return saveUser;
+            return false;
         }
 
         for (String item : emails) {
@@ -545,15 +557,12 @@ public class SamlSecurityRealm extends SecurityRealm {
      */
     private String getUsernameFromProfile(SAML2Profile saml2Profile) {
         if (getUsernameAttributeName() != null) {
-            Object attribute = saml2Profile.getAttribute(getUsernameAttributeName());
-            if (attribute instanceof String) {
-                return (String) attribute;
-            }
-            if (attribute instanceof List) {
-                return (String) ((List<?>) attribute).get(0);
+            List<String> attributes = getListOfValues(saml2Profile.getAttribute(getUsernameAttributeName()));
+            if (!attributes.isEmpty()) {
+                return attributes.get(0);
             }
             LOG.log(Level.SEVERE, "Unable to get username from attribute {0} value {1}, Saml Profile {2}",
-                    new Object[]{getUsernameAttributeName(), attribute, saml2Profile});
+                    new Object[]{getUsernameAttributeName(), attributes.toString(), saml2Profile});
             LOG.log(Level.SEVERE, "Falling back to NameId {0}", saml2Profile.getId());
         }
         return saml2Profile.getId();
