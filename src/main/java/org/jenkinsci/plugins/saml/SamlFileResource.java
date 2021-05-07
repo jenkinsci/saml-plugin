@@ -18,12 +18,14 @@ under the License. */
 package org.jenkinsci.plugins.saml;
 
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.NotImplementedException;
 import org.pac4j.core.exception.TechnicalException;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.WritableResource;
 
 import javax.annotation.Nonnull;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -31,6 +33,8 @@ import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.net.URL;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.logging.Logger;
 
 /**
@@ -42,7 +46,7 @@ class SamlFileResource implements WritableResource {
 
     private String fileName;
 
-    private byte[] data;
+    private final static Map<String,String> cache = new HashMap<>();
 
     public SamlFileResource(@Nonnull String fileName) {
         this.fileName = fileName;
@@ -51,8 +55,7 @@ class SamlFileResource implements WritableResource {
     public SamlFileResource(@Nonnull String fileName, @Nonnull String data) {
         this.fileName = fileName;
         try {
-            this.data = data.getBytes("UTF-8");
-            FileUtils.writeByteArrayToFile(getFile(), this.data);
+            save(fileName, data);
         } catch (UnsupportedEncodingException e) {
             throw new TechnicalException("Could not get string bytes.", e);
         } catch (java.io.IOException e) {
@@ -97,7 +100,11 @@ class SamlFileResource implements WritableResource {
 
     @Override
     public InputStream getInputStream() throws IOException {
-        return FileUtils.openInputStream(getFile());
+        if (cache.containsKey(fileName)){
+            return IOUtils.toInputStream(cache.get(fileName),"UTF-8");
+        } else {
+            return FileUtils.openInputStream(getFile());
+        }
     }
 
     @Override
@@ -127,6 +134,25 @@ class SamlFileResource implements WritableResource {
 
     @Override
     public OutputStream getOutputStream() throws IOException {
-        return FileUtils.openOutputStream(getFile());
+        return new ByteArrayOutputStream(){
+            @Override
+            public void close() throws IOException {
+                save(fileName, IOUtils.toString(this.buf, "UTF-8"));
+            }
+        };
+    }
+
+    private boolean isNew(String fileName, String data){
+        String oldData = cache.containsKey(fileName) ? cache.get(fileName) : "";
+        String md5SumNew = org.apache.commons.codec.digest.DigestUtils.md5Hex(data);
+        String md5SumOld = org.apache.commons.codec.digest.DigestUtils.md5Hex(oldData);
+        return !md5SumNew.equals(md5SumOld);
+    }
+
+    private void save(@Nonnull String fileName, @Nonnull String data) throws IOException {
+        if(isNew(fileName, data)) {
+            FileUtils.writeByteArrayToFile(getFile(), data.getBytes("UTF-8"));
+            cache.put(fileName, data);
+        }
     }
 }
