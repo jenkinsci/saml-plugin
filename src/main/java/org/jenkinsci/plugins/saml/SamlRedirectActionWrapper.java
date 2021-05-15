@@ -44,10 +44,11 @@ public class SamlRedirectActionWrapper extends OpenSAMLWrapper<RedirectAction> {
         try {
             SAML2Client client = createSAML2Client();
             WebContext context = createWebContext();
-            return client.getRedirectAction(context);
+            RedirectAction redirection = client.getRedirectAction(context);
+            client.destroy();
+            return redirection;
         } catch (HttpAction e) {
             throw new IllegalStateException(e);
         }
-
     }
 }
