@@ -65,12 +65,12 @@ class SamlFileResource implements WritableResource {
 
     @Override
     public boolean exists() {
-        return getFile().exists();
+        return new File(fileName).exists();
     }
 
     @Override
     public boolean isReadable() {
-        return getFile().canRead();
+        return new File(fileName).canRead();
     }
 
     @Override
@@ -103,23 +103,23 @@ class SamlFileResource implements WritableResource {
         if (cache.containsKey(fileName)){
             return IOUtils.toInputStream(cache.get(fileName),"UTF-8");
         } else {
-            return FileUtils.openInputStream(getFile());
+            return FileUtils.openInputStream(new File(fileName));
         }
     }
 
     @Override
     public File getFile() {
-        return new File(fileName);
+        throw new NotImplementedException();
     }
 
     @Override
     public long contentLength() {
-        return getFile().length();
+        return new File(fileName).length();
     }
 
     @Override
     public long lastModified() {
-        return getFile().lastModified();
+        return new File(fileName).lastModified();
     }
 
     @Override
@@ -129,7 +129,7 @@ class SamlFileResource implements WritableResource {
 
     @Override
     public boolean isWritable() {
-        return getFile().canWrite();
+        return new File(fileName).canWrite();
     }
 
     @Override
@@ -137,7 +137,7 @@ class SamlFileResource implements WritableResource {
         return new ByteArrayOutputStream(){
             @Override
             public void close() throws IOException {
-                save(fileName, IOUtils.toString(this.buf, "UTF-8"));
+                save(fileName, IOUtils.toString(this.buf, "UTF-8").trim());
             }
         };
     }
@@ -151,7 +151,7 @@ class SamlFileResource implements WritableResource {
 
     private void save(@Nonnull String fileName, @Nonnull String data) throws IOException {
         if(isNew(fileName, data)) {
-            FileUtils.writeByteArrayToFile(getFile(), data.getBytes("UTF-8"));
+            FileUtils.writeByteArrayToFile(new File(fileName), data.getBytes("UTF-8"));
             cache.put(fileName, data);
         }
     }
