@@ -21,7 +21,9 @@ import hudson.model.Descriptor.FormException;
 import hudson.model.User;
 import hudson.model.UserProperty;
 import hudson.model.UserPropertyDescriptor;
+import jenkins.model.Jenkins;
 import net.sf.json.JSONObject;
+import org.jenkinsci.plugins.saml.SamlSecurityRealm;
 import org.kohsuke.stapler.DataBoundConstructor;
 import org.kohsuke.stapler.StaplerRequest;
 
@@ -125,5 +127,9 @@ public class SamlCustomProperty extends UserProperty {
             return new SamlCustomProperty(new ArrayList<>());
         }
 
+        @Override
+        public boolean isEnabled() {
+            return Jenkins.get().getSecurityRealm() instanceof SamlSecurityRealm;
+        }
     }
 }

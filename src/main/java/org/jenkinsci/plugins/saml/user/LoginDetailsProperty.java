@@ -168,5 +168,9 @@ public class LoginDetailsProperty extends UserProperty {
             return new LoginDetailsProperty();
         }
 
+        @Override
+        public boolean isEnabled() {
+            return Jenkins.get().getSecurityRealm() instanceof SamlSecurityRealm;
+        }
     }
 }
