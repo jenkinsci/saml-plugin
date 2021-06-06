@@ -247,7 +247,7 @@ under the License.
       <dependency>
         <groupId>io.jenkins.tools.bom</groupId>
         <artifactId>bom-2.277.x</artifactId>
-        <version>27</version>
+        <version>841.vd6e713d848ab</version>
         <type>pom</type>
         <scope>import</scope>
       </dependency>
