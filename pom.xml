@@ -95,7 +95,7 @@ under the License.
       <groupId>org.pac4j</groupId>
       <artifactId>pac4j-saml</artifactId>
       <!-- versions 4.x.x require JDK 11 -->
-      <version>3.9.0</version>
+      <version>5.1.0</version>
       <optional>false</optional>
       <exclusions>
         <exclusion>
