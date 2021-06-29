@@ -37,6 +37,8 @@ import org.apache.commons.lang.StringUtils;
 import org.jenkinsci.plugins.saml.conf.Attribute;
 import org.jenkinsci.plugins.saml.conf.AttributeEntry;
 import org.jenkinsci.plugins.saml.user.SamlCustomProperty;
+import org.kohsuke.accmod.Restricted;
+import org.kohsuke.accmod.restrictions.NoExternalUse;
 import org.kohsuke.stapler.*;
 import org.kohsuke.stapler.interceptor.RequirePOST;
 import org.pac4j.core.redirect.RedirectAction;
@@ -490,18 +492,24 @@ public class SamlSecurityRealm extends SecurityRealm {
      * @param saml2Profile SAML Profile.
      * @return granted authorities.
      */
-    private List<GrantedAuthority> loadGrantedAuthorities(SAML2Profile saml2Profile) {
+    @Restricted(NoExternalUse.class) // Visible for testing
+    List<GrantedAuthority> loadGrantedAuthorities(SAML2Profile saml2Profile) {
         // prepare list of groups
         List<String> groups = getListOfValues(saml2Profile.getAttribute(getGroupsAttributeName())) ;
 
         // build list of authorities
         List<GrantedAuthority> authorities = new ArrayList<>();
         authorities.add(AUTHENTICATED_AUTHORITY);
-        if (!groups.isEmpty()) {
-            for (String group : groups) {
-                SamlGroupAuthority ga = new SamlGroupAuthority(group);
-                authorities.add(ga);
+        int countEmptyGroups = 0;
+        for (String group : groups) {
+            if (StringUtils.isNotBlank(group)) {
+                authorities.add(new SamlGroupAuthority(group));
+            } else {
+                countEmptyGroups++;
             }
+        }
+        if (countEmptyGroups > 0) {
+            LOG.log(Level.WARNING, String.format("Found %d empty groups in the saml profile for %s. Please check the SAML backend configuration.", countEmptyGroups, getUsernameFromProfile(saml2Profile)));
         }
         return authorities;
     }

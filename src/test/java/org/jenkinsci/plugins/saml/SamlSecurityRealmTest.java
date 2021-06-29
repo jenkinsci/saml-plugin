@@ -19,15 +19,23 @@ package org.jenkinsci.plugins.saml;
 
 import hudson.XmlFile;
 import hudson.security.AuthorizationStrategy;
+import hudson.security.SecurityRealm;
 import hudson.util.Secret;
 import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.logging.LogRecord;
 import org.acegisecurity.GrantedAuthority;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang.StringUtils;
+import org.hamcrest.Description;
+import org.hamcrest.TypeSafeMatcher;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.jvnet.hudson.test.JenkinsRule;
+import org.jvnet.hudson.test.LoggerRule;
 import org.jvnet.hudson.test.recipes.LocalData;
 import org.jvnet.hudson.test.recipes.WithTimeout;
 
@@ -36,12 +44,19 @@ import java.util.logging.Level;
 import java.util.logging.LogManager;
 import java.util.logging.Logger;
 
+import static org.hamcrest.Matchers.allOf;
+import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.hasSize;
+import static org.hamcrest.Matchers.instanceOf;
 import static org.hamcrest.Matchers.not;
+import static org.hamcrest.core.IsCollectionContaining.hasItem;
 import static org.hamcrest.core.StringContains.containsString;
 import static org.junit.Assert.assertEquals;
 import static org.hamcrest.MatcherAssert.assertThat;
 import org.jvnet.hudson.test.Issue;
+import org.pac4j.saml.profile.SAML2Profile;
+
 import static org.opensaml.saml.common.xml.SAMLConstants.SAML2_POST_BINDING_URI;
 import static org.opensaml.saml.common.xml.SAMLConstants.SAML2_REDIRECT_BINDING_URI;
 
@@ -54,16 +69,16 @@ public class SamlSecurityRealmTest {
     @Rule
     public JenkinsRule jenkinsRule = new JenkinsRule();
 
+    @Rule
+    public LoggerRule logs = new LoggerRule().record(SamlSecurityRealm.class, Level.WARNING);
+
     private SamlSecurityRealm samlSecurityRealm;
 
     @Before
     public void start() {
-        if (jenkinsRule.getInstance().getSecurityRealm() instanceof SamlSecurityRealm) {
-            samlSecurityRealm = (SamlSecurityRealm) jenkinsRule.getInstance().getSecurityRealm();
-        } else {
-            throw new RuntimeException("The security Realm it is not correct");
-        }
-
+        SecurityRealm securityRealm = jenkinsRule.getInstance().getSecurityRealm();
+        assertThat("The security realm should be saml", securityRealm, instanceOf(SamlSecurityRealm.class));
+        samlSecurityRealm = (SamlSecurityRealm) securityRealm;
         Logger logger = Logger.getLogger("org.jenkinsci.plugins.saml");
         logger.setLevel(Level.FINEST);
         LogManager.getLogManager().addLogger(logger);
@@ -216,6 +231,26 @@ public class SamlSecurityRealmTest {
         file.getFile().delete();
     }
 
+    @LocalData
+    @Test
+    public void samlProfileWithEmptyGroups() {
+        logs.capture(1);
+        SAML2Profile samlProfile = new SAML2Profile();
+        ArrayList<String> samlGroups = new ArrayList<>();
+        samlGroups.add("group-1");
+        samlGroups.add("");
+        samlGroups.add("");
+        samlGroups.add("");
+        samlGroups.add("group-5");
+        samlProfile.addAttribute(samlSecurityRealm.getGroupsAttributeName(), samlGroups);
+        samlProfile.addAttribute(samlSecurityRealm.getUsernameAttributeName(), "user123");
+        List<GrantedAuthority> grantedAuthorities = samlSecurityRealm.loadGrantedAuthorities(samlProfile);
+        assertThat(grantedAuthorities, not(hasItem(blankGrantedAuthority())));
+        List<LogRecord> records = logs.getRecords();
+        assertThat(records, hasSize(1));
+        assertThat(records.get(0).getMessage(), allOf(containsString("Found 3 empty groups"), containsString("user123")));
+    }
+
     @Test
     @LocalData // config.xml from saml-plugin 0.14
     public void upgradeIDPMetadataFileTest() throws IOException {
@@ -230,5 +265,21 @@ public class SamlSecurityRealmTest {
         configuredMetadata = configuredMetadata.replace(" ", ""); // remove spaces
         configuredMetadata = configuredMetadata.replace("\\n", ""); // remove new lines
         assertThat(idpMetadata, equalTo(configuredMetadata));
+    }
+
+    private static BlankGrantedAuthorityTypeSafeMatcher blankGrantedAuthority() {
+        return new BlankGrantedAuthorityTypeSafeMatcher();
+    }
+
+    private static class BlankGrantedAuthorityTypeSafeMatcher extends TypeSafeMatcher<GrantedAuthority> {
+        @Override
+        public void describeTo(Description description) {
+            description.appendText("a blank authority");
+        }
+
+        @Override
+        protected boolean matchesSafely(GrantedAuthority item) {
+            return StringUtils.isBlank(item.getAuthority());
+        }
     }
 }
