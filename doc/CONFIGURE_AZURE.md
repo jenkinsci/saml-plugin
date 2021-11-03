@@ -31,7 +31,7 @@ For more detail about Azure configuration take a look at the SAML 2.0 Azure docu
 
 ## Configure Jenkins
 
-These are the recomended configuration settings to make Jenkins SAML Plugin work with Azure SSO service.
+These are the recommended configuration settings to make Jenkins SAML Plugin work with Azure SSO service.
 
 * **Metadata**
   * **IdP Metadata**: The IdP Metadata XML downloaded from Azure (e.g. `https://login.microsoftonline.com/<TenantDomainName>/FederationMetadata/2007-06/FederationMetadata.xml`) see [Federation metadata](https://docs.microsoft.com/en-us/azure/active-directory/develop/active-directory-federation-metadata) for more details (not need if you have set the IdP Metadata URL).
