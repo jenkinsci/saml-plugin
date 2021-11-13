@@ -44,7 +44,7 @@ under the License.
   <properties>
     <revision>2.0.10</revision>
     <changelist>-SNAPSHOT</changelist>
-    <jenkins.version>2.277</jenkins.version>
+    <jenkins.version>2.289</jenkins.version>
     <java.level>8</java.level>
     <jenkins-test-harness.version>1498.v53acb0fd4634</jenkins-test-harness.version>
   </properties>
@@ -230,6 +230,11 @@ under the License.
       </exclusions>
     </dependency>
     <dependency>
+      <groupId>org.jenkins-ci.main</groupId>
+      <artifactId>jenkins-test-harness</artifactId>
+      <version>1648.ved2b9ab8b19e</version>
+    </dependency>
+    <dependency>
       <groupId>org.testcontainers</groupId>
       <artifactId>testcontainers</artifactId>
       <version>1.16.0</version>
@@ -246,8 +251,8 @@ under the License.
     <dependencies>
       <dependency>
         <groupId>io.jenkins.tools.bom</groupId>
-        <artifactId>bom-2.277.x</artifactId>
-        <version>887.vae9c8ac09ff7</version>
+        <artifactId>bom-2.289.x</artifactId>
+        <version>1008.vb9e22885c9cf</version>
         <type>pom</type>
         <scope>import</scope>
       </dependency>
