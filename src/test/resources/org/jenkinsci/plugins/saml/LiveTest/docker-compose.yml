@@ -1,0 +1,15 @@
+version: "3.9"
+services:
+  saml:
+    image: "kristophjunge/test-saml-idp:1.14.15"
+    environment:
+      SIMPLESAMLPHP_SP_ENTITY_ID: "http://localhost:8080/jenkins/securityRealm/finishLogin"
+      SIMPLESAMLPHP_SP_ASSERTION_CONSUMER_SERVICE: "http://localhost:8080/jenkins/securityRealm/finishLogin"
+      SIMPLESAMLPHP_SP_SINGLE_LOGOUT_SERVICE: "http://localhost:8080/jenkins/logout"
+      SIMPLESAMLPHP_ADMIN_PASSWORD: "admin"
+    ports:
+      - "58080:80"
+    volumes:
+      - "./config.php:/var/www/simplesamlphp/config/config.ph"
+      - "./users.php:/var/www/simplesamlphp/config/authsources.php"
+      - "./saml20-idp-hosted.php:/var/www/simplesamlphp/metadata/saml20-idp-hosted.php"
