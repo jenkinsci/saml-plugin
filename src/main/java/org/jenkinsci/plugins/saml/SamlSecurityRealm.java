@@ -100,7 +100,7 @@ public class SamlSecurityRealm extends SecurityRealm {
     public static final String WARN_THERE_IS_NOT_KEY_STORE = "There is not keyStore to validate";
     public static final String ERROR_NOT_KEY_FOUND = "Not key found";
     public static final String SUCCESS = "Success";
-    public static final String NOT_POSSIBLE_TO_GET_THE_METADATA = "Was not possible to get the Metadata from the URL";
+    public static final String NOT_POSSIBLE_TO_GET_THE_METADATA = "Was not possible to get the Metadata from the URL ";
     public static final String CHECK_TROUBLESHOOTING_GUIDE = "\nIf you have issues check the troubleshoting guide at https://github.com/jenkinsci/saml-plugin/blob/master/doc/TROUBLESHOOTING.md";
     public static final String CHECK_MAX_AUTH_LIFETIME = "\nFor more info check 'Maximum Authentication Lifetime' at https://github.com/jenkinsci/saml-plugin/blob/master/doc/CONFIGURE.md#configuring-plugin-settings";
 
