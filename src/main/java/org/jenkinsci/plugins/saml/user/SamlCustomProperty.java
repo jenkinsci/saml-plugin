@@ -20,7 +20,6 @@ import edu.umd.cs.findbugs.annotations.NonNull;
 import hudson.Extension;
 import hudson.model.*;
 import hudson.model.Descriptor.FormException;
-import hudson.security.SecurityRealm;
 import jenkins.model.Jenkins;
 import net.sf.json.JSONObject;
 import org.jenkinsci.plugins.saml.SamlSecurityRealm;
