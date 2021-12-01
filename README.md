@@ -40,5 +40,3 @@ Report new issue on https://issues.jenkins-ci.org on component **saml-plugin**.
 [How to report an issue](https://wiki.jenkins.io/display/JENKINS/How+to+report+an+issue)
 
 **The Jenkins JIRA is not a support site. If you need assistance or have general questions, visit us [in chat](http://jenkins-ci.org/content/chat), or email one of the [mailing lists](http://jenkins-ci.org/content/mailing-lists).**
-
-
