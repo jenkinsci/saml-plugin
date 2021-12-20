@@ -240,7 +240,7 @@ under the License.
     <dependency>
       <groupId>org.jenkins-ci.main</groupId>
       <artifactId>jenkins-test-harness</artifactId>
-      <version>1657.vf8a824e79147</version>
+      <version>1674.v3b8b1441e939</version>
       <scope>test</scope>
     </dependency>
     <dependency>
