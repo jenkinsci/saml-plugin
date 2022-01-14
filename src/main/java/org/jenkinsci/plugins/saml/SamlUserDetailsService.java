@@ -19,12 +19,12 @@ package org.jenkinsci.plugins.saml;
 
 import hudson.model.User;
 import hudson.security.SecurityRealm;
+import hudson.security.UserMayOrMayNotExistException2;
 import jenkins.model.Jenkins;
 import jenkins.security.LastGrantedAuthoritiesProperty;
 import org.acegisecurity.Authentication;
 import org.acegisecurity.GrantedAuthority;
 import org.acegisecurity.userdetails.UserDetailsService;
-import org.acegisecurity.userdetails.UsernameNotFoundException;
 
 import javax.annotation.Nonnull;
 import java.util.ArrayList;
@@ -49,7 +49,8 @@ public class SamlUserDetailsService implements UserDetailsService {
         // try to rebuild authentication details based on data stored in user storage
         User user = User.get(username, false, Collections.emptyMap());
         if (user == null) {
-            throw new UsernameNotFoundException(username);
+            // User logged in to Jenkins, but it could exist in the backend
+            throw new UserMayOrMayNotExistException2(username);
         }
 
         List<GrantedAuthority> authorities = new ArrayList<>();
