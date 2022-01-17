@@ -25,7 +25,7 @@ under the License.
   <parent>
     <groupId>org.jenkins-ci.plugins</groupId>
     <artifactId>plugin</artifactId>
-    <version>4.31</version>
+    <version>4.33</version>
   </parent>
 
   <artifactId>saml</artifactId>
@@ -228,7 +228,7 @@ under the License.
     <dependency>
       <groupId>io.jenkins.configuration-as-code</groupId>
       <artifactId>test-harness</artifactId>
-      <version>1.54</version>
+      <version>1.55.1</version>
       <scope>test</scope>
       <exclusions>
         <exclusion>
@@ -240,7 +240,7 @@ under the License.
     <dependency>
       <groupId>org.jenkins-ci.main</groupId>
       <artifactId>jenkins-test-harness</artifactId>
-      <version>1657.vf8a824e79147</version>
+      <version>1682.v4a_71b_f124ca_3</version>
       <scope>test</scope>
     </dependency>
     <dependency>
