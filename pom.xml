@@ -42,9 +42,9 @@ under the License.
   </scm>
 
   <properties>
-    <revision>2.0.10</revision>
+    <revision>2.1.0</revision>
     <changelist>-SNAPSHOT</changelist>
-    <jenkins.version>2.289</jenkins.version>
+    <jenkins.version>2.303.3</jenkins.version>
     <java.level>8</java.level>
     <jenkins-test-harness.version>1498.v53acb0fd4634</jenkins-test-harness.version>
   </properties>
@@ -264,8 +264,8 @@ under the License.
     <dependencies>
       <dependency>
         <groupId>io.jenkins.tools.bom</groupId>
-        <artifactId>bom-2.289.x</artifactId>
-        <version>1008.vb9e22885c9cf</version>
+        <artifactId>bom-2.303.x</artifactId>
+        <version>1117.v62a_f6a_01de98</version>
         <type>pom</type>
         <scope>import</scope>
       </dependency>
@@ -278,6 +278,11 @@ under the License.
         <groupId>org.apache.santuario</groupId>
         <artifactId>xmlsec</artifactId>
         <version>2.3.0</version>
+      </dependency>
+      <dependency>
+        <groupId>com.fasterxml.woodstox</groupId>
+        <artifactId>woodstox-core</artifactId>
+        <version>6.2.7</version>
       </dependency>
     </dependencies>
   </dependencyManagement>
