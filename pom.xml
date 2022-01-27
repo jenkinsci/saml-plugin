@@ -25,11 +25,11 @@ under the License.
   <parent>
     <groupId>org.jenkins-ci.plugins</groupId>
     <artifactId>plugin</artifactId>
-    <version>4.31</version>
+    <version>4.33</version>
   </parent>
 
   <artifactId>saml</artifactId>
-  <version>${revision}${changelist}</version>
+  <version>${revision}-${changelist}</version>
   <packaging>hpi</packaging>
   <name>SAML Plugin</name>
   <url>https://github.com/jenkinsci/saml-plugin</url>
@@ -42,9 +42,9 @@ under the License.
   </scm>
 
   <properties>
-    <revision>2.0.10</revision>
+    <revision>2.1.1</revision>
     <changelist>-SNAPSHOT</changelist>
-    <jenkins.version>2.289</jenkins.version>
+    <jenkins.version>2.303.3</jenkins.version>
     <java.level>8</java.level>
     <jenkins-test-harness.version>1498.v53acb0fd4634</jenkins-test-harness.version>
   </properties>
@@ -216,7 +216,7 @@ under the License.
     <dependency>
       <groupId>io.jenkins</groupId>
       <artifactId>configuration-as-code</artifactId>
-      <version>1.54</version>
+      <version>1.55.1</version>
       <scope>test</scope>
     </dependency>
     <dependency>
@@ -240,13 +240,13 @@ under the License.
     <dependency>
       <groupId>org.jenkins-ci.main</groupId>
       <artifactId>jenkins-test-harness</artifactId>
-      <version>1657.vf8a824e79147</version>
+      <version>1690.vfcb_959006c07</version>
       <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>org.testcontainers</groupId>
       <artifactId>testcontainers</artifactId>
-      <version>1.16.2</version>
+      <version>1.16.3</version>
       <scope>test</scope>
       <exclusions>
         <exclusion>
@@ -264,8 +264,8 @@ under the License.
     <dependencies>
       <dependency>
         <groupId>io.jenkins.tools.bom</groupId>
-        <artifactId>bom-2.289.x</artifactId>
-        <version>1008.vb9e22885c9cf</version>
+        <artifactId>bom-2.303.x</artifactId>
+        <version>1117.v62a_f6a_01de98</version>
         <type>pom</type>
         <scope>import</scope>
       </dependency>
@@ -278,6 +278,11 @@ under the License.
         <groupId>org.apache.santuario</groupId>
         <artifactId>xmlsec</artifactId>
         <version>2.3.0</version>
+      </dependency>
+      <dependency>
+        <groupId>com.fasterxml.woodstox</groupId>
+        <artifactId>woodstox-core</artifactId>
+        <version>6.2.7</version>
       </dependency>
     </dependencies>
   </dependencyManagement>

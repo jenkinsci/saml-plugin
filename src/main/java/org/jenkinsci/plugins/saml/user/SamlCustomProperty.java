@@ -17,10 +17,9 @@ under the License. */
 package org.jenkinsci.plugins.saml.user;
 
 import edu.umd.cs.findbugs.annotations.NonNull;
+import hudson.Extension;
+import hudson.model.*;
 import hudson.model.Descriptor.FormException;
-import hudson.model.User;
-import hudson.model.UserProperty;
-import hudson.model.UserPropertyDescriptor;
 import jenkins.model.Jenkins;
 import net.sf.json.JSONObject;
 import org.jenkinsci.plugins.saml.SamlSecurityRealm;
@@ -42,7 +41,7 @@ public class SamlCustomProperty extends UserProperty {
      */
     List<Attribute> attributes;
 
-    public static class Attribute{
+    public static class Attribute extends AbstractDescribableImpl<Attribute> {
 
         /**
          * Name of the attribute in the SAML Response.
@@ -93,6 +92,16 @@ public class SamlCustomProperty extends UserProperty {
 
             return Objects.hash(name, displayName, value);
         }
+
+        @Extension
+        public static final class DescriptorImpl extends Descriptor<Attribute> {
+            @NonNull
+            @Override
+            public String getDisplayName() {
+                return "SAML Attribute";
+            }
+        }
+
     }
 
     @DataBoundConstructor
@@ -117,7 +126,7 @@ public class SamlCustomProperty extends UserProperty {
         return this;
     }
 
-    @hudson.Extension
+    @Extension
     public static final class DescriptorImpl extends UserPropertyDescriptor {
         public String getDisplayName() {
             return "Saml Custom Attributes property";
