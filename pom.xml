@@ -29,7 +29,7 @@ under the License.
   </parent>
 
   <artifactId>saml</artifactId>
-  <version>${revision}-${changelist}</version>
+  <version>${revision}.${changelist}</version>
   <packaging>hpi</packaging>
   <name>SAML Plugin</name>
   <url>https://github.com/jenkinsci/saml-plugin</url>
@@ -42,8 +42,8 @@ under the License.
   </scm>
 
   <properties>
-    <revision>2.1.1</revision>
-    <changelist>-SNAPSHOT</changelist>
+    <revision>2</revision>
+    <changelist>999999-SNAPSHOT</changelist>
     <jenkins.version>2.303.3</jenkins.version>
     <java.level>8</java.level>
     <jenkins-test-harness.version>1498.v53acb0fd4634</jenkins-test-harness.version>
