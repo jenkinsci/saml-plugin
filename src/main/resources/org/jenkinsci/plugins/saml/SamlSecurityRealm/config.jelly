@@ -1,5 +1,41 @@
 <?jelly escape-by-default='true'?>
-<j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:f="/lib/form">
+<j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:f="/lib/form" xmlns:d="jelly:define" xmlns:local="local">
+    <d:taglib uri="local">
+        <d:tag name="optionalProperty">
+            <st:documentation>
+                Renders inline an optional single-value nested data-bound property of the current instance,
+                by using a &lt;f:optionalBlock>
+
+                This is useful when your object composes another data-bound object, and when that's optional,
+                where the absence of the value is signified as null (in which case the optionalBlock will be drawn unchecked),
+                and the presence of the value.
+                <st:attribute name="field" use="required">
+                    Used for databinding. TBD.
+                </st:attribute>
+                <st:attribute name="title" use="required">
+                    Human readable text that follows the checkbox.
+
+                    If this field is null, the checkbox degrades to a &lt;f:rowSet>, which provides
+                    a grouping at JSON level but on the UI there's no checkbox (and you always see
+                    the body of it.)
+                </st:attribute>
+                <st:attribute name="help">
+                    If present, the (?) icon will be rendered on the right to show inline help.
+                    See @help for &lt;f:entry>.
+                </st:attribute>
+            </st:documentation>
+            <!--
+              Without @checked, optionalBlock will try to coerce an object to a boolean, which fails,
+              so override @checked manually.
+            -->
+            <f:optionalBlock field="${attrs.field}" title="${attrs.title}" checked="${instance[field]!=null}" help="${attrs.help}">
+                <j:set var="descriptor" value="${app.getDescriptorOrDie(descriptor.getPropertyTypeOrDie(instance,attrs.field).clazz)}" />
+                <j:set var="instance" value="${instance[attrs.field]}"/>
+                <st:include from="${descriptor}" page="${descriptor.configPage}" />
+            </f:optionalBlock>
+        </d:tag>
+    </d:taglib>
+
     <f:property field="idpMetadataConfiguration"/>
     <f:entry title="Display Name Attribute" field="displayNameAttributeName"
              help="/plugin/saml/help/displayNameAttributeName.html">
@@ -39,16 +75,11 @@
     <f:entry title="Logout URL" field="logoutUrl" help="/plugin/saml/help/logoutUrl.html">
         <f:textbox/>
     </f:entry>
-    <f:entry help="/plugin/saml/help/advancedConfiguration.html">
-        <table>
-            <f:optionalProperty title="Advanced Configuration" field="advancedConfiguration"/>
-        </table>
-    </f:entry>
-    <f:entry help="/plugin/saml/help/encryption.html">
-        <table>
-            <f:optionalProperty title="Encryption Configuration" field="encryptionData"/>
-        </table>
-    </f:entry>
+
+    <!-- TODO replace with f:optionalProperty once the plugin relies on a version of Jenkins with https://github.com/jenkinsci/jenkins/pull/6615 -->
+    <local:optionalProperty title="Advanced Configuration" field="advancedConfiguration" help="/plugin/saml/help/advancedConfiguration.html"/>
+    <local:optionalProperty title="Encryption Configuration" field="encryptionData" help="/plugin/saml/help/encryption.html"/>
+
     <f:entry title="Custom Attributes">
         <f:repeatableHeteroProperty field="samlCustomAttributes" hasHeader="true"/>
     </f:entry>
