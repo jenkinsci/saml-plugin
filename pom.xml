@@ -44,7 +44,7 @@ under the License.
   <properties>
     <revision>2</revision>
     <changelist>999999-SNAPSHOT</changelist>
-    <jenkins.version>2.332.2</jenkins.version>
+    <jenkins.version>2.346</jenkins.version>
     <java.level>8</java.level>
     <gitHubRepo>jenkinsci/${project.artifactId}-plugin</gitHubRepo>
   </properties>
@@ -263,7 +263,7 @@ under the License.
     <dependencies>
       <dependency>
         <groupId>io.jenkins.tools.bom</groupId>
-        <artifactId>bom-2.332.x</artifactId>
+        <artifactId>bom-2.346.x</artifactId>
         <version>1466.v85a_616ea_b_87c</version>
         <type>pom</type>
         <scope>import</scope>
