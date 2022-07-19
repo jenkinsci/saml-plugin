@@ -233,7 +233,7 @@ under the License.
     <dependency>
       <groupId>io.jenkins.configuration-as-code</groupId>
       <artifactId>test-harness</artifactId>
-      <version>1466.v2d4119502006</version>
+      <version>1511.vb_f985b_894e40</version>
       <scope>test</scope>
       <exclusions>
         <exclusion>
