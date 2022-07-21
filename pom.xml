@@ -221,7 +221,7 @@ under the License.
     <dependency>
       <groupId>io.jenkins</groupId>
       <artifactId>configuration-as-code</artifactId>
-      <version>1511.vb_f985b_894e40</version>
+      <version>1512.vb_79d418d5fc8</version>
       <scope>test</scope>
     </dependency>
     <dependency>
