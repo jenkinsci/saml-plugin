@@ -241,12 +241,6 @@ under the License.
       <groupId>io.jenkins.configuration-as-code</groupId>
       <artifactId>test-harness</artifactId>
       <scope>test</scope>
-      <exclusions>
-        <exclusion>
-          <groupId>joda-time</groupId>
-          <artifactId>joda-time</artifactId>
-        </exclusion>
-      </exclusions>
     </dependency>
     <dependency>
       <groupId>org.testcontainers</groupId>
@@ -289,7 +283,6 @@ under the License.
         <artifactId>woodstox-core</artifactId>
         <version>6.2.7</version>
       </dependency>
-      <!-- requireUpperBoundDeps between jaxb and mailer -->
     </dependencies>
   </dependencyManagement>
   <build>
