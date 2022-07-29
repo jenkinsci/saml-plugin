@@ -25,7 +25,7 @@ under the License.
   <parent>
     <groupId>org.jenkins-ci.plugins</groupId>
     <artifactId>plugin</artifactId>
-    <version>4.43.1</version>
+    <version>4.44</version>
   </parent>
 
   <artifactId>saml</artifactId>
@@ -93,7 +93,6 @@ under the License.
     <dependency>
       <groupId>io.jenkins.plugins</groupId>
       <artifactId>jaxb</artifactId>
-      <version>2.3.6-1</version>
     </dependency>
     <dependency>
       <groupId>org.pac4j</groupId>
@@ -214,7 +213,6 @@ under the License.
     <dependency>
       <groupId>org.jenkins-ci.plugins</groupId>
       <artifactId>bouncycastle-api</artifactId>
-      <version>2.26</version>
     </dependency>
     <dependency>
       <groupId>org.mockito</groupId>
@@ -231,26 +229,17 @@ under the License.
     <dependency>
       <groupId>io.jenkins</groupId>
       <artifactId>configuration-as-code</artifactId>
-      <version>1512.vb_79d418d5fc8</version>
       <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>junit</groupId>
       <artifactId>junit</artifactId>
-      <version>4.13.2</version>
       <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>io.jenkins.configuration-as-code</groupId>
       <artifactId>test-harness</artifactId>
-      <version>1512.vb_79d418d5fc8</version>
       <scope>test</scope>
-      <exclusions>
-        <exclusion>
-          <groupId>joda-time</groupId>
-          <artifactId>joda-time</artifactId>
-        </exclusion>
-      </exclusions>
     </dependency>
     <dependency>
       <groupId>org.testcontainers</groupId>
@@ -274,7 +263,7 @@ under the License.
       <dependency>
         <groupId>io.jenkins.tools.bom</groupId>
         <artifactId>bom-2.346.x</artifactId>
-        <version>1500.ve4d05cd32975</version>
+        <version>1542.vc795072f7236</version>
         <type>pom</type>
         <scope>import</scope>
       </dependency>
@@ -292,12 +281,6 @@ under the License.
         <groupId>com.fasterxml.woodstox</groupId>
         <artifactId>woodstox-core</artifactId>
         <version>6.2.7</version>
-      </dependency>
-      <!-- requireUpperBoundDeps between jaxb and mailer -->
-      <dependency>
-        <groupId>io.jenkins.plugins</groupId>
-        <artifactId>javax-activation-api</artifactId>
-        <version>1.2.0-3</version>
       </dependency>
     </dependencies>
   </dependencyManagement>
