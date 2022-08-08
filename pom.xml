@@ -199,17 +199,6 @@ under the License.
     <dependency>
       <groupId>org.jenkins-ci.plugins</groupId>
       <artifactId>mailer</artifactId>
-      <exclusions>
-        <!--
-          TODO When https://github.com/jenkinsci/jakarta-activation-api-plugin/pull/2 is merged and
-          released, this can be deleted. For now, exclude this dependency from the chain to prevent
-          a require upper bounds conflict with org.pac4j:pac4j-saml:3.9.0.
-        -->
-        <exclusion>
-          <groupId>com.sun.activation</groupId>
-          <artifactId>jakarta.activation</artifactId>
-        </exclusion>
-      </exclusions>
     </dependency>
     <dependency>
       <groupId>org.jenkins-ci.plugins</groupId>
@@ -264,7 +253,7 @@ under the License.
       <dependency>
         <groupId>io.jenkins.tools.bom</groupId>
         <artifactId>bom-2.332.x</artifactId>
-        <version>1556.vfc6a_f216e3c6</version>
+        <version>1577.v63609d9cb_5dc</version>
         <type>pom</type>
         <scope>import</scope>
       </dependency>
