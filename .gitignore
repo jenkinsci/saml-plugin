@@ -16,3 +16,6 @@ work
 # Intellij IDEA
 .idea
 *.iml
+
+# Visual Studio Code
+.vscode
