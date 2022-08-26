@@ -17,7 +17,7 @@ You have to configure a SSO application on Azure by following the instructions i
     <SingleSignOnService Binding="urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST" Location="https://login.microsoftonline.com/common/saml2"/>
 ```
 
-You should customize Attibutes to send to Jenkins [Customizing claims issued in the SAML token for enterprise applications in Azure Active Directory](https://docs.microsoft.com/en-us/azure/active-directory/develop/active-directory-saml-claims-customization), these are the recommended attributes to setup:
+You should customize Attributes to send to Jenkins [Customizing claims issued in the SAML token for enterprise applications in Azure Active Directory](https://docs.microsoft.com/en-us/azure/active-directory/develop/active-directory-saml-claims-customization), these are the recommended attributes to setup:
 * **User Name**: attribute will be load with the unique user ID (e.g. name=`username` value=`user.userprincipalname`).
 * **Display Name**: attribute will be load with the user name to display in the UI (e.g. name=`displayname` value=`user.givenname`).
 * **Groups**: attribute will be load with the groups assigned to the user (e.g. name=`groups` value=`user.memberof`).

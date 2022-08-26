@@ -62,7 +62,7 @@
   </views>
   <primaryView>all</primaryView>
   <slaveAgentPort>0</slaveAgentPort>
-  <label></label>
+  <label/>
   <nodeProperties/>
   <globalNodeProperties/>
 </hudson>

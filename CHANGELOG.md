@@ -2,7 +2,7 @@ Changelog
 -------------------
 
 | WARNING: Changelogs have been moved to [GitHub Releases](https://github.com/jenkinsci/saml-plugin/releases) |
-| --- |
+|-------------------------------------------------------------------------------------------------------------|
 
  ### Newer versions
 

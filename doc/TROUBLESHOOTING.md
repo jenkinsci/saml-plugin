@@ -9,7 +9,7 @@ When you face an issue you could try to enable a logger to these two packages on
     
 ### IdP Metadata
 
-The IdP metadata should looks like this one, the main data are the `entityID`, `IDPSSODescriptor` section, and `SingleSignOnService` the three sections are needed.
+The IdP metadata should look like this one, the main data are the `entityID`, `IDPSSODescriptor` section, and `SingleSignOnService` the three sections are needed.
 
 ```
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
@@ -38,7 +38,7 @@ The IdP metadata should looks like this one, the main data are the `entityID`, `
 
 ### SAMLResponse
 
-This is an example of SAMLResponse, it is the message sent by the IdP to Jenkins, it should contains an `Assertion` with signature details if it is supported by the IdP, a `Subject` with the request details, `Conditions` with the validity of the session, `AuthnStatement` with the session details, finally a `AttributeStatement` with the attributes sent by the IdP.
+This is an example of SAMLResponse, it is the message sent by the IdP to Jenkins, it should contain an `Assertion` with signature details if it is supported by the IdP, a `Subject` with the request details, `Conditions` with the validity of the session, `AuthnStatement` with the session details, finally a `AttributeStatement` with the attributes sent by the IdP.
 
 ```
 <Response
@@ -152,8 +152,8 @@ at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:62
 at java.lang.Thread.run(Thread.java:748)
 ```
 * Click on logout button, then hit the Jenkins sign-in again.
-* Clear the cookies in your browser or Go to Azure and sign out of the user name, then hit the Jenkins sign-in again.
-* The max lifetime of the Access Token in Azure AD seems to be 24 hours where the refresh token can live for a maximum of 14 days (if the access token expires the refresh token is used to try to obtain a new access token).  The Jenkins setting in Configure Global Security > SAML Identity Provider Settings > Maximum Authentication Lifetime is 24 hours (86400 in seconds) upping this to 1209600 (which is 14 days in seconds/the max lifetime of the Refresh Token).
+* Clear the cookies in your browser or Go to Azure and sign out of the username, then hit the Jenkins sign-in again.
+* The max lifetime of the Access Token in Azure AD seems to be 24 hours when the refresh token can live for a maximum of 14 days (if the access token expires the refresh token is used to try to obtain a new access token).  The Jenkins setting in Configure Global Security > SAML Identity Provider Settings > Maximum Authentication Lifetime is 24 hours (86400 in seconds) upping this to 1209600 (which is 14 days in seconds/the max lifetime of the Refresh Token).
 * Enable the advanced "force authentication" setting is another workaround.
  
 
@@ -213,7 +213,7 @@ Caused by: java.lang.IllegalArgumentException: Illegal base64 character d
 
 ### The SAMLResponse is not correct base64 encode
 
-The SAMLResponse message is not valid because the `SAMLResponse` value is not in Base64 format or it is corrupted.
+The SAMLResponse message is not valid because the `SAMLResponse` value is not in Base64 format, or it is corrupted.
 
 ```
 Caused by: java.lang.IllegalStateException: org.pac4j.saml.exceptions.SAMLException: Error decoding saml message
@@ -274,7 +274,7 @@ at java.lang.Thread.run(Thread.java:748)
 
 ### Authentication issue instant is too old or in the future
 
-You should check that your `Maximum Authentication Lifetime` setting is the same that your Idp has, if Jenkins has a lower value you will see this error. The solution is to set `Maximum Authentication Lifetime` to your token validity. Another workaround is to set `Advanced Configuration/Force Authentication` but this will as for login everytime the session expires.
+You should check that your `Maximum Authentication Lifetime` setting is the same that your Idp has, if Jenkins has a lower value you will see this error. The solution is to set `Maximum Authentication Lifetime` to your token validity. Another workaround is to set `Advanced Configuration/Force Authentication` but this will ask for login everytime the session expires.
 
 ```
 Oct 26, 2018 9:08:44 PM org.pac4j.saml.sso.impl.SAML2DefaultResponseValidator validateSamlSSOResponse

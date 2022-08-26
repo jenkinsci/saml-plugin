@@ -17,8 +17,8 @@
         under the License.
 -->
 <?jelly escape-by-default='true'?>
-<j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:d="jelly:define" xmlns:l="/lib/layout"
-         xmlns:t="/lib/hudson" xmlns:f="/lib/form" xmlns:i="jelly:fmt">
+<j:jelly xmlns:j="jelly:core" xmlns:l="/lib/layout"
+>
     <l:layout title="" norefresh="true">
         <l:main-panel>
             <j:choose>
@@ -29,7 +29,7 @@
                 <j:otherwise>
                     <h2>Woo There....</h2>
                     <p>You are not logged out - don't run away!</p>
-                    <p>Whilst you should been logged out you are not actually logged out...</p>
+                    <p>Whilst you should be logged out you are not actually logged out...</p>
                 </j:otherwise>
             </j:choose>
         </l:main-panel>
