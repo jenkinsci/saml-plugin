@@ -19,15 +19,16 @@ package org.jenkinsci.plugins.saml;
 
 import org.kohsuke.stapler.StaplerRequest;
 import org.kohsuke.stapler.StaplerResponse;
-import org.pac4j.core.redirect.RedirectAction;
+import org.pac4j.core.context.session.JEESessionStore;
+import org.pac4j.core.exception.http.HttpAction;
+import org.pac4j.core.exception.http.RedirectionAction;
 import org.pac4j.core.context.WebContext;
-import org.pac4j.core.exception.HttpAction;
 import org.pac4j.saml.client.SAML2Client;
 
 /**
  * Process the current configuration and request to prepare a Redirection to the IdP.
  */
-public class SamlRedirectActionWrapper extends OpenSAMLWrapper<RedirectAction> {
+public class SamlRedirectActionWrapper extends OpenSAMLWrapper<RedirectionAction> {
 
     public SamlRedirectActionWrapper(SamlPluginConfig samlPluginConfig, StaplerRequest request, StaplerResponse response) {
         this.request = request;
@@ -40,11 +41,11 @@ public class SamlRedirectActionWrapper extends OpenSAMLWrapper<RedirectAction> {
      * @throws IllegalStateException if something goes wrong.
      */
     @Override
-    protected RedirectAction process() throws IllegalStateException {
+    protected RedirectionAction process() throws IllegalStateException {
         try {
             SAML2Client client = createSAML2Client();
             WebContext context = createWebContext();
-            RedirectAction redirection = client.getRedirectAction(context);
+            RedirectionAction redirection = client.getRedirectionAction(context, JEESessionStore.INSTANCE).orElse(null);
             client.destroy();
             return redirection;
         } catch (HttpAction e) {

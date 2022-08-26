@@ -21,7 +21,8 @@ import org.acegisecurity.BadCredentialsException;
 import org.kohsuke.stapler.StaplerRequest;
 import org.kohsuke.stapler.StaplerResponse;
 import org.pac4j.core.context.WebContext;
-import org.pac4j.core.exception.HttpAction;
+import org.pac4j.core.context.session.JEESessionStore;
+import org.pac4j.core.exception.http.HttpAction;
 import org.pac4j.saml.client.SAML2Client;
 import org.pac4j.saml.credentials.SAML2Credentials;
 import org.pac4j.saml.exceptions.SAMLException;
@@ -52,8 +53,8 @@ public class SamlProfileWrapper extends OpenSAMLWrapper<SAML2Profile> {
         try {
             SAML2Client client = createSAML2Client();
             WebContext context = createWebContext();
-            credentials = client.getCredentials(context);
-            saml2Profile = client.getUserProfile(credentials, context);
+            credentials = (SAML2Credentials) client.getCredentials(context, JEESessionStore.INSTANCE).orElse(null);
+            saml2Profile = (SAML2Profile) client.getUserProfile(credentials, context, JEESessionStore.INSTANCE).orElse(null);
             client.destroy();
         } catch (HttpAction|SAMLException e) {
             //if the SAMLResponse is not valid we send the user again to the IdP

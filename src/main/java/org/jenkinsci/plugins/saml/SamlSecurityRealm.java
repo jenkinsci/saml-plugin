@@ -41,8 +41,9 @@ import org.kohsuke.accmod.Restricted;
 import org.kohsuke.accmod.restrictions.NoExternalUse;
 import org.kohsuke.stapler.*;
 import org.kohsuke.stapler.interceptor.RequirePOST;
-import org.pac4j.core.redirect.RedirectAction;
-import org.pac4j.core.redirect.RedirectAction.RedirectType;
+import org.pac4j.core.exception.http.OkAction;
+import org.pac4j.core.exception.http.RedirectionAction;
+import org.pac4j.core.exception.http.SeeOtherAction;
 import org.springframework.dao.DataAccessException;
 import org.pac4j.saml.profile.SAML2Profile;
 
@@ -258,15 +259,15 @@ public class SamlSecurityRealm extends SecurityRealm {
         String redirectOnFinish = calculateSafeRedirect(from, referer);
         request.getSession().setAttribute(REFERER_ATTRIBUTE, redirectOnFinish);
 
-        RedirectAction action = new SamlRedirectActionWrapper(getSamlPluginConfig(), request, response).get();
-        if (action.getType() == RedirectType.REDIRECT) {
-            LOG.fine("REDIRECT : " + action.getLocation());
-            return HttpResponses.redirectTo(action.getLocation());
-        } else if (action.getType() == RedirectType.SUCCESS) {
-            LOG.fine("SUCCESS : " + action.getContent());
-            return HttpResponses.html(action.getContent());
+        RedirectionAction action = new SamlRedirectActionWrapper(getSamlPluginConfig(), request, response).get();
+        if (action instanceof SeeOtherAction) {
+            LOG.fine("REDIRECT : " + ((SeeOtherAction)action).getLocation());
+            return HttpResponses.redirectTo(((SeeOtherAction)action).getLocation());
+        } else if (action instanceof OkAction) {
+            LOG.fine("SUCCESS : " + ((OkAction) action).getContent());
+            return HttpResponses.html(((OkAction) action).getContent());
         } else {
-            throw new IllegalStateException("Received unexpected response type " + action.getType());
+            throw new IllegalStateException("Received unexpected response type " + action.getCode());
         }
     }
 
