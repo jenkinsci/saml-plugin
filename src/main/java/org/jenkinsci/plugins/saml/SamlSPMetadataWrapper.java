@@ -17,13 +17,12 @@ under the License. */
 
 package org.jenkinsci.plugins.saml;
 
+import java.io.IOException;
 import org.kohsuke.stapler.HttpResponse;
 import org.kohsuke.stapler.HttpResponses;
 import org.kohsuke.stapler.StaplerRequest;
 import org.kohsuke.stapler.StaplerResponse;
 import org.pac4j.saml.client.SAML2Client;
-
-import java.io.IOException;
 
 /**
  * build the Service Provider(SP) metadata from the configuration.

@@ -33,7 +33,7 @@ import static org.junit.Assert.assertEquals;
 public class SamlFormValidationsTest {
 
     @Rule
-    public JenkinsRule jenkinsRule = new JenkinsRule();
+    public final JenkinsRule jenkinsRule = new JenkinsRule();
 
     private SamlSecurityRealm samlSecurityRealm;
     private SamlSecurityRealm.DescriptorImpl descriptor;

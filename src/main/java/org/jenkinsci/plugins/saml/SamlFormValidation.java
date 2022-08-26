@@ -1,17 +1,15 @@
 package org.jenkinsci.plugins.saml;
 
-import hudson.util.FormValidation;
+import java.net.MalformedURLException;
+import java.net.URL;
+import jakarta.mail.internet.AddressException;
+import jakarta.mail.internet.InternetAddress;
 import org.apache.commons.lang.StringUtils;
 import org.kohsuke.accmod.Restricted;
 import org.kohsuke.accmod.restrictions.NoExternalUse;
-
-import jakarta.mail.internet.AddressException;
-import jakarta.mail.internet.InternetAddress;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.text.Normalizer;
-
-import static org.jenkinsci.plugins.saml.SamlSecurityRealm.*;
+import hudson.util.FormValidation;
+import static org.jenkinsci.plugins.saml.SamlSecurityRealm.ERROR_NOT_VALID_NUMBER;
+import static org.jenkinsci.plugins.saml.SamlSecurityRealm.ERROR_ONLY_SPACES_FIELD_VALUE;
 
 @Restricted(NoExternalUse.class)
 class SamlFormValidation {
@@ -54,7 +52,7 @@ class SamlFormValidation {
                 ia.validate();
             }
             else {
-                FormValidation.warning(message);
+                return FormValidation.warning(message);
             }
         }
         catch (AddressException ae) {

@@ -19,9 +19,9 @@ package org.jenkinsci.plugins.saml;
 
 import org.kohsuke.stapler.StaplerRequest;
 import org.kohsuke.stapler.StaplerResponse;
-import org.pac4j.core.redirect.RedirectAction;
 import org.pac4j.core.context.WebContext;
 import org.pac4j.core.exception.HttpAction;
+import org.pac4j.core.redirect.RedirectAction;
 import org.pac4j.saml.client.SAML2Client;
 
 /**
@@ -39,6 +39,7 @@ public class SamlRedirectActionWrapper extends OpenSAMLWrapper<RedirectAction> {
      * @return the redirection URL to the IdP.
      * @throws IllegalStateException if something goes wrong.
      */
+    @SuppressWarnings("unused")
     @Override
     protected RedirectAction process() throws IllegalStateException {
         try {

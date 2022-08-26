@@ -31,6 +31,7 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.nio.charset.StandardCharsets;
+import java.util.Objects;
 
 import static org.hamcrest.core.StringContains.containsString;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -43,14 +44,14 @@ import static org.opensaml.saml.common.xml.SAMLConstants.SAML2_REDIRECT_BINDING_
 public class OpenSamlWrapperTest {
 
     @Rule
-    public JenkinsRule jenkinsRule = new JenkinsRule();
+    public final JenkinsRule jenkinsRule = new JenkinsRule();
 
     @Test
     public void metadataWrapper() throws IOException, ServletException {
-        String metadata = IOUtils.toString(this.getClass().getClassLoader().getResourceAsStream("org/jenkinsci"
-                                                                                                + "/plugins/saml"
-                                                                                                + "/OpenSamlWrapperTest/metadataWrapper/metadata.xml"),
-                                           StandardCharsets.UTF_8);
+        String metadata = IOUtils.toString(
+            Objects.requireNonNull(this.getClass().getClassLoader().getResourceAsStream(
+                "org/jenkinsci" + "/plugins/saml" + "/OpenSamlWrapperTest/metadataWrapper/metadata.xml")),
+            StandardCharsets.UTF_8);
         SamlSecurityRealm samlSecurity = new SamlSecurityRealm(new IdpMetadataConfiguration(metadata),
                 "displayName", "groups", 10000,
                 "uid", "email", "/logout", null,
@@ -72,10 +73,10 @@ public class OpenSamlWrapperTest {
 
     @Test
     public void metadataWrapperWitEncrytionConfigured() throws IOException, ServletException {
-        String metadata = IOUtils.toString(this.getClass().getClassLoader().getResourceAsStream("org/jenkinsci"
-                                                                                                + "/plugins/saml/"
-                                                                                                + "OpenSamlWrapperTest/metadataWrapper/metadata.xml"),
-                                           StandardCharsets.UTF_8);
+        String metadata = IOUtils.toString(
+            Objects.requireNonNull(this.getClass().getClassLoader().getResourceAsStream(
+                "org/jenkinsci" + "/plugins/saml/" + "OpenSamlWrapperTest/metadataWrapper/metadata.xml")),
+            StandardCharsets.UTF_8);
         BundleKeyStore ks = new BundleKeyStore();
         SamlEncryptionData encryptionData = new SamlEncryptionData(ks.getKeystorePath(),
                 Secret.fromString(ks.getKsPassword()), Secret.fromString(ks.getKsPkPassword()), ks.getKsPkAlias(),

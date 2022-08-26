@@ -1,14 +1,13 @@
 package org.jenkinsci.plugins.saml;
 
-import hudson.Extension;
-import hudson.model.AsyncAperiodicWork;
-import jenkins.model.Jenkins;
-import org.apache.commons.lang.StringUtils;
-
 import java.io.IOException;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import org.apache.commons.lang.StringUtils;
+import hudson.Extension;
+import hudson.model.AsyncAperiodicWork;
+import jenkins.model.Jenkins;
 
 /**
  * <p>This periodic work update the IdP Metadata File, the periodicof the execution is defined on the SAML Plugin configuration.</p>
@@ -28,6 +27,7 @@ public class UpdateMetadataFromURLPeriodicWork extends AsyncAperiodicWork {
     /**
      * {@inheritDoc}
      */
+    @SuppressWarnings("unused")
     public UpdateMetadataFromURLPeriodicWork() {
         super("Update IdP Metadata from URL PeriodicWork");
     }

@@ -1,13 +1,12 @@
 package org.jenkinsci.plugins.saml;
 
-import hudson.util.FormValidation;
+import java.io.IOException;
 import net.shibboleth.utilities.java.support.component.ComponentInitializationException;
 import net.shibboleth.utilities.java.support.xml.XMLParserException;
 import org.apache.commons.io.IOUtils;
 import org.opensaml.saml.metadata.resolver.impl.DOMMetadataResolver;
 import org.pac4j.saml.util.Configuration;
-
-import java.io.IOException;
+import hudson.util.FormValidation;
 
 /**
  * validate the IdP metadata, this class is used from the configuration screen to validate the XML in the IdP Metadata textarea.
@@ -22,7 +21,7 @@ public class SamlValidateIdPMetadata extends OpenSAMLWrapper<FormValidation>{
 
     /**
      * process the IdP Metadata and try to parse it, if so, then return that the validation is ok.
-     * @return ok if the IdP Metadata it right, if not return an validation error.
+     * @return ok if the IdP Metadata it right, if not return a validation error.
      */
     @Override
     @edu.umd.cs.findbugs.annotations.SuppressFBWarnings(value="RCN_REDUNDANT_NULLCHECK_WOULD_HAVE_BEEN_A_NPE", justification="JENKINS-53692")
