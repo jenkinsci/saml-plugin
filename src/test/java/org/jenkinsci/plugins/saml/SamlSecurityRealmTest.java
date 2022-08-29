@@ -58,6 +58,7 @@ import static org.junit.Assert.assertEquals;
 import static org.hamcrest.MatcherAssert.assertThat;
 import org.jvnet.hudson.test.Issue;
 import org.pac4j.saml.profile.SAML2Profile;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
@@ -218,10 +219,10 @@ public class SamlSecurityRealmTest {
             new SamlAdvancedConfiguration(true, null, null, null).toString().contains("SamlAdvancedConfiguration"));
         assertTrue(new SamlAdvancedConfiguration(true, "", "", "").toString().contains("SamlAdvancedConfiguration"));
 
-        SimpleGrantedAuthority authority = new SimpleGrantedAuthority("role001");
-        assertEquals("role001", authority.toString());
+        SamlGroupAuthority authority = new SamlGroupAuthority("role001");
+        assertEquals(authority.toString().equals("role001"),true);
 
-        SamlUserDetails userDetails = new SamlUserDetails("tesla", Collections.singletonList(authority));
+        SamlUserDetails userDetails = new SamlUserDetails("tesla",new GrantedAuthority[]{authority});
         assertTrue(userDetails.toString().contains("tesla") && userDetails.toString().contains("role001"));
 
         assertThat(new SamlEncryptionData(null,null,null, null, false, false).toString(), containsString(
