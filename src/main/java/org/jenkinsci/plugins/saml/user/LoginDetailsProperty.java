@@ -21,6 +21,7 @@ import hudson.model.Descriptor.FormException;
 import hudson.model.User;
 import hudson.model.UserProperty;
 import hudson.model.UserPropertyDescriptor;
+import edu.umd.cs.findbugs.annotations.NonNull;
 import net.sf.json.JSONObject;
 import org.acegisecurity.GrantedAuthority;
 import org.apache.commons.lang.time.FastDateFormat;

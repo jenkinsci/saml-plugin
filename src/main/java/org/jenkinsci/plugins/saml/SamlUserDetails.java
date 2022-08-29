@@ -22,6 +22,7 @@ import org.acegisecurity.userdetails.UserDetails;
 
 import javax.annotation.Nonnull;
 import java.util.Arrays;
+import java.util.Collections;
 
 /**
  * @see UserDetails
