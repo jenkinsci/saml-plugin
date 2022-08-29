@@ -42,7 +42,7 @@ under the License.
   </scm>
 
   <properties>
-    <revision>3</revision>
+    <revision>4</revision>
     <changelist>999999-SNAPSHOT</changelist>
     <jenkins.version>2.361</jenkins.version>
     <gitHubRepo>jenkinsci/${project.artifactId}-plugin</gitHubRepo>
