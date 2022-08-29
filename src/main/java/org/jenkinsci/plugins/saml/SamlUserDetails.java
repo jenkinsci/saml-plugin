@@ -17,12 +17,13 @@ under the License. */
 
 package org.jenkinsci.plugins.saml;
 
-import org.acegisecurity.GrantedAuthority;
-import org.acegisecurity.userdetails.UserDetails;
-
+import java.util.Collection;
+import java.util.Collections;
 import javax.annotation.Nonnull;
 import java.util.Arrays;
 import java.util.Collections;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
 
 /**
  * @see UserDetails
@@ -32,15 +33,15 @@ public class SamlUserDetails implements UserDetails {
     private static final long serialVersionUID = 2L;
 
     private final String username;
-    private final GrantedAuthority[] authorities;
+    private final Collection<GrantedAuthority> authorities;
 
-    public SamlUserDetails(@Nonnull String username, GrantedAuthority[] authorities) {
+    public SamlUserDetails(@Nonnull String username, Collection<GrantedAuthority> authorities) {
         this.username = username;
-        this.authorities = Arrays.copyOf(authorities, authorities.length);
+        this.authorities = Collections.unmodifiableCollection(authorities);
     }
 
-    public GrantedAuthority[] getAuthorities() {
-        return Arrays.copyOf(authorities, authorities.length);
+    public Collection<GrantedAuthority> getAuthorities() {
+        return authorities;
     }
 
     public String getPassword() {

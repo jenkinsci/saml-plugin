@@ -17,20 +17,18 @@ under the License. */
 
 package org.jenkinsci.plugins.saml;
 
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import javax.annotation.Nonnull;
+import javax.servlet.http.HttpSession;
 import edu.umd.cs.findbugs.annotations.NonNull;
-import hudson.Extension;
-import hudson.Util;
-import hudson.security.GroupDetails;
-import hudson.security.UserMayOrMayNotExistException;
-import hudson.util.FormValidation;
-import hudson.model.Descriptor;
-import hudson.model.User;
-import hudson.security.SecurityRealm;
-import hudson.tasks.Mailer.UserProperty;
-import jenkins.model.Jenkins;
-import jenkins.security.SecurityListener;
-import org.acegisecurity.*;
-import org.acegisecurity.context.SecurityContextHolder;
+import org.acegisecurity.Authentication;
 import org.acegisecurity.userdetails.UsernameNotFoundException;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
@@ -39,23 +37,35 @@ import org.jenkinsci.plugins.saml.conf.AttributeEntry;
 import org.jenkinsci.plugins.saml.user.SamlCustomProperty;
 import org.kohsuke.accmod.Restricted;
 import org.kohsuke.accmod.restrictions.NoExternalUse;
-import org.kohsuke.stapler.*;
+import org.kohsuke.stapler.DataBoundConstructor;
+import org.kohsuke.stapler.Header;
+import org.kohsuke.stapler.HttpResponse;
+import org.kohsuke.stapler.HttpResponses;
+import org.kohsuke.stapler.QueryParameter;
+import org.kohsuke.stapler.StaplerRequest;
+import org.kohsuke.stapler.StaplerResponse;
 import org.kohsuke.stapler.interceptor.RequirePOST;
 import org.pac4j.core.redirect.RedirectAction;
 import org.pac4j.core.redirect.RedirectAction.RedirectType;
-import org.springframework.dao.DataAccessException;
 import org.pac4j.saml.profile.SAML2Profile;
-
-import javax.annotation.Nonnull;
-import javax.servlet.http.HttpSession;
-import java.io.*;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
-import static org.apache.commons.codec.binary.Base64.*;
+import org.springframework.dao.DataAccessException;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import hudson.Extension;
+import hudson.Util;
+import hudson.model.Descriptor;
+import hudson.model.User;
+import hudson.security.ACL;
+import hudson.security.GroupDetails;
+import hudson.security.SecurityRealm;
+import hudson.security.UserMayOrMayNotExistException2;
+import hudson.tasks.Mailer.UserProperty;
+import hudson.util.FormValidation;
+import jenkins.model.Jenkins;
+import jenkins.security.SecurityListener;
+import static org.apache.commons.codec.binary.Base64.decodeBase64;
+import static org.apache.commons.codec.binary.Base64.isBase64;
 import static org.opensaml.saml.common.xml.SAMLConstants.SAML2_REDIRECT_BINDING_URI;
 
 /**
@@ -215,15 +225,11 @@ public class SamlSecurityRealm extends SecurityRealm {
     @Override
     public SecurityComponents createSecurityComponents() {
         LOG.finer("createSecurityComponents");
-        return new SecurityComponents(new AuthenticationManager() {
-
-            public Authentication authenticate(Authentication authentication) throws AuthenticationException {
-                if (authentication instanceof SamlAuthenticationToken) {
-                    return authentication;
-                }
-                throw new BadCredentialsException("Unexpected authentication type: " + authentication);
+        return new SecurityComponents(authentication -> {
+            if (authentication instanceof SamlAuthenticationToken) {
+                return authentication;
             }
-
+            throw new BadCredentialsException("Unexpected authentication type: " + authentication);
         }, new SamlUserDetailsService());
     }
 
@@ -319,13 +325,12 @@ public class SamlSecurityRealm extends SecurityRealm {
         List<GrantedAuthority> authorities = loadGrantedAuthorities(saml2Profile);
 
         // create user data
-        SamlUserDetails userDetails = new SamlUserDetails(username, authorities.toArray(new GrantedAuthority[authorities.size()]));
+        SamlUserDetails userDetails = new SamlUserDetails(username, authorities);
 
         SamlAuthenticationToken samlAuthToken = new SamlAuthenticationToken(userDetails);
 
-        // initialize security context
-        SecurityContextHolder.getContext().setAuthentication(samlAuthToken);
-        SecurityListener.fireAuthenticated(userDetails);
+        ACL.as2(samlAuthToken);
+        SecurityListener.fireAuthenticated2(userDetails);
         User user = User.current();
 
         saveUser |= modifyUserFullName(user, saml2Profile);
@@ -491,11 +496,11 @@ public class SamlSecurityRealm extends SecurityRealm {
 
         // build list of authorities
         List<GrantedAuthority> authorities = new ArrayList<>();
-        authorities.add(AUTHENTICATED_AUTHORITY);
+        authorities.add(AUTHENTICATED_AUTHORITY2);
         int countEmptyGroups = 0;
         for (String group : groups) {
             if (StringUtils.isNotBlank(group)) {
-                authorities.add(new SamlGroupAuthority(group));
+                authorities.add(new SimpleGrantedAuthority(group));
             } else {
                 countEmptyGroups++;
             }
@@ -614,16 +619,26 @@ public class SamlSecurityRealm extends SecurityRealm {
         LOG.log(Level.FINEST, "Here we could do the SAML Single Logout");
     }
 
+    /**
+     * This method is overwritten due to SAML has no way to retrieve the members of a Group and this cause issues on
+     * some Authorization plugins. Because of that we have to implement SamlGroupDetails
+     */
+    @SuppressWarnings("deprecation")
     @Override
     public GroupDetails loadGroupByGroupname(String groupname) throws UsernameNotFoundException, DataAccessException {
         GroupDetails dg = new SamlGroupDetails(groupname);
 
         if (dg.getMembers().isEmpty()) {
-            throw new UserMayOrMayNotExistException(groupname);
+            throw new UserMayOrMayNotExistException2(groupname);
         }
         return dg;
     }
 
+    /**
+     * This method is overwritten due to SAML has no way to retrieve the members of a Group and this cause issues on
+     * some Authorization plugins. Because of that we have to implement SamlGroupDetails
+     */
+    @SuppressWarnings("deprecation")
     @Override
     public GroupDetails loadGroupByGroupname(String groupname, boolean fetchMembers)
             throws UsernameNotFoundException, DataAccessException {

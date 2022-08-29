@@ -17,12 +17,11 @@ under the License. */
 
 package org.jenkinsci.plugins.saml;
 
-import org.acegisecurity.providers.AbstractAuthenticationToken;
-
 import javax.annotation.Nonnull;
+import org.springframework.security.authentication.AbstractAuthenticationToken;
 
 /**
- * @see org.acegisecurity.Authentication
+ * @see AbstractAuthenticationToken
  */
 public final class SamlAuthenticationToken extends AbstractAuthenticationToken {
 

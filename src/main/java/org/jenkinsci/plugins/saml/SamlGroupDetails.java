@@ -16,13 +16,11 @@ specific language governing permissions and limitations
 under the License. */
 package org.jenkinsci.plugins.saml;
 
+import java.util.HashSet;
+import java.util.Set;
 import hudson.model.User;
 import hudson.security.GroupDetails;
 import jenkins.security.LastGrantedAuthoritiesProperty;
-import org.acegisecurity.GrantedAuthority;
-
-import java.util.HashSet;
-import java.util.Set;
 
 
 /**
@@ -52,23 +50,19 @@ public class SamlGroupDetails extends GroupDetails {
     @Override
     public Set<String> getMembers() {
         if (members.isEmpty()) {
-            for (User u : User.getAll()) {
+            User.getAll().forEach(u -> {
                 LastGrantedAuthoritiesProperty prop = u.getProperty(LastGrantedAuthoritiesProperty.class);
                 if (hasGroupOnAuthorities(prop)) {
                     members.add(u.getId());
                 }
-            }
+            });
         }
         return members;
     }
 
     private boolean hasGroupOnAuthorities(LastGrantedAuthoritiesProperty prop) {
         if (prop != null) {
-            for (GrantedAuthority a : prop.getAuthorities()) {
-                if (name.equals(a.getAuthority())) {
-                    return true;
-                }
-            }
+            return prop.getAuthorities2().stream().anyMatch(a -> name.equals(a.getAuthority()));
         }
         return false;
     }
