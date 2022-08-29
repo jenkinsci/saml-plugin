@@ -404,3 +404,13 @@ and use OpenSAML library directly, but this is a reimplementation of the plugin.
 The first thing to check after and update in case of error it is if the Service provider metadata has changed,
 this metadata is available at the URL `JENKINS_URL/securityRealm/metadata`, or in the file `JENKINS_HOME/saml-sp-metadata.xml`
 If you IdP support to grab the metadata from an URL is recommended to use the metadata from the URL `JENKINS_URL/securityRealm/metadata`
+
+# After login a `HTTP ERROR 403 No valid crumb was included in the request` error happens
+
+This is a configuration error, SAML plugin cannot return a ‘invalid breadcrumb’ error in a login process 
+if the SP and IdP are correctly configured. 
+It happens because the redirection to ***https://jenkins.example.com/securityRealm/finishLogin*** is redirected to another URL in Jenkins.
+The error usually is related to the Jenkins URL configured, or a reverse proxy configured in front Jenkins that require a valid crumb. 
+Put the log in verbose mode and check the login process, check that the URLs you are redirected are correct. 
+See[Troubleshooting Guide](https://github.com/jenkinsci/saml-plugin/blob/main/doc/TROUBLESHOOTING.md#troubleshooting) 
+and [Configure your IdP](https://github.com/jenkinsci/saml-plugin/blob/main/doc/CONFIGURE.md#configuring-identity-provider-idp)
