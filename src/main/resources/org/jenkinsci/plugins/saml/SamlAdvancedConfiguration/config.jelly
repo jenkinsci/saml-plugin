@@ -12,6 +12,9 @@
         <f:textbox/>
     </f:entry>
     <f:entry title="NameIDPolicy Format" field="nameIdPolicyFormat" help="/plugin/saml/help/nameIdPolicyFormat.html">
-            <f:textbox/>
-        </f:entry>
+        <f:textbox/>
+    </f:entry>
+    <f:entry title="Use cache for configuration files" field="useDiskCache" help="/plugin/saml/help/useDiskCache.html">
+        <f:checkbox/>
+    </f:entry>
 </j:jelly>

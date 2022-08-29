@@ -40,7 +40,7 @@ import java.util.logging.Logger;
 /**
  * Class to manage the metadata files.
  */
-class SamlFileResource implements WritableResource {
+class SamlFileResourceCache implements WritableResource {
 
     private static final Logger LOG = Logger.getLogger(SamlFileResource.class.getName());
 
@@ -48,11 +48,11 @@ class SamlFileResource implements WritableResource {
 
     private final static Map<String,String> cache = new HashMap<>();
 
-    public SamlFileResource(@Nonnull String fileName) {
+    public SamlFileResourceCache(@Nonnull String fileName) {
         this.fileName = fileName;
     }
 
-    public SamlFileResource(@Nonnull String fileName, @Nonnull String data) {
+    public SamlFileResourceCache(@Nonnull String fileName, @Nonnull String data) {
         this.fileName = fileName;
         try {
             save(fileName, data);

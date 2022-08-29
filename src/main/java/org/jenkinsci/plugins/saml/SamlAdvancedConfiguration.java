@@ -20,6 +20,7 @@ package org.jenkinsci.plugins.saml;
 import edu.umd.cs.findbugs.annotations.NonNull;
 import org.apache.commons.lang.StringUtils;
 import org.kohsuke.stapler.DataBoundConstructor;
+import org.kohsuke.stapler.DataBoundSetter;
 import hudson.Extension;
 import hudson.Util;
 import hudson.model.AbstractDescribableImpl;
@@ -36,6 +37,8 @@ public class SamlAdvancedConfiguration extends AbstractDescribableImpl<SamlAdvan
     private final String authnContextClassRef;
     private final String spEntityId;
     private final String nameIdPolicyFormat;
+
+    private Boolean useDiskCache = false;
 
     @DataBoundConstructor
     public SamlAdvancedConfiguration(Boolean forceAuthn,
@@ -64,12 +67,22 @@ public class SamlAdvancedConfiguration extends AbstractDescribableImpl<SamlAdvan
         return nameIdPolicyFormat;
     }
 
+    public Boolean getUseDiskCache() {
+        return useDiskCache;
+    }
+
+    @DataBoundSetter
+    public void setUseDiskCache(Boolean useDiskCache) {
+        this.useDiskCache = useDiskCache;
+    }
+
     @Override
     public String toString() {
         return "SamlAdvancedConfiguration{" + "forceAuthn=" + getForceAuthn() + ", authnContextClassRef='"
                + StringUtils.defaultIfBlank(getAuthnContextClassRef(), "none") + '\'' + ", spEntityId='"
                + StringUtils.defaultIfBlank(getSpEntityId(), "none") + '\'' + ", nameIdPolicyFormat='"
-               + StringUtils.defaultIfBlank(getNameIdPolicyFormat(), "none") + '\'' + '}';
+               + StringUtils.defaultIfBlank(getNameIdPolicyFormat(), "none") + '\''
+               + "useDiskCache=" + getUseDiskCache() + '}';
     }
 
     @SuppressWarnings("unused")

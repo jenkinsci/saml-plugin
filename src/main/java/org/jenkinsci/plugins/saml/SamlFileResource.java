@@ -21,15 +21,11 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.net.URL;
-import java.nio.charset.StandardCharsets;
 import javax.annotation.Nonnull;
 import edu.umd.cs.findbugs.annotations.NonNull;
-import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.NotImplementedException;
-import org.pac4j.core.exception.TechnicalException;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.WritableResource;
 
@@ -38,31 +34,43 @@ import org.springframework.core.io.WritableResource;
  */
 class SamlFileResource implements WritableResource {
 
-    private final String fileName;
+    private final WritableResource resource;
 
     public SamlFileResource(@Nonnull String fileName) {
-        this.fileName = fileName;
+        if(getUseDiskCache()){
+            this.resource = new SamlFileResourceCache(fileName);
+        } else {
+            this.resource = new SamlFileResourceDisk(fileName);
+        }
     }
 
     public SamlFileResource(@Nonnull String fileName, @Nonnull String data) {
-        this.fileName = fileName;
-        try {
-            FileUtils.writeByteArrayToFile(getFile(), data.getBytes(StandardCharsets.UTF_8));
-        } catch (UnsupportedEncodingException e) {
-            throw new TechnicalException("Could not get string bytes.", e);
-        } catch (java.io.IOException e) {
-            throw new TechnicalException("Could not save the " + fileName + " file.", e);
+        if(getUseDiskCache()){
+            this.resource = new SamlFileResourceCache(fileName, data);
+        } else {
+            this.resource = new SamlFileResourceDisk(fileName, data);
         }
+    }
+
+    private boolean getUseDiskCache() {
+        boolean ret = false;
+        jenkins.model.Jenkins j = jenkins.model.Jenkins.get();
+        if (j.getSecurityRealm() instanceof SamlSecurityRealm) {
+            SamlSecurityRealm samlSecurityRealm = (SamlSecurityRealm) j.getSecurityRealm();
+            SamlAdvancedConfiguration config = samlSecurityRealm.getAdvancedConfiguration();
+            ret = config.getUseDiskCache();
+        }
+        return ret;
     }
 
     @Override
     public boolean exists() {
-        return getFile().exists();
+        return resource.exists();
     }
 
     @Override
     public boolean isReadable() {
-        return getFile().canRead();
+        return resource.isReadable();
     }
 
     @Override
@@ -84,35 +92,35 @@ class SamlFileResource implements WritableResource {
 
     @Override
     public String getFilename() {
-        return fileName;
+        return resource.getFilename();
     }
 
     @NonNull
     @Override
     public String getDescription() {
-        return fileName;
+        return resource.getDescription();
     }
 
     @NonNull
     @Override
     public InputStream getInputStream() throws IOException {
-        return FileUtils.openInputStream(getFile());
+        return resource.getInputStream();
     }
 
     @NonNull
     @Override
-    public File getFile() {
-        return new File(fileName);
+    public File getFile() throws IOException {
+        return resource.getFile();
     }
 
     @Override
-    public long contentLength() {
-        return getFile().length();
+    public long contentLength() throws IOException {
+        return resource.contentLength();
     }
 
     @Override
-    public long lastModified() {
-        return getFile().lastModified();
+    public long lastModified() throws IOException {
+        return resource.lastModified();
     }
 
     @NonNull
@@ -123,12 +131,12 @@ class SamlFileResource implements WritableResource {
 
     @Override
     public boolean isWritable() {
-        return getFile().canWrite();
+        return resource.isWritable();
     }
 
     @NonNull
     @Override
     public OutputStream getOutputStream() throws IOException {
-        return FileUtils.openOutputStream(getFile());
+        return resource.getOutputStream();
     }
 }

@@ -36,15 +36,15 @@ import org.springframework.core.io.WritableResource;
 /**
  * Class to manage the metadata files.
  */
-class SamlFileResource implements WritableResource {
+class SamlFileResourceDisk implements WritableResource {
 
     private final String fileName;
 
-    public SamlFileResource(@Nonnull String fileName) {
+    public SamlFileResourceDisk(@Nonnull String fileName) {
         this.fileName = fileName;
     }
 
-    public SamlFileResource(@Nonnull String fileName, @Nonnull String data) {
+    public SamlFileResourceDisk(@Nonnull String fileName, @Nonnull String data) {
         this.fileName = fileName;
         try {
             FileUtils.writeByteArrayToFile(getFile(), data.getBytes(StandardCharsets.UTF_8));
