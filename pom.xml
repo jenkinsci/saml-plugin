@@ -196,10 +196,10 @@ under the License.
       </exclusions>
     </dependency>
     <dependency>
-    <groupId>org.pac4j</groupId>
-    <artifactId>pac4j-jee</artifactId>
-    <version>5.2.0</version>
-    <optional>false</optional>
+        <groupId>org.pac4j</groupId>
+        <artifactId>pac4j-jee</artifactId>
+        <version>5.2.0</version>
+        <optional>false</optional>
     </dependency>
     <dependency>
       <groupId>org.jenkins-ci.plugins</groupId>
