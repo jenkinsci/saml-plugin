@@ -17,7 +17,6 @@
 package org.jenkinsci.plugins.saml;
 
 import com.gargoylesoftware.htmlunit.Page;
-import com.gargoylesoftware.htmlunit.html.HtmlButton;
 import com.gargoylesoftware.htmlunit.html.HtmlPage;
 import com.gargoylesoftware.htmlunit.html.HtmlPasswordInput;
 import com.gargoylesoftware.htmlunit.html.HtmlTextInput;
@@ -28,6 +27,7 @@ import java.net.URL;
 import java.net.URLConnection;
 import java.nio.charset.StandardCharsets;
 import java.util.Collections;
+import java.util.Objects;
 import jenkins.model.Jenkins;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
@@ -52,10 +52,10 @@ public class LiveTest {
         assumeTrue(DockerClientFactory.instance().isDockerAvailable());
     }
 
-    @Rule public RealJenkinsRule rr = new RealJenkinsRule();
+    @Rule public final RealJenkinsRule rr = new RealJenkinsRule();
 
     @SuppressWarnings("rawtypes")
-    private GenericContainer samlContainer = new GenericContainer("kristophjunge/test-saml-idp:1.14.15").withExposedPorts(80);
+    private final GenericContainer samlContainer = new GenericContainer("kristophjunge/test-saml-idp:1.14.15").withExposedPorts(80);
 
     @After public void stop() {
         samlContainer.stop();
@@ -78,7 +78,7 @@ public class LiveTest {
         }
         @Override
         public void run(JenkinsRule r) throws Throwable {
-            SamlSecurityRealm realm = configureBasicSettings(new IdpMetadataConfiguration(idpMetadata), new SamlAdvancedConfiguration(false, null, SERVICE_PROVIDER_ID, null, /* TODO maximumSessionLifetime unused */null), SAML2_REDIRECT_BINDING_URI);
+            SamlSecurityRealm realm = configureBasicSettings(new IdpMetadataConfiguration(idpMetadata), new SamlAdvancedConfiguration(false, null, SERVICE_PROVIDER_ID, null), SAML2_REDIRECT_BINDING_URI);
             r.jenkins.setSecurityRealm(realm);
             configureAuthorization();
             makeLoginWithUser1(r);
@@ -98,7 +98,7 @@ public class LiveTest {
         }
         @Override
         public void run(JenkinsRule r) throws Throwable {
-            SamlSecurityRealm realm = configureBasicSettings(new IdpMetadataConfiguration(idpMetadataUrl, 0L), new SamlAdvancedConfiguration(false, null, SERVICE_PROVIDER_ID, null, null), SAML2_REDIRECT_BINDING_URI);
+            SamlSecurityRealm realm = configureBasicSettings(new IdpMetadataConfiguration(idpMetadataUrl, 0L), new SamlAdvancedConfiguration(false, null, SERVICE_PROVIDER_ID, null), SAML2_REDIRECT_BINDING_URI);
             Jenkins.XSTREAM2.toXMLUTF8(realm, System.out);
             System.out.println();
             r.jenkins.setSecurityRealm(realm);
@@ -120,7 +120,7 @@ public class LiveTest {
         }
         @Override
         public void run(JenkinsRule r) throws Throwable {
-            SamlSecurityRealm realm = configureBasicSettings(new IdpMetadataConfiguration(idpMetadata), new SamlAdvancedConfiguration(false, null, SERVICE_PROVIDER_ID, null, null), SAML2_POST_BINDING_URI);
+            SamlSecurityRealm realm = configureBasicSettings(new IdpMetadataConfiguration(idpMetadata), new SamlAdvancedConfiguration(false, null, SERVICE_PROVIDER_ID, null), SAML2_POST_BINDING_URI);
             r.jenkins.setSecurityRealm(realm);
             configureAuthorization();
             makeLoginWithUser1(r);
@@ -140,14 +140,14 @@ public class LiveTest {
         }
         @Override
         public void run(JenkinsRule r) throws Throwable {
-            SamlSecurityRealm realm = configureBasicSettings(new IdpMetadataConfiguration(idpMetadata), new SamlAdvancedConfiguration(false, null, SERVICE_PROVIDER_ID, null, null), SAML2_REDIRECT_BINDING_URI);
+            SamlSecurityRealm realm = configureBasicSettings(new IdpMetadataConfiguration(idpMetadata), new SamlAdvancedConfiguration(false, null, SERVICE_PROVIDER_ID, null), SAML2_REDIRECT_BINDING_URI);
             r.jenkins.setSecurityRealm(realm);
             configureAuthorization();
             JenkinsRule.WebClient wc = r.createWebClient();
             HtmlPage login = openLogin(wc, r);
             ((HtmlTextInput) login.getElementById("username")).setText("user1");
             ((HtmlPasswordInput) login.getElementById("password")).setText("WrOnGpAsSwOrD");
-            HtmlPage fail = ((HtmlButton) login.getElementsByTagName("button").get(0)).click();
+            HtmlPage fail = login.getElementsByTagName("button").get(0).click();
             assertThat(fail.getWebResponse().getContentAsString(), containsString("Either no user with the given username could be found, or the password you gave was wrong"));
             assertThat(fail.getUrl().toString(), containsString("simplesaml/module.php/core/loginuserpass.php"));
         }
@@ -173,13 +173,13 @@ public class LiveTest {
     private static SamlSecurityRealm configureBasicSettings(IdpMetadataConfiguration idpMetadataConfiguration, SamlAdvancedConfiguration advancedConfiguration, String binding) throws IOException {
         // TODO use @DataBoundSetter wherever possible and load defaults from DescriptorImpl
         File samlKey = new File(Jenkins.get().getRootDir(), "saml-key.jks");
-        FileUtils.copyURLToFile(LiveTest.class.getResource("LiveTest/saml-key.jks"), samlKey);
+        FileUtils.copyURLToFile(Objects.requireNonNull(LiveTest.class.getResource("LiveTest/saml-key.jks")), samlKey);
         SamlEncryptionData samlEncryptionData = new SamlEncryptionData(samlKey.getAbsolutePath(), Secret.fromString(
                 "changeit"), Secret.fromString("changeit"), null, false, true);
         return new SamlSecurityRealm(idpMetadataConfiguration, "displayName", "eduPersonAffiliation", 86400, "uid", "email", null, advancedConfiguration, samlEncryptionData, "none", binding, Collections.emptyList());
     }
 
-    private void startSimpleSAML(String rootUrl) throws IOException, InterruptedException {
+    private void startSimpleSAML(String rootUrl) {
         samlContainer.
                 withEnv("SIMPLESAMLPHP_SP_ENTITY_ID", SERVICE_PROVIDER_ID).
                 withEnv("SIMPLESAMLPHP_SP_ASSERTION_CONSUMER_SERVICE", rootUrl + "securityRealm/finishLogin"). // login back URL
@@ -222,7 +222,7 @@ public class LiveTest {
         HtmlPage login = openLogin(wc, r);
         ((HtmlTextInput) login.getElementById("username")).setText("user1");
         ((HtmlPasswordInput) login.getElementById("password")).setText("user1pass");
-        HtmlPage dashboard = ((HtmlButton) login.getElementsByTagName("button").get(0)).click();
+        HtmlPage dashboard = login.getElementsByTagName("button").get(0).click();
         assertThat(dashboard.getWebResponse().getContentAsString(), allOf(containsString("User 1"), containsString("Manage Jenkins")));
     }
 

@@ -46,7 +46,7 @@ under the License.
     <changelist>999999-SNAPSHOT</changelist>
     <jenkins.version>2.361</jenkins.version>
     <gitHubRepo>jenkinsci/${project.artifactId}-plugin</gitHubRepo>
-    <hpi.compatibleSinceVersion>3.0.0</hpi.compatibleSinceVersion>
+    <hpi.compatibleSinceVersion>3.343.vb_63a_6c3df23c</hpi.compatibleSinceVersion>
   </properties>
 
   <licenses>

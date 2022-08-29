@@ -5,9 +5,6 @@
     <jenkins.security.ApiTokenProperty>
       <apiToken>{AQAAABAAAAAwGyYBrbiWDyug2ruIyVbAUk6LqTd7y6haDuqExRI8S1L2ruoprZIruOl0JG9cz8hmT5kLP8ZCrs+hgwvG2ICDqg==}</apiToken>
     </jenkins.security.ApiTokenProperty>
-    <com.cloudbees.plugins.credentials.UserCredentialsProvider_-UserCredentialsProperty plugin="credentials@2.1.14">
-      <domainCredentialsMap class="hudson.util.CopyOnWriteMap$Hash"/>
-    </com.cloudbees.plugins.credentials.UserCredentialsProvider_-UserCredentialsProperty>
     <hudson.model.MyViewsProperty>
       <views>
         <hudson.model.AllView>

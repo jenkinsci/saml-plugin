@@ -121,16 +121,9 @@ public class SamlSecurityRealm extends SecurityRealm {
     private final String logoutUrl;
     private String binding;
 
-    private SamlEncryptionData encryptionData;
-    private SamlAdvancedConfiguration advancedConfiguration;
-
-    /***
-     * @deprecated use idpMetadataConfiguration instead
-     */
-    @Deprecated
-    private transient String idpMetadata;
-
-    private IdpMetadataConfiguration idpMetadataConfiguration;
+    private final SamlEncryptionData encryptionData;
+    private final SamlAdvancedConfiguration advancedConfiguration;
+    private final IdpMetadataConfiguration idpMetadataConfiguration;
 
     private List<AttributeEntry> samlCustomAttributes;
 
@@ -138,7 +131,7 @@ public class SamlSecurityRealm extends SecurityRealm {
      * Jenkins passes these parameters in when you update the settings.
      * It does this because of the @DataBoundConstructor.
      *
-     * @param idpMetadataConfiguration      How to obtains the IdP Metadata configuration.
+     * @param idpMetadataConfiguration      How to obtain the IdP Metadata configuration.
      * @param displayNameAttributeName      attribute that has the displayname
      * @param groupsAttributeName           attribute that has the groups
      * @param maximumAuthenticationLifetime maximum time that an identification it is valid
@@ -196,11 +189,8 @@ public class SamlSecurityRealm extends SecurityRealm {
     }
 
     // migration code for the new IdP metadata file
+    @SuppressWarnings("unused")
     public Object readResolve() {
-        if(idpMetadataConfiguration == null){
-            idpMetadataConfiguration = new IdpMetadataConfiguration(idpMetadata);
-        }
-
         File idpMetadataFile = new File(getIDPMetadataFilePath());
         if (!idpMetadataFile.exists() && idpMetadataConfiguration != null && idpMetadataConfiguration.getXml() != null){
             try {
@@ -251,6 +241,7 @@ public class SamlSecurityRealm extends SecurityRealm {
      * @param from http request "from" parameter.
      * @return the http response.
      */
+    @SuppressWarnings("unused")
     public HttpResponse doCommenceLogin(final StaplerRequest request, final StaplerResponse response, @QueryParameter
             String from, @Header("Referer") final String referer) {
         LOG.fine("SamlSecurityRealm.doCommenceLogin called. Using consumerServiceUrl " + getSamlPluginConfig().getConsumerServiceUrl());
@@ -264,7 +255,7 @@ public class SamlSecurityRealm extends SecurityRealm {
             return HttpResponses.redirectTo(action.getLocation());
         } else if (action.getType() == RedirectType.SUCCESS) {
             LOG.fine("SUCCESS : " + action.getContent());
-            return HttpResponses.html(action.getContent());
+            return HttpResponses.literalHtml(action.getContent());
         } else {
             throw new IllegalStateException("Received unexpected response type " + action.getType());
         }
@@ -279,6 +270,7 @@ public class SamlSecurityRealm extends SecurityRealm {
     private String calculateSafeRedirect(String from, String referer) {
         String redirectURL;
         String rootUrl = baseUrl();
+        //noinspection PointlessNullCheck
         if (from != null && Util.isSafeToRedirectTo(from)) {
             redirectURL = from;
         } else {
@@ -299,6 +291,7 @@ public class SamlSecurityRealm extends SecurityRealm {
      * @param response http response.
      * @return the http response.
      */
+    @SuppressWarnings("unused")
     @RequirePOST
     public HttpResponse doFinishLogin(final StaplerRequest request, final StaplerResponse response) {
         LOG.finer("SamlSecurityRealm.doFinishLogin called");
@@ -309,7 +302,7 @@ public class SamlSecurityRealm extends SecurityRealm {
         logSamlResponse(request);
 
         boolean saveUser = false;
-        SAML2Profile saml2Profile = null;
+        SAML2Profile saml2Profile;
 
         try {
             saml2Profile = new SamlProfileWrapper(getSamlPluginConfig(), request, response).get();
@@ -359,7 +352,6 @@ public class SamlSecurityRealm extends SecurityRealm {
 
     /**
      * retrieve the value of an attribute in a list for consistence with the reset of attributes manage.
-     * @param attributeValue
      * @return the values of the attribute in a list.
      */
     @NonNull
@@ -379,7 +371,7 @@ public class SamlSecurityRealm extends SecurityRealm {
     }
 
     /**
-     * check if a request contains a session, if so, it invalidate the session and create new one to avoid session
+     * check if a request contains a session, if so, it invalidates the session and create new one to avoid session
      * fixation.
      * @param request request.
      */
@@ -594,6 +586,7 @@ public class SamlSecurityRealm extends SecurityRealm {
      * @param response http response.
      * @return the http response.
      */
+    @SuppressWarnings("unused")
     public HttpResponse doMetadata(StaplerRequest request, StaplerResponse response) {
         return new SamlSPMetadataWrapper(getSamlPluginConfig(), request, response).get();
     }
@@ -603,6 +596,7 @@ public class SamlSecurityRealm extends SecurityRealm {
      * Note: It does not call the logout service on SAML because the library does not implement it on this version,
      * it will be done when we upgrade the library.
      */
+    @SuppressWarnings("deprecation")
     @Override
     protected String getPostLogOutUrl(StaplerRequest req, @Nonnull Authentication auth) {
         LOG.log(Level.FINE, "Doing Logout {}", auth.getPrincipal());
@@ -644,12 +638,12 @@ public class SamlSecurityRealm extends SecurityRealm {
      * @return plugin configuration parameters.
      */
     public SamlPluginConfig getSamlPluginConfig() {
-        SamlPluginConfig samlPluginConfig = new SamlPluginConfig(displayNameAttributeName, groupsAttributeName,
-                maximumAuthenticationLifetime, emailAttributeName, idpMetadataConfiguration, usernameCaseConversion,
-                usernameAttributeName, logoutUrl, binding, encryptionData, advancedConfiguration);
-        return samlPluginConfig;
+        return new SamlPluginConfig(displayNameAttributeName, groupsAttributeName,
+                                    maximumAuthenticationLifetime, emailAttributeName, idpMetadataConfiguration, usernameCaseConversion,
+                                    usernameAttributeName, logoutUrl, binding, encryptionData, advancedConfiguration);
     }
 
+    @SuppressWarnings("unused")
     @Extension
     public static final class DescriptorImpl extends Descriptor<SecurityRealm> {
 
@@ -661,6 +655,7 @@ public class SamlSecurityRealm extends SecurityRealm {
             super(clazz);
         }
 
+        @NonNull
         @Override
         public String getDisplayName() {
             return "SAML 2.0";
@@ -749,10 +744,7 @@ public class SamlSecurityRealm extends SecurityRealm {
 
     @Override
     public String toString() {
-        final StringBuffer sb = new StringBuffer("SamlSecurityRealm{");
-        sb.append(getSamlPluginConfig().toString());
-        sb.append('}');
-        return sb.toString();
+        return "SamlSecurityRealm{" + getSamlPluginConfig().toString() + '}';
     }
 
 }

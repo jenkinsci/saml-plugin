@@ -68,14 +68,13 @@ public class SamlUserDetails implements UserDetails {
 
     @Override
     public String toString() {
-        final StringBuilder sb = new StringBuilder("SamlUserDetails{");
-        sb.append("username='").append(getUsername()).append('\'');
-        sb.append(", authorities=").append(getAuthorities() == null ? "null" : Arrays.asList(getAuthorities()).toString()).append('\'');
-        sb.append(", isAccountNonExpired='").append(isAccountNonExpired()).append('\'');
-        sb.append(", isAccountNonLocked='").append(isAccountNonLocked()).append('\'');
-        sb.append(", isCredentialsNonExpired='").append(isCredentialsNonExpired()).append('\'');
-        sb.append(", isEnabled='").append(isEnabled());
-        sb.append('}');
-        return sb.toString();
+        return "SamlUserDetails{" + "username='" + getUsername() + '\'' + ", authorities=" + (getAuthorities() == null
+                                                                                       ? "null"
+                                                                                       : Collections.singletonList(
+                                                                                                        getAuthorities())
+                                                                                                    .toString())
+           + '\'' + ", isAccountNonExpired='" + isAccountNonExpired() + '\'' + ", isAccountNonLocked='"
+           + isAccountNonLocked() + '\'' + ", isCredentialsNonExpired='" + isCredentialsNonExpired() + '\''
+           + ", isEnabled='" + isEnabled() + '}';
     }
 }
