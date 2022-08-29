@@ -218,11 +218,11 @@ public class SamlSecurityRealmTest {
             new SamlAdvancedConfiguration(true, null, null, null).toString().contains("SamlAdvancedConfiguration"));
         assertTrue(new SamlAdvancedConfiguration(true, "", "", "").toString().contains("SamlAdvancedConfiguration"));
 
-        SamlGroupAuthority authority = new SamlGroupAuthority("role001");
-        assertEquals(authority.toString().equals("role001"),true);
+        SimpleGrantedAuthority authority = new SimpleGrantedAuthority("role001");
+        assertEquals("role001", authority.toString());
 
-        SamlUserDetails userDetails = new SamlUserDetails("tesla",new GrantedAuthority[]{authority});
-        assertTrue(userDetails.toString().contains("tesla") && userDetails.toString().contains("role001"));
+        SamlUserDetails userDetails = new SamlUserDetails("tesla", Collections.singletonList(authority));
+        assertEquals(userDetails.toString().contains("tesla") && userDetails.toString().contains("role001"), true);
 
         assertThat(new SamlEncryptionData(null,null,null, null, false, false).toString(), containsString(
                 "SamlEncryptionData"));
