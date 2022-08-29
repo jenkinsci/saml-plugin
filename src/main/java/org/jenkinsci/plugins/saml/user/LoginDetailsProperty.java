@@ -33,7 +33,6 @@ import org.kohsuke.stapler.StaplerRequest;
 import java.util.Date;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import edu.umd.cs.findbugs.annotations.NonNull;
 import net.sf.json.JSONObject;
 import org.apache.commons.lang.time.FastDateFormat;
 import org.jenkinsci.plugins.saml.SamlSecurityRealm;

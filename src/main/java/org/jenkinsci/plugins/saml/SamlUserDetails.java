@@ -17,6 +17,7 @@ under the License. */
 
 package org.jenkinsci.plugins.saml;
 
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import javax.annotation.Nonnull;
