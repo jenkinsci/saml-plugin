@@ -21,9 +21,9 @@ Open the Management console (mmc), make sure you have the AD FS Management snap-
 
 Go through the wizard. The properties at the end should look like indicated on the following screens.
 
-**Monitoring:** unmodified | **Identifiers:** The relying party identifier is: http://jenkins.example.org/securityRealm/finishLogin
------------- | -------------
-![](images/Screen_Shot_2015-12-10_at_16.11.42.png) | ![](images/Screen_Shot_2015-12-10_at_16.11.44.png)
+| **Monitoring:** unmodified                         | **Identifiers:** The relying party identifier is: http://jenkins.example.org/securityRealm/finishLogin |
+|----------------------------------------------------|--------------------------------------------------------------------------------------------------------|
+| ![](images/Screen_Shot_2015-12-10_at_16.11.42.png) | ![](images/Screen_Shot_2015-12-10_at_16.11.44.png)                                                     |
 
 **Encryption:** import key from the JENKINS_HOME/saml-sp.metadata.xml file | **Signature:** import key from the JENKINS_HOME/saml-sp.metadata.xml file
 ------------ | -------------
@@ -37,13 +37,13 @@ Go through the wizard. The properties at the end should look like indicated on t
 ------------ | -------------
 ![](images/Screen_Shot_2015-12-10_at_16.11.57.png) | ![](images/Screen_Shot_2015-12-10_at_16.12.00.png)
 
-**Notes:** unmodfied | **Advanced:** SHA-256
+**Notes:** unmodified | **Advanced:** SHA-256
 ------------ | -------------
 ![](images/Screen_Shot_2015-12-10_at_16.12.02.png) | ![](images/Screen_Shot_2015-12-10_at_16.12.05.png)
 
-Select the Relying Party Trust and click on Edit Claim Rules.... You should expose the following LDAP attributes: | -
------------- | -------------
-![](images/Screen_Shot_2015-12-10_at_16.12.23.png) | ![](images/Screen_Shot_2015-12-10_at_16.12.27.png)
+ Select the Relying Party Trust and click on Edit Claim Rules.... You should expose the following LDAP attributes: | -                                                  
+-------------------------------------------------------------------------------------------------------------------|----------------------------------------------------
+ ![](images/Screen_Shot_2015-12-10_at_16.12.23.png)                                                                | ![](images/Screen_Shot_2015-12-10_at_16.12.27.png) 
 
 Allow all users to connect, or modify depending on your setup: | -
 ------------ | -------------

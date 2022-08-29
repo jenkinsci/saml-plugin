@@ -17,6 +17,7 @@ under the License. */
 
 package org.jenkinsci.plugins.saml;
 
+import java.io.IOException;
 import org.kohsuke.stapler.HttpResponse;
 import org.kohsuke.stapler.HttpResponses;
 import org.kohsuke.stapler.StaplerRequest;

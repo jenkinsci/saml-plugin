@@ -21,19 +21,30 @@ import hudson.model.Descriptor.FormException;
 import hudson.model.User;
 import hudson.model.UserProperty;
 import hudson.model.UserPropertyDescriptor;
+import edu.umd.cs.findbugs.annotations.NonNull;
 import net.sf.json.JSONObject;
-import org.acegisecurity.GrantedAuthority;
 import org.apache.commons.lang.time.FastDateFormat;
 import hudson.security.SecurityRealm;
 import jenkins.model.Jenkins;
 import org.jenkinsci.plugins.saml.SamlSecurityRealm;
 import org.kohsuke.stapler.DataBoundConstructor;
 import org.kohsuke.stapler.StaplerRequest;
-import org.acegisecurity.Authentication;
 
 import java.util.Date;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import net.sf.json.JSONObject;
+import org.apache.commons.lang.time.FastDateFormat;
+import org.jenkinsci.plugins.saml.SamlSecurityRealm;
+import org.kohsuke.stapler.DataBoundConstructor;
+import org.kohsuke.stapler.StaplerRequest;
+import org.springframework.security.core.Authentication;
+import hudson.Extension;
+import hudson.model.User;
+import hudson.model.UserProperty;
+import hudson.model.UserPropertyDescriptor;
+import hudson.security.SecurityRealm;
+import jenkins.model.Jenkins;
 
 /**
  * Store details about create and login processes
@@ -48,11 +59,13 @@ public class LoginDetailsProperty extends UserProperty {
     private long loginCount;
 
 
+    @SuppressWarnings("unused")
     @DataBoundConstructor
     public LoginDetailsProperty() {
         //NOOP
     }
 
+    @SuppressWarnings("unused")
     public static LoginDetailsProperty currentUserLoginDetails() {
         User user = User.current();
         LoginDetailsProperty loginDetails = null;
@@ -62,6 +75,7 @@ public class LoginDetailsProperty extends UserProperty {
         return loginDetails;
     }
 
+    @SuppressWarnings("unused")
     public static void currentUserSetLoginDetails() {
         User user = User.current();
         if (user != null && user.getProperty(LoginDetailsProperty.class) != null) {
@@ -89,14 +103,17 @@ public class LoginDetailsProperty extends UserProperty {
         return createTimestamp;
     }
 
+    @SuppressWarnings("unused")
     public long getLastLoginTimestamp() {
         return lastLoginTimestamp;
     }
 
+    @SuppressWarnings("unused")
     public String getCreateDate() {
         return FastDateFormat.getInstance(ISO_8601).format(new Date(createTimestamp));
     }
 
+    @SuppressWarnings("unused")
     public String getLastLoginDate() {
         return FastDateFormat.getInstance(ISO_8601).format(new Date(lastLoginTimestamp));
     }
@@ -118,14 +135,15 @@ public class LoginDetailsProperty extends UserProperty {
     }
 
     @Override
-    public UserProperty reconfigure(StaplerRequest req, JSONObject form) throws FormException {
+    public UserProperty reconfigure(StaplerRequest req, JSONObject form) {
         return this;
     }
 
 
     /**
-     * Listen to the login success/failure event to persist {@link GrantedAuthority}s properly.
+     * Listen to the login success/failure event to persist {@link LoginDetailsProperty}s properly.
      */
+    @SuppressWarnings("unused")
     @Extension
     public static class SecurityListenerImpl extends jenkins.security.SecurityListener {
 
@@ -145,7 +163,7 @@ public class LoginDetailsProperty extends UserProperty {
                     o = new LoginDetailsProperty();
                 }
                 u.addProperty(o);
-                Authentication a = Jenkins.getAuthentication();
+                Authentication a = Jenkins.getAuthentication2();
                 if (a.getName().equals(username)) {
                     o.update();    // just for defensive sanity checking
                 }
@@ -157,8 +175,10 @@ public class LoginDetailsProperty extends UserProperty {
     }
 
 
+    @SuppressWarnings("unused")
     @Extension
     public static final class DescriptorImpl extends UserPropertyDescriptor {
+        @NonNull
         @Override
         public String getDisplayName() {
             return "User Login Properties";

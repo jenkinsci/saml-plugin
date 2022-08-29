@@ -17,20 +17,18 @@ under the License. */
 
 package org.jenkinsci.plugins.saml;
 
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import javax.annotation.Nonnull;
+import javax.servlet.http.HttpSession;
 import edu.umd.cs.findbugs.annotations.NonNull;
-import hudson.Extension;
-import hudson.Util;
-import hudson.security.GroupDetails;
-import hudson.security.UserMayOrMayNotExistException;
-import hudson.util.FormValidation;
-import hudson.model.Descriptor;
-import hudson.model.User;
-import hudson.security.SecurityRealm;
-import hudson.tasks.Mailer.UserProperty;
-import jenkins.model.Jenkins;
-import jenkins.security.SecurityListener;
-import org.acegisecurity.*;
-import org.acegisecurity.context.SecurityContextHolder;
+import org.acegisecurity.Authentication;
 import org.acegisecurity.userdetails.UsernameNotFoundException;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
@@ -39,24 +37,37 @@ import org.jenkinsci.plugins.saml.conf.AttributeEntry;
 import org.jenkinsci.plugins.saml.user.SamlCustomProperty;
 import org.kohsuke.accmod.Restricted;
 import org.kohsuke.accmod.restrictions.NoExternalUse;
-import org.kohsuke.stapler.*;
+import org.kohsuke.stapler.DataBoundConstructor;
+import org.kohsuke.stapler.Header;
+import org.kohsuke.stapler.HttpResponse;
+import org.kohsuke.stapler.HttpResponses;
+import org.kohsuke.stapler.QueryParameter;
+import org.kohsuke.stapler.StaplerRequest;
+import org.kohsuke.stapler.StaplerResponse;
 import org.kohsuke.stapler.interceptor.RequirePOST;
 import org.pac4j.core.exception.http.OkAction;
 import org.pac4j.core.exception.http.RedirectionAction;
 import org.pac4j.core.exception.http.SeeOtherAction;
 import org.springframework.dao.DataAccessException;
 import org.pac4j.saml.profile.SAML2Profile;
-
-import javax.annotation.Nonnull;
-import javax.servlet.http.HttpSession;
-import java.io.*;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
-import static org.apache.commons.codec.binary.Base64.*;
+import org.springframework.dao.DataAccessException;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import hudson.Extension;
+import hudson.Util;
+import hudson.model.Descriptor;
+import hudson.model.User;
+import hudson.security.ACL;
+import hudson.security.GroupDetails;
+import hudson.security.SecurityRealm;
+import hudson.security.UserMayOrMayNotExistException2;
+import hudson.tasks.Mailer.UserProperty;
+import hudson.util.FormValidation;
+import jenkins.model.Jenkins;
+import jenkins.security.SecurityListener;
+import static org.apache.commons.codec.binary.Base64.decodeBase64;
+import static org.apache.commons.codec.binary.Base64.isBase64;
 import static org.opensaml.saml.common.xml.SAMLConstants.SAML2_REDIRECT_BINDING_URI;
 
 /**
@@ -122,16 +133,9 @@ public class SamlSecurityRealm extends SecurityRealm {
     private final String logoutUrl;
     private String binding;
 
-    private SamlEncryptionData encryptionData;
-    private SamlAdvancedConfiguration advancedConfiguration;
-
-    /***
-     * @deprecated use idpMetadataConfiguration instead
-     */
-    @Deprecated
-    private transient String idpMetadata;
-
-    private IdpMetadataConfiguration idpMetadataConfiguration;
+    private final SamlEncryptionData encryptionData;
+    private final SamlAdvancedConfiguration advancedConfiguration;
+    private final IdpMetadataConfiguration idpMetadataConfiguration;
 
     private List<AttributeEntry> samlCustomAttributes;
 
@@ -139,7 +143,7 @@ public class SamlSecurityRealm extends SecurityRealm {
      * Jenkins passes these parameters in when you update the settings.
      * It does this because of the @DataBoundConstructor.
      *
-     * @param idpMetadataConfiguration      How to obtains the IdP Metadata configuration.
+     * @param idpMetadataConfiguration      How to obtain the IdP Metadata configuration.
      * @param displayNameAttributeName      attribute that has the displayname
      * @param groupsAttributeName           attribute that has the groups
      * @param maximumAuthenticationLifetime maximum time that an identification it is valid
@@ -197,11 +201,8 @@ public class SamlSecurityRealm extends SecurityRealm {
     }
 
     // migration code for the new IdP metadata file
+    @SuppressWarnings("unused")
     public Object readResolve() {
-        if(idpMetadataConfiguration == null){
-            idpMetadataConfiguration = new IdpMetadataConfiguration(idpMetadata);
-        }
-
         File idpMetadataFile = new File(getIDPMetadataFilePath());
         if (!idpMetadataFile.exists() && idpMetadataConfiguration != null && idpMetadataConfiguration.getXml() != null){
             try {
@@ -226,15 +227,11 @@ public class SamlSecurityRealm extends SecurityRealm {
     @Override
     public SecurityComponents createSecurityComponents() {
         LOG.finer("createSecurityComponents");
-        return new SecurityComponents(new AuthenticationManager() {
-
-            public Authentication authenticate(Authentication authentication) throws AuthenticationException {
-                if (authentication instanceof SamlAuthenticationToken) {
-                    return authentication;
-                }
-                throw new BadCredentialsException("Unexpected authentication type: " + authentication);
+        return new SecurityComponents(authentication -> {
+            if (authentication instanceof SamlAuthenticationToken) {
+                return authentication;
             }
-
+            throw new BadCredentialsException("Unexpected authentication type: " + authentication);
         }, new SamlUserDetailsService());
     }
 
@@ -252,6 +249,7 @@ public class SamlSecurityRealm extends SecurityRealm {
      * @param from http request "from" parameter.
      * @return the http response.
      */
+    @SuppressWarnings("unused")
     public HttpResponse doCommenceLogin(final StaplerRequest request, final StaplerResponse response, @QueryParameter
             String from, @Header("Referer") final String referer) {
         LOG.fine("SamlSecurityRealm.doCommenceLogin called. Using consumerServiceUrl " + getSamlPluginConfig().getConsumerServiceUrl());
@@ -265,7 +263,7 @@ public class SamlSecurityRealm extends SecurityRealm {
             return HttpResponses.redirectTo(((SeeOtherAction)action).getLocation());
         } else if (action instanceof OkAction) {
             LOG.fine("SUCCESS : " + ((OkAction) action).getContent());
-            return HttpResponses.html(((OkAction) action).getContent());
+            return HttpResponses.literalHtml(((OkAction) action).getContent());
         } else {
             throw new IllegalStateException("Received unexpected response type " + action.getCode());
         }
@@ -280,6 +278,7 @@ public class SamlSecurityRealm extends SecurityRealm {
     private String calculateSafeRedirect(String from, String referer) {
         String redirectURL;
         String rootUrl = baseUrl();
+        //noinspection PointlessNullCheck
         if (from != null && Util.isSafeToRedirectTo(from)) {
             redirectURL = from;
         } else {
@@ -300,6 +299,7 @@ public class SamlSecurityRealm extends SecurityRealm {
      * @param response http response.
      * @return the http response.
      */
+    @SuppressWarnings("unused")
     @RequirePOST
     public HttpResponse doFinishLogin(final StaplerRequest request, final StaplerResponse response) {
         LOG.finer("SamlSecurityRealm.doFinishLogin called");
@@ -310,7 +310,7 @@ public class SamlSecurityRealm extends SecurityRealm {
         logSamlResponse(request);
 
         boolean saveUser = false;
-        SAML2Profile saml2Profile = null;
+        SAML2Profile saml2Profile;
 
         try {
             saml2Profile = new SamlProfileWrapper(getSamlPluginConfig(), request, response).get();
@@ -327,13 +327,12 @@ public class SamlSecurityRealm extends SecurityRealm {
         List<GrantedAuthority> authorities = loadGrantedAuthorities(saml2Profile);
 
         // create user data
-        SamlUserDetails userDetails = new SamlUserDetails(username, authorities.toArray(new GrantedAuthority[authorities.size()]));
+        SamlUserDetails userDetails = new SamlUserDetails(username, authorities);
 
         SamlAuthenticationToken samlAuthToken = new SamlAuthenticationToken(userDetails);
 
-        // initialize security context
-        SecurityContextHolder.getContext().setAuthentication(samlAuthToken);
-        SecurityListener.fireAuthenticated(userDetails);
+        ACL.as2(samlAuthToken);
+        SecurityListener.fireAuthenticated2(userDetails);
         User user = User.current();
 
         saveUser |= modifyUserFullName(user, saml2Profile);
@@ -360,7 +359,6 @@ public class SamlSecurityRealm extends SecurityRealm {
 
     /**
      * retrieve the value of an attribute in a list for consistence with the reset of attributes manage.
-     * @param attributeValue
      * @return the values of the attribute in a list.
      */
     @NonNull
@@ -380,7 +378,7 @@ public class SamlSecurityRealm extends SecurityRealm {
     }
 
     /**
-     * check if a request contains a session, if so, it invalidate the session and create new one to avoid session
+     * check if a request contains a session, if so, it invalidates the session and create new one to avoid session
      * fixation.
      * @param request request.
      */
@@ -500,11 +498,11 @@ public class SamlSecurityRealm extends SecurityRealm {
 
         // build list of authorities
         List<GrantedAuthority> authorities = new ArrayList<>();
-        authorities.add(AUTHENTICATED_AUTHORITY);
+        authorities.add(AUTHENTICATED_AUTHORITY2);
         int countEmptyGroups = 0;
         for (String group : groups) {
             if (StringUtils.isNotBlank(group)) {
-                authorities.add(new SamlGroupAuthority(group));
+                authorities.add(new SimpleGrantedAuthority(group));
             } else {
                 countEmptyGroups++;
             }
@@ -595,6 +593,7 @@ public class SamlSecurityRealm extends SecurityRealm {
      * @param response http response.
      * @return the http response.
      */
+    @SuppressWarnings("unused")
     public HttpResponse doMetadata(StaplerRequest request, StaplerResponse response) {
         return new SamlSPMetadataWrapper(getSamlPluginConfig(), request, response).get();
     }
@@ -604,6 +603,7 @@ public class SamlSecurityRealm extends SecurityRealm {
      * Note: It does not call the logout service on SAML because the library does not implement it on this version,
      * it will be done when we upgrade the library.
      */
+    @SuppressWarnings("deprecation")
     @Override
     protected String getPostLogOutUrl(StaplerRequest req, @Nonnull Authentication auth) {
         LOG.log(Level.FINE, "Doing Logout {}", auth.getPrincipal());
@@ -621,16 +621,26 @@ public class SamlSecurityRealm extends SecurityRealm {
         LOG.log(Level.FINEST, "Here we could do the SAML Single Logout");
     }
 
+    /**
+     * This method is overwritten due to SAML has no way to retrieve the members of a Group and this cause issues on
+     * some Authorization plugins. Because of that we have to implement SamlGroupDetails
+     */
+    @SuppressWarnings("deprecation")
     @Override
     public GroupDetails loadGroupByGroupname(String groupname) throws UsernameNotFoundException, DataAccessException {
         GroupDetails dg = new SamlGroupDetails(groupname);
 
         if (dg.getMembers().isEmpty()) {
-            throw new UserMayOrMayNotExistException(groupname);
+            throw new UserMayOrMayNotExistException2(groupname);
         }
         return dg;
     }
 
+    /**
+     * This method is overwritten due to SAML has no way to retrieve the members of a Group and this cause issues on
+     * some Authorization plugins. Because of that we have to implement SamlGroupDetails
+     */
+    @SuppressWarnings("deprecation")
     @Override
     public GroupDetails loadGroupByGroupname(String groupname, boolean fetchMembers)
             throws UsernameNotFoundException, DataAccessException {
@@ -645,12 +655,12 @@ public class SamlSecurityRealm extends SecurityRealm {
      * @return plugin configuration parameters.
      */
     public SamlPluginConfig getSamlPluginConfig() {
-        SamlPluginConfig samlPluginConfig = new SamlPluginConfig(displayNameAttributeName, groupsAttributeName,
-                maximumAuthenticationLifetime, emailAttributeName, idpMetadataConfiguration, usernameCaseConversion,
-                usernameAttributeName, logoutUrl, binding, encryptionData, advancedConfiguration);
-        return samlPluginConfig;
+        return new SamlPluginConfig(displayNameAttributeName, groupsAttributeName,
+                                    maximumAuthenticationLifetime, emailAttributeName, idpMetadataConfiguration, usernameCaseConversion,
+                                    usernameAttributeName, logoutUrl, binding, encryptionData, advancedConfiguration);
     }
 
+    @SuppressWarnings("unused")
     @Extension
     public static final class DescriptorImpl extends Descriptor<SecurityRealm> {
 
@@ -662,6 +672,7 @@ public class SamlSecurityRealm extends SecurityRealm {
             super(clazz);
         }
 
+        @NonNull
         @Override
         public String getDisplayName() {
             return "SAML 2.0";
@@ -750,10 +761,7 @@ public class SamlSecurityRealm extends SecurityRealm {
 
     @Override
     public String toString() {
-        final StringBuffer sb = new StringBuffer("SamlSecurityRealm{");
-        sb.append(getSamlPluginConfig().toString());
-        sb.append('}');
-        return sb.toString();
+        return "SamlSecurityRealm{" + getSamlPluginConfig().toString() + '}';
     }
 
 }

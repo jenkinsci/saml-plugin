@@ -17,19 +17,6 @@ under the License. */
 
 package org.jenkinsci.plugins.saml;
 
-import hudson.Extension;
-import hudson.Util;
-import hudson.model.AbstractDescribableImpl;
-import hudson.model.Descriptor;
-import hudson.util.FormValidation;
-import hudson.util.Secret;
-import javax.annotation.CheckForNull;
-
-import org.kohsuke.stapler.DataBoundConstructor;
-
-import org.apache.commons.lang.StringUtils;
-import org.kohsuke.stapler.QueryParameter;
-
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -40,8 +27,30 @@ import java.security.UnrecoverableEntryException;
 import java.security.UnrecoverableKeyException;
 import java.security.cert.CertificateException;
 import java.util.Enumeration;
-
-import static org.jenkinsci.plugins.saml.SamlSecurityRealm.*;
+import javax.annotation.CheckForNull;
+import edu.umd.cs.findbugs.annotations.NonNull;
+import org.apache.commons.lang.StringUtils;
+import org.kohsuke.stapler.DataBoundConstructor;
+import org.kohsuke.stapler.QueryParameter;
+import hudson.Extension;
+import hudson.Util;
+import hudson.model.AbstractDescribableImpl;
+import hudson.model.Descriptor;
+import hudson.util.FormValidation;
+import hudson.util.Secret;
+import static org.jenkinsci.plugins.saml.SamlSecurityRealm.ERROR_ALGORITHM_CANNOT_BE_FOUND;
+import static org.jenkinsci.plugins.saml.SamlSecurityRealm.ERROR_CERTIFICATES_COULD_NOT_BE_LOADED;
+import static org.jenkinsci.plugins.saml.SamlSecurityRealm.ERROR_INSUFFICIENT_OR_INVALID_INFO;
+import static org.jenkinsci.plugins.saml.SamlSecurityRealm.ERROR_NOT_KEY_FOUND;
+import static org.jenkinsci.plugins.saml.SamlSecurityRealm.ERROR_NOT_POSSIBLE_TO_READ_KS_FILE;
+import static org.jenkinsci.plugins.saml.SamlSecurityRealm.ERROR_NO_PROVIDER_SUPPORTS_A_KS_SPI_IMPL;
+import static org.jenkinsci.plugins.saml.SamlSecurityRealm.ERROR_WRONG_INFO_OR_PASSWORD;
+import static org.jenkinsci.plugins.saml.SamlSecurityRealm.SUCCESS;
+import static org.jenkinsci.plugins.saml.SamlSecurityRealm.WARN_KEYSTORE_NOT_SET;
+import static org.jenkinsci.plugins.saml.SamlSecurityRealm.WARN_PRIVATE_KEYSTORE_PASS_NOT_SET;
+import static org.jenkinsci.plugins.saml.SamlSecurityRealm.WARN_PRIVATE_KEY_ALIAS_NOT_SET;
+import static org.jenkinsci.plugins.saml.SamlSecurityRealm.WARN_PRIVATE_KEY_PASS_NOT_SET;
+import static org.jenkinsci.plugins.saml.SamlSecurityRealm.WARN_THERE_IS_NOT_KEY_STORE;
 
 /**
  * Simple immutable data class to hold the optional encryption data section
@@ -49,20 +58,10 @@ import static org.jenkinsci.plugins.saml.SamlSecurityRealm.*;
  */
 public class SamlEncryptionData extends AbstractDescribableImpl<SamlEncryptionData> {
     private final String keystorePath;
-    /***
-     * @deprecated use keystorePasswordSecret instead
-     */
-    @Deprecated
-    private transient String keystorePassword;
     private Secret keystorePasswordSecret;
-    /***
-     * @deprecated use privateKeyPasswordSecret instead
-     */
-    @Deprecated
-    private transient String privateKeyPassword;
     private Secret privateKeyPasswordSecret;
     private final String privateKeyAlias;
-    private boolean forceSignRedirectBindingAuthnRequest;
+    private final boolean forceSignRedirectBindingAuthnRequest;
     private boolean wantsAssertionsSigned;
 
     @DataBoundConstructor
@@ -112,35 +111,27 @@ public class SamlEncryptionData extends AbstractDescribableImpl<SamlEncryptionDa
         return wantsAssertionsSigned;
     }
 
+    @SuppressWarnings("unused")
     public void setWantsAssertionsSigned(boolean wantsAssertionsSigned) {
         this.wantsAssertionsSigned = wantsAssertionsSigned;
     }
 
     @Override
     public String toString() {
-        final StringBuffer sb = new StringBuffer("SamlEncryptionData{");
-        sb.append("keystorePath='").append(StringUtils.defaultIfBlank(keystorePath, "none")).append('\'');
-        sb.append(", keystorePassword is NOT empty='").append(getKeystorePasswordPlainText() != null).append('\'');
-        sb.append(", privateKeyPassword is NOT empty='").append(getPrivateKeyPasswordPlainText() != null).append('\'');
-        sb.append(", privateKeyAlias is NOT empty='").append(StringUtils.isNotEmpty(privateKeyAlias)).append('\'');
-        sb.append(", forceSignRedirectBindingAuthnRequest = ").append(forceSignRedirectBindingAuthnRequest);
-        sb.append(", wantsAssertionsSigned = ").append(wantsAssertionsSigned);
-        sb.append('}');
-        return sb.toString();
+        return "SamlEncryptionData{" + "keystorePath='" + StringUtils.defaultIfBlank(keystorePath, "none") + '\''
+               + ", keystorePassword is NOT empty='" + (getKeystorePasswordPlainText() != null) + '\''
+               + ", privateKeyPassword is NOT empty='" + (getPrivateKeyPasswordPlainText() != null) + '\''
+               + ", privateKeyAlias is NOT empty='" + StringUtils.isNotEmpty(privateKeyAlias) + '\''
+               + ", forceSignRedirectBindingAuthnRequest = " + forceSignRedirectBindingAuthnRequest
+               + ", wantsAssertionsSigned = " + wantsAssertionsSigned + '}';
     }
 
+    @SuppressWarnings("unused")
     private Object readResolve() {
-        if (keystorePassword != null) {
-            keystorePasswordSecret = Secret.fromString(keystorePassword);
-            keystorePassword = null;
-        }
-        if (privateKeyPassword != null) {
-            privateKeyPasswordSecret = Secret.fromString(privateKeyPassword);
-            privateKeyPassword = null;
-        }
         return this;
     }
 
+    @SuppressWarnings("unused")
     @Extension
     public static final class DescriptorImpl extends Descriptor<SamlEncryptionData> {
         public DescriptorImpl() {
@@ -151,6 +142,7 @@ public class SamlEncryptionData extends AbstractDescribableImpl<SamlEncryptionDa
             super(clazz);
         }
 
+        @NonNull
         @Override
         public String getDisplayName() {
             return "Encryption Configuration";

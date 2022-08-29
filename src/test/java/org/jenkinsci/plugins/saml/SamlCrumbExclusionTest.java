@@ -19,8 +19,6 @@ package org.jenkinsci.plugins.saml;
 import java.io.IOException;
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
-import javax.servlet.ServletRequest;
-import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.junit.Before;
@@ -49,12 +47,7 @@ public class SamlCrumbExclusionTest {
         requestOK = new FakeRequest("/securityRealm/finishLogin");
         requestError = new FakeRequest("/foo/securityRealm/finishLogin");
         response = null;
-        filterChain = new FilterChain(){
-            @Override
-            public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse)
-                    throws IOException, ServletException {
-                return;
-            }
+        filterChain = (servletRequest, servletResponse) -> {
         };
     }
 

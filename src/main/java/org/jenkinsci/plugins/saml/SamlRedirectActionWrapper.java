@@ -40,6 +40,7 @@ public class SamlRedirectActionWrapper extends OpenSAMLWrapper<RedirectionAction
      * @return the redirection URL to the IdP.
      * @throws IllegalStateException if something goes wrong.
      */
+    @SuppressWarnings("unused")
     @Override
     protected RedirectionAction process() throws IllegalStateException {
         try {

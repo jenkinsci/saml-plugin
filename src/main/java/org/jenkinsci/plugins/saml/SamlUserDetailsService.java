@@ -17,19 +17,19 @@ under the License. */
 
 package org.jenkinsci.plugins.saml;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import javax.annotation.Nonnull;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import hudson.model.User;
 import hudson.security.SecurityRealm;
 import hudson.security.UserMayOrMayNotExistException2;
 import jenkins.model.Jenkins;
 import jenkins.security.LastGrantedAuthoritiesProperty;
-import org.acegisecurity.Authentication;
-import org.acegisecurity.GrantedAuthority;
-import org.acegisecurity.userdetails.UserDetailsService;
-
-import javax.annotation.Nonnull;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
 
 /**
  * This service is responsible for restoring UserDetails object by userId
@@ -41,7 +41,7 @@ public class SamlUserDetailsService implements UserDetailsService {
     public SamlUserDetails loadUserByUsername(@Nonnull String username) {
 
         // try to obtain user details from current authentication details
-        Authentication auth = Jenkins.getAuthentication();
+        Authentication auth = Jenkins.getAuthentication2();
         if (username.compareTo(auth.getName()) == 0 && auth instanceof SamlAuthenticationToken) {
             return (SamlUserDetails) auth.getDetails();
         }
@@ -53,20 +53,20 @@ public class SamlUserDetailsService implements UserDetailsService {
             throw new UserMayOrMayNotExistException2(username);
         }
 
-        List<GrantedAuthority> authorities = new ArrayList<>();
-        authorities.add(SecurityRealm.AUTHENTICATED_AUTHORITY);
+        List<GrantedAuthority>authorities = new ArrayList<>();
+        authorities.add(SecurityRealm.AUTHENTICATED_AUTHORITY2);
 
         if (username.compareTo(user.getId()) == 0) {
             LastGrantedAuthoritiesProperty lastGranted = user.getProperty(LastGrantedAuthoritiesProperty.class);
             if (lastGranted != null) {
-                for (GrantedAuthority a : lastGranted.getAuthorities()) {
-                    if (a != SecurityRealm.AUTHENTICATED_AUTHORITY) {
-                        SamlGroupAuthority ga = new SamlGroupAuthority(a.getAuthority());
+                for (GrantedAuthority a : lastGranted.getAuthorities2()) {
+                    if (a != SecurityRealm.AUTHENTICATED_AUTHORITY2) {
+                        SimpleGrantedAuthority ga = new SimpleGrantedAuthority(a.getAuthority());
                         authorities.add(ga);
                     }
                 }
             }
         }
-        return new SamlUserDetails(user.getId(), authorities.toArray(new GrantedAuthority[0]));
+        return new SamlUserDetails(user.getId(), authorities);
     }
 }

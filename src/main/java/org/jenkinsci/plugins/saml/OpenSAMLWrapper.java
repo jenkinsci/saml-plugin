@@ -17,6 +17,9 @@ under the License. */
 
 package org.jenkinsci.plugins.saml;
 
+import java.io.IOException;
+import java.util.Arrays;
+import java.util.logging.Logger;
 import org.apache.commons.lang.StringUtils;
 import org.kohsuke.stapler.StaplerRequest;
 import org.kohsuke.stapler.StaplerResponse;
@@ -28,14 +31,11 @@ import org.pac4j.core.exception.TechnicalException;
 import org.pac4j.core.http.callback.NoParameterCallbackUrlResolver;
 import org.pac4j.saml.client.SAML2Client;
 import org.pac4j.saml.config.SAML2Configuration;
-
-import java.util.Arrays;
-import java.util.logging.Logger;
-
-import static java.util.logging.Level.*;
+import static java.util.logging.Level.FINE;
+import static java.util.logging.Level.SEVERE;
 
 /**
- * Overall wrapper to all operation using OpenSAML library, this allow to load the Service Loaders properly
+ * Overall wrapper to all operation using OpenSAML library, this allows to load the Service Loaders properly
  * <p>
  * https://wiki.shibboleth.net/confluence/display/OS30/Initialization+and+Configuration
  * http://docs.oracle.com/javase/6/docs/api/java/util/ServiceLoader.html

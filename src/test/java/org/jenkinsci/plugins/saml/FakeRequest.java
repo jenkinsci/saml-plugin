@@ -17,8 +17,6 @@ under the License. */
 package org.jenkinsci.plugins.saml;
 
 import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.UnsupportedEncodingException;
 import java.security.Principal;
 import java.util.Collection;
 import java.util.Enumeration;
@@ -28,7 +26,6 @@ import javax.servlet.AsyncContext;
 import javax.servlet.DispatcherType;
 import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletContext;
-import javax.servlet.ServletException;
 import javax.servlet.ServletInputStream;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
@@ -180,32 +177,32 @@ public class FakeRequest implements HttpServletRequest {
     }
 
     @Override
-    public boolean authenticate(HttpServletResponse httpServletResponse) throws IOException, ServletException {
+    public boolean authenticate(HttpServletResponse httpServletResponse) {
         return false;
     }
 
     @Override
-    public void login(String s, String s1) throws ServletException {
+    public void login(String s, String s1) {
 
     }
 
     @Override
-    public void logout() throws ServletException {
+    public void logout() {
 
     }
 
     @Override
-    public Collection<Part> getParts() throws IOException, ServletException {
+    public Collection<Part> getParts() {
         return null;
     }
 
     @Override
-    public Part getPart(String s) throws IOException, ServletException {
+    public Part getPart(String s) {
         return null;
     }
 
     @Override
-    public <T extends HttpUpgradeHandler> T upgrade(Class<T> aClass) throws IOException, ServletException {
+    public <T extends HttpUpgradeHandler> T upgrade(Class<T> aClass) {
         return null;
     }
 
@@ -225,7 +222,7 @@ public class FakeRequest implements HttpServletRequest {
     }
 
     @Override
-    public void setCharacterEncoding(String s) throws UnsupportedEncodingException {
+    public void setCharacterEncoding(String s) {
 
     }
 
@@ -245,7 +242,7 @@ public class FakeRequest implements HttpServletRequest {
     }
 
     @Override
-    public ServletInputStream getInputStream() throws IOException {
+    public ServletInputStream getInputStream() {
         return null;
     }
 
@@ -290,7 +287,7 @@ public class FakeRequest implements HttpServletRequest {
     }
 
     @Override
-    public BufferedReader getReader() throws IOException {
+    public BufferedReader getReader() {
         return null;
     }
 

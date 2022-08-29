@@ -1,16 +1,15 @@
 package org.jenkinsci.plugins.saml;
 
-import hudson.Extension;
-import hudson.ProxyConfiguration;
-import hudson.model.AbstractDescribableImpl;
-import hudson.model.Descriptor;
-import hudson.util.FormValidation;
-import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang.StringUtils;
-import org.kohsuke.stapler.DataBoundConstructor;
-import org.kohsuke.stapler.QueryParameter;
-
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.StringWriter;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.net.URLConnection;
+import java.nio.charset.StandardCharsets;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.annotation.Nonnull;
 import javax.xml.XMLConstants;
 import javax.xml.transform.OutputKeys;
@@ -19,17 +18,20 @@ import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.stream.StreamResult;
 import javax.xml.transform.stream.StreamSource;
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.StringWriter;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.net.URLConnection;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
-import static org.jenkinsci.plugins.saml.SamlSecurityRealm.*;
+import edu.umd.cs.findbugs.annotations.NonNull;
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang.StringUtils;
+import org.kohsuke.stapler.DataBoundConstructor;
+import org.kohsuke.stapler.QueryParameter;
+import hudson.Extension;
+import hudson.ProxyConfiguration;
+import hudson.model.AbstractDescribableImpl;
+import hudson.model.Descriptor;
+import hudson.util.FormValidation;
+import static org.jenkinsci.plugins.saml.SamlSecurityRealm.ERROR_IDP_METADATA_EMPTY;
+import static org.jenkinsci.plugins.saml.SamlSecurityRealm.ERROR_MALFORMED_URL;
+import static org.jenkinsci.plugins.saml.SamlSecurityRealm.NOT_POSSIBLE_TO_GET_THE_METADATA;
 
 /**
  * Class to store the info about how to manage the IdP Metadata.
@@ -38,7 +40,7 @@ public class IdpMetadataConfiguration extends AbstractDescribableImpl<IdpMetadat
     private static final Logger LOG = Logger.getLogger(IdpMetadataConfiguration.class.getName());
 
     /**
-     * IdP Metadata on XML format, it implies there is not automatic updates.
+     * IdP Metadata on XML format, it implies there are not automatic updates.
      */
     private String xml;
 
@@ -49,7 +51,7 @@ public class IdpMetadataConfiguration extends AbstractDescribableImpl<IdpMetadat
     /**
      * Period in minutes between each IdP Metadata update.
      */
-    private Long period;
+    private final Long period;
 
     /**
      * Jelly Constructor.
@@ -104,7 +106,7 @@ public class IdpMetadataConfiguration extends AbstractDescribableImpl<IdpMetadat
      * @throws IOException in case it can not read the IdP Metadata file.
      */
     public String getIdpMetadata() throws IOException {
-        return FileUtils.readFileToString(new File(SamlSecurityRealm.getIDPMetadataFilePath()));
+        return FileUtils.readFileToString(new File(SamlSecurityRealm.getIDPMetadataFilePath()), StandardCharsets.UTF_8);
     }
 
     /**
@@ -114,7 +116,8 @@ public class IdpMetadataConfiguration extends AbstractDescribableImpl<IdpMetadat
     public void createIdPMetadataFile() throws IOException {
         try {
             if (StringUtils.isNotBlank(xml)) {
-                FileUtils.writeStringToFile(new File(SamlSecurityRealm.getIDPMetadataFilePath()), xml);
+                FileUtils.writeStringToFile(new File(SamlSecurityRealm.getIDPMetadataFilePath()), xml,
+                                            StandardCharsets.UTF_8);
             } else {
                 updateIdPMetadata();
             }
@@ -141,7 +144,8 @@ public class IdpMetadataConfiguration extends AbstractDescribableImpl<IdpMetadat
                 String idpXml = writer.toString();
                 FormValidation validation = new SamlValidateIdPMetadata(idpXml).get();
                 if (FormValidation.Kind.OK == validation.kind) {
-                    FileUtils.writeStringToFile(new File(SamlSecurityRealm.getIDPMetadataFilePath()), idpXml);
+                    FileUtils.writeStringToFile(new File(SamlSecurityRealm.getIDPMetadataFilePath()), idpXml,
+                                                StandardCharsets.UTF_8);
                 } else {
                     throw new IllegalArgumentException(validation.getMessage());
                 }
@@ -168,6 +172,7 @@ public class IdpMetadataConfiguration extends AbstractDescribableImpl<IdpMetadat
         return sb.toString();
     }
 
+    @SuppressWarnings("unused")
     @Extension
     public static final class DescriptorImpl extends Descriptor<IdpMetadataConfiguration> {
         public DescriptorImpl() {
@@ -178,6 +183,7 @@ public class IdpMetadataConfiguration extends AbstractDescribableImpl<IdpMetadat
             super(clazz);
         }
 
+        @NonNull
         @Override
         public String getDisplayName() {
             return "";
@@ -216,7 +222,7 @@ public class IdpMetadataConfiguration extends AbstractDescribableImpl<IdpMetadat
         }
 
         public FormValidation doTestIdpMetadataURL(@QueryParameter("url") String url) {
-            URLConnection urlConnection = null;
+            URLConnection urlConnection;
             try {
                 urlConnection = ProxyConfiguration.open(new URL(url));
             } catch (IOException e) {

@@ -26,10 +26,10 @@ This attribute must have separate AttributeValue elements per role (so for examp
 If you often get "No valid subject assertion found in response" or "Authentication issue instant is too old or in the future"
 then most probably you need to increase this value. Set this setting to value greater than the session lifetime on IdP
 Default is 24h * 60 min * 60 sec = 86400
-* **Username Attribute** - Name of the attribute that carries user name which will be used as the Jenkins ID (optional).
+* **Username Attribute** - Name of the attribute that carries username which will be used as the Jenkins ID (optional).
 If not specified, the SAML profile ID will be used.
 * **Email Attribute** - Fill name of email attribute in SAML response.
-* **Username Case Conversion** - The ID returned from SAML is used as the username for Authorization, which is usually case sensitive.
+* **Username Case Conversion** - The ID returned from SAML is used as the username for Authorization, which is usually case-sensitive.
 To make it easier to match with user definition in the policy, the returned value can be converted.
 __Caution!__ Be aware of case in Authorization strategy as you may lose access rights if they do not match
   * None - will not change return value (default)
@@ -51,14 +51,14 @@ you also could set the sessions on Jenkins to be shorter than those on your IdP.
   Service Provider Entity IDs are usually a URL, like ***http://jenkins.example.org/securityRealm/finishLogin***.
 * **Encryption** - If your provider requires encryption or signing, you can specify the keystore details here that should be used.
 If you do not specify a keystore, the plugin would create one with a key that is valid for a year,
-this key would be recreate when it expires, by default the key is not exposed in the SP metadata if you do not enable signing.
+this key would be recreated when it expires, by default the key is not exposed in the SP metadata if you do not enable signing.
   * **Keystore path** - The path to the keystore file created with the keygen command.
   * **Key Alias** - The alias used in the -alias argument of the keytool< command.
   * **Keystore password** - The password used in the -storepass argument of the keytool command.
   * **Private Key password** - The password used in the -keypass argument of keytool.
   * **Auth Request Signature** - Enable signature of the Redirect Binding Auth Request,
   If you enable it the encryption and signing key would available in the SP metadata file and URL (JENKINS_URL/securityRealm/metadata).
-  The disable of signing auth request does not work with HTTP redirection binging, it only works for POST binding.
+  Disable signing auth request does not work with HTTP redirection binging, it only works for POST binding.
   * **Wants Assertion Signed** - It requests signed assertions send by the IdP.
   
 The attribute is sometimes called a claim, and for some IdPs it has a fixed structure, e.g. a URI. So in some documentation,
@@ -82,7 +82,7 @@ you can use this to configure role-based security with the [Role Strategy Plugin
 * Configure "Project roles" section with roles that match your needs. These roles can be named anything you like.
 * Hit Save
 * Go to "Manage and Assign Roles" => "Assign Roles". Here you attach the SAML-provided groups to the roles you defined in the previous step.
-* In "User/group to add" you enter the name of the SAML group you want to attach to a role. (Group names are case sensitive)
+* In "User/group to add" you enter the name of the SAML group you want to attach to a role. (Group names are case-sensitive)
 * Once a group is added, you can attach it to one or more roles.
 * Hit save.
 

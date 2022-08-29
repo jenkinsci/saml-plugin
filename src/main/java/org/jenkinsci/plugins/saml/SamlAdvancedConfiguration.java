@@ -17,17 +17,15 @@ under the License. */
 
 package org.jenkinsci.plugins.saml;
 
+import edu.umd.cs.findbugs.annotations.NonNull;
+import org.apache.commons.lang.StringUtils;
+import org.kohsuke.stapler.DataBoundConstructor;
 import hudson.Extension;
 import hudson.Util;
-
 import hudson.model.AbstractDescribableImpl;
 import hudson.model.Descriptor;
 import hudson.util.FormValidation;
-import org.apache.commons.lang.StringUtils;
-import org.kohsuke.stapler.DataBoundConstructor;
-
 import static org.jenkinsci.plugins.saml.SamlSecurityRealm.ERROR_NOT_VALID_NUMBER;
-import static org.jenkinsci.plugins.saml.SamlSecurityRealm.ERROR_ONLY_SPACES_FIELD_VALUE;
 
 /**
  * Simple immutable data class to hold the optional advanced configuration data section
@@ -38,18 +36,12 @@ public class SamlAdvancedConfiguration extends AbstractDescribableImpl<SamlAdvan
     private final String authnContextClassRef;
     private final String spEntityId;
     private final String nameIdPolicyFormat;
-    /**
-     * @deprecated not used anymore
-     */
-    @Deprecated
-    private Integer maximumSessionLifetime;
 
     @DataBoundConstructor
     public SamlAdvancedConfiguration(Boolean forceAuthn,
                                      String authnContextClassRef,
                                      String spEntityId,
-                                     String nameIdPolicyFormat,
-                                     Integer maximumSessionLifetime) {
+                                     String nameIdPolicyFormat) {
         this.forceAuthn = (forceAuthn != null) ? forceAuthn : false;
         this.authnContextClassRef = Util.fixEmptyAndTrim(authnContextClassRef);
         this.spEntityId = Util.fixEmptyAndTrim(spEntityId);
@@ -74,15 +66,13 @@ public class SamlAdvancedConfiguration extends AbstractDescribableImpl<SamlAdvan
 
     @Override
     public String toString() {
-        final StringBuffer sb = new StringBuffer("SamlAdvancedConfiguration{");
-        sb.append("forceAuthn=").append(getForceAuthn());
-        sb.append(", authnContextClassRef='").append(StringUtils.defaultIfBlank(getAuthnContextClassRef(), "none")).append('\'');
-        sb.append(", spEntityId='").append(StringUtils.defaultIfBlank(getSpEntityId(), "none")).append('\'');
-        sb.append(", nameIdPolicyFormat='").append(StringUtils.defaultIfBlank(getNameIdPolicyFormat(), "none")).append('\'');
-        sb.append('}');
-        return sb.toString();
+        return "SamlAdvancedConfiguration{" + "forceAuthn=" + getForceAuthn() + ", authnContextClassRef='"
+               + StringUtils.defaultIfBlank(getAuthnContextClassRef(), "none") + '\'' + ", spEntityId='"
+               + StringUtils.defaultIfBlank(getSpEntityId(), "none") + '\'' + ", nameIdPolicyFormat='"
+               + StringUtils.defaultIfBlank(getNameIdPolicyFormat(), "none") + '\'' + '}';
     }
 
+    @SuppressWarnings("unused")
     @Extension
     public static final class DescriptorImpl extends Descriptor<SamlAdvancedConfiguration> {
         public DescriptorImpl() {
@@ -93,6 +83,7 @@ public class SamlAdvancedConfiguration extends AbstractDescribableImpl<SamlAdvan
             super(clazz);
         }
 
+        @NonNull
         @Override
         public String getDisplayName() {
             return "Advanced Configuration";

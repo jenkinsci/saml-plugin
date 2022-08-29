@@ -17,7 +17,7 @@ under the License. */
 
 package org.jenkinsci.plugins.saml;
 
-import org.acegisecurity.BadCredentialsException;
+import java.util.logging.Logger;
 import org.kohsuke.stapler.StaplerRequest;
 import org.kohsuke.stapler.StaplerResponse;
 import org.pac4j.core.context.WebContext;
@@ -27,8 +27,7 @@ import org.pac4j.saml.client.SAML2Client;
 import org.pac4j.saml.credentials.SAML2Credentials;
 import org.pac4j.saml.exceptions.SAMLException;
 import org.pac4j.saml.profile.SAML2Profile;
-
-import java.util.logging.Logger;
+import org.springframework.security.authentication.BadCredentialsException;
 
 /**
  * Process to response from the IdP to obtain the SAML2Profile of the user.
@@ -46,6 +45,7 @@ public class SamlProfileWrapper extends OpenSAMLWrapper<SAML2Profile> {
     /**
      * @return the SAML2Profile of the user returned by the IdP.
      */
+    @SuppressWarnings("unused")
     @Override
     protected SAML2Profile process() {
         SAML2Credentials credentials;

@@ -14,7 +14,8 @@
         <displayNameAttributeName>urn:mace:dir:attribute-def:displayName</displayNameAttributeName>
         <groupsAttributeName>urn:mace:dir:attribute-def:groups</groupsAttributeName>
         <maximumAuthenticationLifetime>86400</maximumAuthenticationLifetime>
-        <idpMetadata>&lt;?xml version=&quot;1.0&quot;?&gt;
+        <idpMetadataConfiguration>
+            <xml>&lt;?xml version=&quot;1.0&quot;?&gt;
             &lt;md:EntityDescriptor xmlns:md=&quot;urn:oasis:names:tc:SAML:2.0:metadata&quot; xmlns:ds=&quot;http://www.w3.org/2000/09/xmldsig#&quot; entityID=&quot;simpleSAMLphpIdpHosted&quot;&gt;
             &lt;md:IDPSSODescriptor protocolSupportEnumeration=&quot;urn:oasis:names:tc:SAML:2.0:protocol&quot;&gt;
             &lt;md:KeyDescriptor use=&quot;signing&quot;&gt;
@@ -39,19 +40,19 @@
             &lt;md:GivenName&gt;Administrator&lt;/md:GivenName&gt;
             &lt;md:EmailAddress&gt;dublindev@glgroup.com&lt;/md:EmailAddress&gt;
             &lt;/md:ContactPerson&gt;
-            &lt;/md:EntityDescriptor&gt;</idpMetadata>
+            &lt;/md:EntityDescriptor&gt;</xml>
+        </idpMetadataConfiguration>
         <usernameCaseConversion>none</usernameCaseConversion>
         <usernameAttributeName>urn:mace:dir:attribute-def:uid</usernameAttributeName>
         <encryptionData>
             <keystorePath>/home/jdk/keystore</keystorePath>
-            <keystorePassword>changeit</keystorePassword>
-            <privateKeyPassword>changeit</privateKeyPassword>
+            <keystorePasswordSecret>{AQAAABAAAAAQmWC5FpWr022ce0bloF99XbtBv/vWtqe5jY3CVnO0VXs=}</keystorePasswordSecret>
+            <privateKeyPasswordSecret>{AQAAABAAAAAQy42AWPl+ya+mPpwFlp4b/Nt5JJ0Ba62Ov5PTbtQGqKg=}</privateKeyPasswordSecret>
         </encryptionData>
         <advancedConfiguration>
             <forceAuthn>true</forceAuthn>
             <authnContextClassRef>anotherContext</authnContextClassRef>
             <spEntityId>spEntityId</spEntityId>
-            <maximumSessionLifetime>86400</maximumSessionLifetime>
         </advancedConfiguration>
     </securityRealm>
     <disableRememberMe>false</disableRememberMe>
@@ -76,7 +77,7 @@
     </views>
     <primaryView>All</primaryView>
     <slaveAgentPort>8250</slaveAgentPort>
-    <label></label>
+    <label/>
     <nodeProperties/>
     <globalNodeProperties/>
 </hudson>

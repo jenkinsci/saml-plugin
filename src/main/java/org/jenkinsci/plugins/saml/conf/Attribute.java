@@ -1,10 +1,10 @@
 package org.jenkinsci.plugins.saml.conf;
 
+import java.util.Objects;
+import edu.umd.cs.findbugs.annotations.NonNull;
+import org.kohsuke.stapler.DataBoundConstructor;
 import hudson.Extension;
 import hudson.model.Descriptor;
-import org.kohsuke.stapler.DataBoundConstructor;
-
-import java.util.Objects;
 
 /**
  * Class to configure SAML custom attributes to grab from the SAMLResponse and put in the User Profile.
@@ -22,6 +22,7 @@ public class Attribute extends AttributeEntry {
      */
     private final String displayName;
 
+    @SuppressWarnings("unused")
     @DataBoundConstructor
     public Attribute(String name, String displayName) {
         this.name = name;
@@ -36,8 +37,10 @@ public class Attribute extends AttributeEntry {
         return displayName;
     }
 
+    @SuppressWarnings("unused")
     @Extension
     public static final class DescriptorImpl extends Descriptor<AttributeEntry> {
+        @NonNull
         @Override
         public String getDisplayName() {
             return "SAML Attribute";

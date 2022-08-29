@@ -11,7 +11,8 @@
     <groupsAttributeName>http://schemas.xmlsoap.org/claims/Group</groupsAttributeName>
     <maximumAuthenticationLifetime>86400</maximumAuthenticationLifetime>
     <emailAttributeName>email</emailAttributeName>
-    <idpMetadata>&lt;?xml version=&quot;1.0&quot;?&gt;
+    <idpMetadataConfiguration>
+      <xml>&lt;?xml version=&quot;1.0&quot;?&gt;
 &lt;md:EntityDescriptor xmlns:md=&quot;urn:oasis:names:tc:SAML:2.0:metadata&quot; xmlns:ds=&quot;http://www.w3.org/2000/09/xmldsig#&quot; entityID=&quot;http://192.168.99.100:8080/simplesaml/saml2/idp/metadata.php&quot;&gt;
   &lt;md:IDPSSODescriptor protocolSupportEnumeration=&quot;urn:oasis:names:tc:SAML:2.0:protocol&quot;&gt;
     &lt;md:KeyDescriptor use=&quot;signing&quot;&gt;
@@ -32,13 +33,13 @@
     &lt;md:NameIDFormat&gt;urn:oasis:names:tc:SAML:2.0:nameid-format:transient&lt;/md:NameIDFormat&gt;
     &lt;md:SingleSignOnService Binding=&quot;urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect&quot; Location=&quot;http://192.168.99.100:8080/simplesaml/saml2/idp/SSOService.php&quot;/&gt;
   &lt;/md:IDPSSODescriptor&gt;
-&lt;/md:EntityDescriptor&gt;</idpMetadata>
+&lt;/md:EntityDescriptor&gt;</xml>
+</idpMetadataConfiguration>
     <usernameCaseConversion>none</usernameCaseConversion>
     <usernameAttributeName>uid</usernameAttributeName>
     <advancedConfiguration>
       <forceAuthn>true</forceAuthn>
       <spEntityId>jenkins-dev</spEntityId>
-      <maximumSessionLifetime>86400</maximumSessionLifetime>
     </advancedConfiguration>
   </securityRealm>
   <disableRememberMe>false</disableRememberMe>
@@ -62,7 +63,7 @@
   </views>
   <primaryView>All</primaryView>
   <slaveAgentPort>0</slaveAgentPort>
-  <label></label>
+  <label/>
   <nodeProperties/>
   <globalNodeProperties/>
 </hudson>

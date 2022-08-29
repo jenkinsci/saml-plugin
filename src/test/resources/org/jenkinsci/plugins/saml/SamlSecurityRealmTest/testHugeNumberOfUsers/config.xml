@@ -11,7 +11,8 @@
     <groupsAttributeName>urn:mace:dir:attribute-def:groups</groupsAttributeName>
     <maximumAuthenticationLifetime>86400</maximumAuthenticationLifetime>
     <emailAttributeName>urn:mace:dir:attribute-def:mail</emailAttributeName>
-    <idpMetadata>&lt;?xml version=&quot;1.0&quot;?&gt;
+    <idpMetadataConfiguration>
+      <xml>&lt;?xml version=&quot;1.0&quot;?&gt;
 &lt;md:EntityDescriptor xmlns:md=&quot;urn:oasis:names:tc:SAML:2.0:metadata&quot; xmlns:ds=&quot;http://www.w3.org/2000/09/xmldsig#&quot; entityID=&quot;simpleSAMLphpIdpHosted&quot;&gt;
   &lt;md:IDPSSODescriptor protocolSupportEnumeration=&quot;urn:oasis:names:tc:SAML:2.0:protocol&quot;&gt;
     &lt;md:KeyDescriptor use=&quot;signing&quot;&gt;
@@ -36,7 +37,8 @@
     &lt;md:GivenName&gt;Administrator&lt;/md:GivenName&gt;
     &lt;md:EmailAddress&gt;dublindev@glgroup.com&lt;/md:EmailAddress&gt;
   &lt;/md:ContactPerson&gt;
-&lt;/md:EntityDescriptor&gt;</idpMetadata>
+&lt;/md:EntityDescriptor&gt;</xml>
+</idpMetadataConfiguration>
     <usernameCaseConversion>none</usernameCaseConversion>
     <usernameAttributeName>urn:mace:dir:attribute-def:uid</usernameAttributeName>
   </securityRealm>
@@ -62,7 +64,7 @@
   </views>
   <primaryView>all</primaryView>
   <slaveAgentPort>0</slaveAgentPort>
-  <label></label>
+  <label/>
   <nodeProperties/>
   <globalNodeProperties/>
 </hudson>

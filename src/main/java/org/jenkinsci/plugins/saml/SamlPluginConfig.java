@@ -17,9 +17,8 @@ under the License. */
 
 package org.jenkinsci.plugins.saml;
 
-import jenkins.model.Jenkins;
 import org.apache.commons.lang.StringUtils;
-
+import jenkins.model.Jenkins;
 import static org.jenkinsci.plugins.saml.SamlSecurityRealm.CONSUMER_SERVICE_URL_PATH;
 import static org.jenkinsci.plugins.saml.SamlSecurityRealm.DEFAULT_USERNAME_CASE_CONVERSION;
 
@@ -27,10 +26,10 @@ import static org.jenkinsci.plugins.saml.SamlSecurityRealm.DEFAULT_USERNAME_CASE
  * contains all the Jenkins SAML Plugin settings
  */
 public class SamlPluginConfig {
-    private String displayNameAttributeName;
-    private String groupsAttributeName;
-    private int maximumAuthenticationLifetime;
-    private String emailAttributeName;
+    private final String displayNameAttributeName;
+    private final String groupsAttributeName;
+    private final int maximumAuthenticationLifetime;
+    private final String emailAttributeName;
 
     private final IdpMetadataConfiguration idpMetadataConfiguration;
     private final String usernameCaseConversion;
@@ -38,8 +37,8 @@ public class SamlPluginConfig {
     private final String logoutUrl;
     private final String binding;
 
-    private SamlEncryptionData encryptionData;
-    private SamlAdvancedConfiguration advancedConfiguration;
+    private final SamlEncryptionData encryptionData;
+    private final SamlAdvancedConfiguration advancedConfiguration;
 
     public SamlPluginConfig(String displayNameAttributeName, String groupsAttributeName,
                             int maximumAuthenticationLifetime, String emailAttributeName, IdpMetadataConfiguration idpMetadataConfiguration,
@@ -129,19 +128,13 @@ public class SamlPluginConfig {
 
     @Override
     public String toString() {
-        final StringBuilder sb = new StringBuilder("SamlPluginConfig{");
-        sb.append("idpMetadataConfiguration='").append(getIdpMetadataConfiguration()).append('\'');
-        sb.append(", displayNameAttributeName='").append(getDisplayNameAttributeName()).append('\'');
-        sb.append(", groupsAttributeName='").append(getGroupsAttributeName()).append('\'');
-        sb.append(", emailAttributeName='").append(getEmailAttributeName()).append('\'');
-        sb.append(", usernameAttributeName='").append(getUsernameAttributeName()).append('\'');
-        sb.append(", maximumAuthenticationLifetime=").append(getMaximumAuthenticationLifetime());
-        sb.append(", usernameCaseConversion='").append(getUsernameCaseConversion()).append('\'');
-        sb.append(", logoutUrl='").append(getLogoutUrl()).append('\'');
-        sb.append(", binding='").append(getBinding()).append('\'');
-        sb.append(", encryptionData=").append(getEncryptionData());
-        sb.append(", advancedConfiguration=").append(getAdvancedConfiguration());
-        sb.append('}');
-        return sb.toString();
+        return "SamlPluginConfig{" + "idpMetadataConfiguration='" + getIdpMetadataConfiguration() + '\''
+               + ", displayNameAttributeName='" + getDisplayNameAttributeName() + '\'' + ", groupsAttributeName='"
+               + getGroupsAttributeName() + '\'' + ", emailAttributeName='" + getEmailAttributeName() + '\''
+               + ", usernameAttributeName='" + getUsernameAttributeName() + '\''
+               + ", maximumAuthenticationLifetime=" + getMaximumAuthenticationLifetime()
+               + ", usernameCaseConversion='" + getUsernameCaseConversion() + '\'' + ", logoutUrl='"
+               + getLogoutUrl() + '\'' + ", binding='" + getBinding() + '\'' + ", encryptionData="
+               + getEncryptionData() + ", advancedConfiguration=" + getAdvancedConfiguration() + '}';
     }
 }
