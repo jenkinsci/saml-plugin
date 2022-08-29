@@ -71,9 +71,7 @@ public class SamlUserDetails implements UserDetails {
     public String toString() {
         return "SamlUserDetails{" + "username='" + getUsername() + '\'' + ", authorities=" + (getAuthorities() == null
                                                                                        ? "null"
-                                                                                       : Collections.singletonList(
-                                                                                                        getAuthorities())
-                                                                                                    .toString())
+                                                                                       : Arrays.asList(getAuthorities()).toString())
            + '\'' + ", isAccountNonExpired='" + isAccountNonExpired() + '\'' + ", isAccountNonLocked='"
            + isAccountNonLocked() + '\'' + ", isCredentialsNonExpired='" + isCredentialsNonExpired() + '\''
            + ", isEnabled='" + isEnabled() + '}';
