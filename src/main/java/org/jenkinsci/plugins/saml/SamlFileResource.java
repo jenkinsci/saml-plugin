@@ -58,7 +58,9 @@ class SamlFileResource implements WritableResource {
         if (j.getSecurityRealm() instanceof SamlSecurityRealm) {
             SamlSecurityRealm samlSecurityRealm = (SamlSecurityRealm) j.getSecurityRealm();
             SamlAdvancedConfiguration config = samlSecurityRealm.getAdvancedConfiguration();
-            ret = config.getUseDiskCache();
+            if(config != null ) {
+                ret = config.getUseDiskCache();
+            }
         }
         return ret;
     }
