@@ -38,7 +38,8 @@ import java.util.Map;
 import java.util.logging.Logger;
 
 /**
- * Class to manage the metadata files.
+ * Class to manage the metadata files using cache.
+ * It will only write the files if the content is different.
  */
 class SamlFileResourceCache implements WritableResource {
 
