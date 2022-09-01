@@ -45,6 +45,8 @@ import org.kohsuke.stapler.QueryParameter;
 import org.kohsuke.stapler.StaplerRequest;
 import org.kohsuke.stapler.StaplerResponse;
 import org.kohsuke.stapler.interceptor.RequirePOST;
+import org.pac4j.core.exception.http.FoundAction;
+import org.pac4j.core.exception.http.WithLocationAction;
 import org.pac4j.core.exception.http.OkAction;
 import org.pac4j.core.exception.http.RedirectionAction;
 import org.pac4j.core.exception.http.SeeOtherAction;
@@ -258,9 +260,9 @@ public class SamlSecurityRealm extends SecurityRealm {
         request.getSession().setAttribute(REFERER_ATTRIBUTE, redirectOnFinish);
 
         RedirectionAction action = new SamlRedirectActionWrapper(getSamlPluginConfig(), request, response).get();
-        if (action instanceof SeeOtherAction) {
-            LOG.fine("REDIRECT : " + ((SeeOtherAction)action).getLocation());
-            return HttpResponses.redirectTo(((SeeOtherAction)action).getLocation());
+        if (action instanceof SeeOtherAction || action instanceof FoundAction) {
+            LOG.fine("REDIRECT : " + ((WithLocationAction)action).getLocation());
+            return HttpResponses.redirectTo(((WithLocationAction)action).getLocation());
         } else if (action instanceof OkAction) {
             LOG.fine("SUCCESS : " + ((OkAction) action).getContent());
             return HttpResponses.literalHtml(((OkAction) action).getContent());
