@@ -67,10 +67,9 @@ public class LiveTest {
 
     @Test
     public void authenticationOK() throws Throwable {
-        startSimpleSAML(rr.getUrl().toString());
-        String idpMetadata = readIdPMetadataFromURL();
-        rr.then(new AuthenticationOK(idpMetadata));
+        then(() -> new AuthenticationOK(readIdPMetadataFromURL()));
     }
+
     private static class AuthenticationOK implements RealJenkinsRule.Step {
         private final String idpMetadata;
         AuthenticationOK(String idpMetadata) {
@@ -87,9 +86,7 @@ public class LiveTest {
 
     @Test
     public void authenticationOKFromURL() throws Throwable {
-        startSimpleSAML(rr.getUrl().toString());
-        String idpMetadataUrl = createIdPMetadataURL();
-        rr.then(new AuthenticationOKFromURL(idpMetadataUrl));
+        then(() -> new AuthenticationOKFromURL(createIdPMetadataURL()));
     }
     private static class AuthenticationOKFromURL implements RealJenkinsRule.Step {
         private final String idpMetadataUrl;
@@ -109,9 +106,7 @@ public class LiveTest {
 
     @Test
     public void authenticationOKPostBinding() throws Throwable {
-        startSimpleSAML(rr.getUrl().toString());
-        String idpMetadata = readIdPMetadataFromURL();
-        rr.then(new AuthenticationOKPostBinding(idpMetadata));
+        then(() -> new AuthenticationOKPostBinding(readIdPMetadataFromURL()));
     }
     private static class AuthenticationOKPostBinding implements RealJenkinsRule.Step {
         private final String idpMetadata;
@@ -129,9 +124,7 @@ public class LiveTest {
 
     @Test
     public void authenticationFail() throws Throwable {
-        startSimpleSAML(rr.getUrl().toString());
-        String idpMetadata = readIdPMetadataFromURL();
-        rr.then(new AuthenticationFail(idpMetadata));
+        then(() -> new AuthenticationFail(readIdPMetadataFromURL()));
     }
     private static class AuthenticationFail implements RealJenkinsRule.Step {
         private final String idpMetadata;
@@ -162,6 +155,21 @@ public class LiveTest {
 
     private String createIdPMetadataURL() {
         return "http://" + samlContainer.getHost() + ":" + samlContainer.getFirstMappedPort() + "/simplesaml/saml2/idp/metadata.php";
+    }
+
+    @FunctionalInterface
+    private interface SupplierWithIO<T> {
+        T get() throws IOException;
+    }
+
+    private void then(SupplierWithIO<RealJenkinsRule.Step> provider) throws Throwable {
+        rr.startJenkins();
+        try {
+            startSimpleSAML(rr.getUrl().toString());
+            rr.runRemotely(provider.get());
+        } finally {
+            rr.stopJenkins();
+        }
     }
 
     private static void configureAuthorization() {
