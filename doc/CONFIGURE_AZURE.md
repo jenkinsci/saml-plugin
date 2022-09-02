@@ -42,7 +42,7 @@ These are the recommended configuration settings to make Jenkins SAML Plugin wor
 * **Username Attribute**: the attribute name that contains the **User Name** of the user you have set in Azure configuration (e.g. `username`).
 * **Email Attribute**: the attribute name that contains the **Email** of the user you have set in Azure configuration (e.g. `email`).
 * **Data Binding Method**: method of redirection binding HTTP-Redirect and HTTP-POST you have set as **Binding Protocol** on Azure configuration.
-* **Logout URL**: the URL you have set as **Sign-Out URL** on Azure configuration.
+* **Logout URL**: the URL you have set as **Sign-Out URL** (https://login.microsoftonline.com/common/wsfederation?wa=wsignout1.0).
 * **Advanced Configuration**
   * **Force Authentication**: if you experience problems with the authentication it is recommended to enable it.
   * **SP Entity ID** - value you have set as **Identifier** in the Azure configuration (e.g. `JenkinsSP`).
