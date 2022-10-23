@@ -39,6 +39,7 @@ import hudson.model.AbstractDescribableImpl;
 import hudson.model.Descriptor;
 import hudson.util.FormValidation;
 import hudson.util.Secret;
+import jenkins.model.Jenkins;
 import static org.jenkinsci.plugins.saml.SamlSecurityRealm.ERROR_ALGORITHM_CANNOT_BE_FOUND;
 import static org.jenkinsci.plugins.saml.SamlSecurityRealm.ERROR_CERTIFICATES_COULD_NOT_BE_LOADED;
 import static org.jenkinsci.plugins.saml.SamlSecurityRealm.ERROR_INSUFFICIENT_OR_INVALID_INFO;
@@ -151,21 +152,25 @@ public class SamlEncryptionData extends AbstractDescribableImpl<SamlEncryptionDa
 
         @RequirePOST
         public FormValidation doCheckKeystorePath(@QueryParameter String keystorePath) {
+            Jenkins.get().checkPermission(Jenkins.ADMINISTER);
             return SamlFormValidation.checkStringAttributeFormat(keystorePath, WARN_KEYSTORE_NOT_SET, true);
         }
 
         @RequirePOST
         public FormValidation doCheckPrivateKeyAlias(@QueryParameter String privateKeyAlias) {
+            Jenkins.get().checkPermission(Jenkins.ADMINISTER);
             return SamlFormValidation.checkStringAttributeFormat(privateKeyAlias, WARN_PRIVATE_KEY_ALIAS_NOT_SET, true);
         }
 
         @RequirePOST
         public FormValidation doCheckKeystorePassword(@QueryParameter String keystorePassword) {
+            Jenkins.get().checkPermission(Jenkins.ADMINISTER);
             return SamlFormValidation.checkStringAttributeFormat(keystorePassword, WARN_PRIVATE_KEYSTORE_PASS_NOT_SET, true);
         }
 
         @RequirePOST
         public FormValidation doCheckPrivateKeyPassword(@QueryParameter String privateKeyPassword) {
+            Jenkins.get().checkPermission(Jenkins.ADMINISTER);
             return SamlFormValidation.checkStringAttributeFormat(privateKeyPassword, WARN_PRIVATE_KEY_PASS_NOT_SET, true);
         }
 
@@ -174,6 +179,7 @@ public class SamlEncryptionData extends AbstractDescribableImpl<SamlEncryptionDa
                                                          @QueryParameter("keystorePassword") Secret keystorePassword,
                                                          @QueryParameter("privateKeyPassword") Secret privateKeyPassword,
                                                          @QueryParameter("privateKeyAlias") String privateKeyAlias) {
+            Jenkins.get().checkPermission(Jenkins.ADMINISTER);
             if (StringUtils.isBlank(keystorePath)) {
                 return FormValidation.warning(WARN_THERE_IS_NOT_KEY_STORE);
             }
