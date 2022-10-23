@@ -135,9 +135,9 @@ public class IdpMetadataConfiguration extends AbstractDescribableImpl<IdpMetadat
             URLConnection urlConnection = ProxyConfiguration.open(new URL(url));
             try (InputStream in = urlConnection.getInputStream()) {
                 TransformerFactory tf = TransformerFactory.newInstance();
-                tf.setFeature(XMLConstants.ACCESS_EXTERNAL_DTD, false);
-                tf.setFeature(XMLConstants.ACCESS_EXTERNAL_SCHEMA, false);
-
+                tf.setAttribute(XMLConstants.ACCESS_EXTERNAL_DTD, "");
+                tf.setAttribute(XMLConstants.ACCESS_EXTERNAL_SCHEMA, "");
+                tf.setAttribute(XMLConstants.ACCESS_EXTERNAL_STYLESHEET, "");
                 tf.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true);
                 Transformer transformer = tf.newTransformer();
                 transformer.setOutputProperty(OutputKeys.OMIT_XML_DECLARATION, "no");
