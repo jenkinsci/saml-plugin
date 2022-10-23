@@ -284,13 +284,6 @@ under the License.
         <artifactId>xmlsec</artifactId>
         <version>3.0.0</version>
       </dependency>
-      <!--
-      <dependency>
-        <groupId>com.fasterxml.woodstox</groupId>
-        <artifactId>woodstox-core</artifactId>
-        <version>6.2.7</version>
-      </dependency>
-      -->
     </dependencies>
   </dependencyManagement>
   <build>
