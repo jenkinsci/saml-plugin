@@ -29,6 +29,8 @@ import hudson.ProxyConfiguration;
 import hudson.model.AbstractDescribableImpl;
 import hudson.model.Descriptor;
 import hudson.util.FormValidation;
+import jenkins.model.Jenkins;
+import jenkins.util.xml.XMLUtils;
 import static org.jenkinsci.plugins.saml.SamlSecurityRealm.ERROR_IDP_METADATA_EMPTY;
 import static org.jenkinsci.plugins.saml.SamlSecurityRealm.ERROR_MALFORMED_URL;
 import static org.jenkinsci.plugins.saml.SamlSecurityRealm.NOT_POSSIBLE_TO_GET_THE_METADATA;
@@ -193,6 +195,7 @@ public class IdpMetadataConfiguration extends AbstractDescribableImpl<IdpMetadat
         }
 
         public FormValidation doTestIdpMetadata(@QueryParameter("xml") String xml) {
+            Jenkins.get().checkPermission(Jenkins.ADMINISTER);
             if (StringUtils.isBlank(xml)) {
                 return FormValidation.error(ERROR_IDP_METADATA_EMPTY);
             }
@@ -201,10 +204,12 @@ public class IdpMetadataConfiguration extends AbstractDescribableImpl<IdpMetadat
         }
 
         public FormValidation doCheckPeriod(@QueryParameter("period") String period) {
+            Jenkins.get().checkPermission(Jenkins.ADMINISTER);
             return SamlFormValidation.checkIntegerFormat(period);
         }
 
         public FormValidation doCheckXml(@QueryParameter("xml") String xml, @QueryParameter("url") String url) {
+            Jenkins.get().checkPermission(Jenkins.ADMINISTER);
             if (StringUtils.isBlank(xml) && StringUtils.isBlank(url)) {
                 return FormValidation.error(ERROR_IDP_METADATA_EMPTY);
             }
@@ -213,6 +218,7 @@ public class IdpMetadataConfiguration extends AbstractDescribableImpl<IdpMetadat
         }
 
         public FormValidation doCheckUrl(@QueryParameter("url") String url) {
+            Jenkins.get().checkPermission(Jenkins.ADMINISTER);
             if (StringUtils.isEmpty(url)) {
                 return FormValidation.ok();
             }
@@ -226,6 +232,7 @@ public class IdpMetadataConfiguration extends AbstractDescribableImpl<IdpMetadat
 
         public FormValidation doTestIdpMetadataURL(@QueryParameter("url") String url) {
             URLConnection urlConnection;
+            Jenkins.get().checkPermission(Jenkins.ADMINISTER);
             try {
                 urlConnection = ProxyConfiguration.open(new URL(url));
             } catch (IOException e) {

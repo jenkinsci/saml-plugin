@@ -26,6 +26,7 @@ import hudson.Util;
 import hudson.model.AbstractDescribableImpl;
 import hudson.model.Descriptor;
 import hudson.util.FormValidation;
+import jenkins.model.Jenkins;
 import static org.jenkinsci.plugins.saml.SamlSecurityRealm.ERROR_NOT_VALID_NUMBER;
 
 /**
@@ -104,19 +105,23 @@ public class SamlAdvancedConfiguration extends AbstractDescribableImpl<SamlAdvan
 
 
         public FormValidation doCheckAuthnContextClassRef(@org.kohsuke.stapler.QueryParameter String authnContextClassRef) {
+            Jenkins.get().checkPermission(Jenkins.ADMINISTER);
            return SamlFormValidation.checkStringFormat(authnContextClassRef);
         }
 
 
         public FormValidation doCheckSpEntityId(@org.kohsuke.stapler.QueryParameter String spEntityId) {
+            Jenkins.get().checkPermission(Jenkins.ADMINISTER);
             return SamlFormValidation.checkStringFormat(spEntityId);
         }
 
         public FormValidation doCheckNameIdPolicyFormat(@org.kohsuke.stapler.QueryParameter String nameIdPolicyFormat) {
+            Jenkins.get().checkPermission(Jenkins.ADMINISTER);
             return SamlFormValidation.checkStringFormat(nameIdPolicyFormat);
         }
 
         public FormValidation doCheckMaximumSessionLifetime(@org.kohsuke.stapler.QueryParameter String maximumSessionLifetime) {
+            Jenkins.get().checkPermission(Jenkins.ADMINISTER);
             if (StringUtils.isEmpty(maximumSessionLifetime)) {
                 return hudson.util.FormValidation.ok();
             }

@@ -597,6 +597,7 @@ public class SamlSecurityRealm extends SecurityRealm {
      */
     @SuppressWarnings("unused")
     public HttpResponse doMetadata(StaplerRequest request, StaplerResponse response) {
+        Jenkins.get().checkPermission(Jenkins.ADMINISTER);
         return new SamlSPMetadataWrapper(getSamlPluginConfig(), request, response).get();
     }
 
@@ -619,6 +620,7 @@ public class SamlSecurityRealm extends SecurityRealm {
 
     @Override
     public void doLogout(StaplerRequest req, StaplerResponse rsp) throws IOException, javax.servlet.ServletException {
+        Jenkins.get().checkPermission(Jenkins.READ);
         super.doLogout(req, rsp);
         LOG.log(Level.FINEST, "Here we could do the SAML Single Logout");
     }
@@ -681,26 +683,32 @@ public class SamlSecurityRealm extends SecurityRealm {
         }
 
         public FormValidation doCheckLogoutUrl(@QueryParameter String logoutUrl) {
+            Jenkins.get().checkPermission(Jenkins.ADMINISTER);
             return SamlFormValidation.checkUrlFormat(logoutUrl);
         }
 
         public FormValidation doCheckDisplayNameAttributeName(@QueryParameter String displayNameAttributeName) {
+            Jenkins.get().checkPermission(Jenkins.ADMINISTER);
             return SamlFormValidation.checkStringFormat(displayNameAttributeName);
         }
 
         public FormValidation doCheckGroupsAttributeName(@QueryParameter String groupsAttributeName) {
+            Jenkins.get().checkPermission(Jenkins.ADMINISTER);
             return SamlFormValidation.checkStringAttributeFormat(groupsAttributeName, SamlSecurityRealm.WARN_RECOMMENDED_TO_SET_THE_GROUPS_ATTRIBUTE, true);
         }
 
         public FormValidation doCheckUsernameAttributeName(@QueryParameter String usernameAttributeName) {
+            Jenkins.get().checkPermission(Jenkins.ADMINISTER);
             return SamlFormValidation.checkStringAttributeFormat(usernameAttributeName, SamlSecurityRealm.WARN_RECOMMENDED_TO_SET_THE_USERNAME_ATTRIBUTE, true);
         }
 
         public FormValidation doCheckEmailAttributeName(@QueryParameter String emailAttributeName) {
+            Jenkins.get().checkPermission(Jenkins.ADMINISTER);
             return SamlFormValidation.checkStringAttributeFormat(emailAttributeName, SamlSecurityRealm.WARN_RECOMMENDED_TO_SET_THE_EMAIL_ATTRIBUTE, true);
         }
 
         public FormValidation doCheckMaximumAuthenticationLifetime(@QueryParameter String maximumAuthenticationLifetime) {
+            Jenkins.get().checkPermission(Jenkins.ADMINISTER);
             return SamlFormValidation.checkIntegerFormat(maximumAuthenticationLifetime);
         }
     }
