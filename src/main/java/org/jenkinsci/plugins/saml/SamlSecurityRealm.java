@@ -52,7 +52,6 @@ import org.pac4j.core.exception.http.RedirectionAction;
 import org.pac4j.core.exception.http.SeeOtherAction;
 import org.springframework.dao.DataAccessException;
 import org.pac4j.saml.profile.SAML2Profile;
-import org.springframework.dao.DataAccessException;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -252,6 +251,7 @@ public class SamlSecurityRealm extends SecurityRealm {
      * @return the http response.
      */
     @SuppressWarnings("unused")
+    @RequirePOST
     public HttpResponse doCommenceLogin(final StaplerRequest request, final StaplerResponse response, @QueryParameter
             String from, @Header("Referer") final String referer) {
         LOG.fine("SamlSecurityRealm.doCommenceLogin called. Using consumerServiceUrl " + getSamlPluginConfig().getConsumerServiceUrl());
@@ -596,6 +596,7 @@ public class SamlSecurityRealm extends SecurityRealm {
      * @return the http response.
      */
     @SuppressWarnings("unused")
+    @RequirePOST
     public HttpResponse doMetadata(StaplerRequest request, StaplerResponse response) {
         return new SamlSPMetadataWrapper(getSamlPluginConfig(), request, response).get();
     }
@@ -618,6 +619,7 @@ public class SamlSecurityRealm extends SecurityRealm {
     }
 
     @Override
+    @RequirePOST
     public void doLogout(StaplerRequest req, StaplerResponse rsp) throws IOException, javax.servlet.ServletException {
         super.doLogout(req, rsp);
         LOG.log(Level.FINEST, "Here we could do the SAML Single Logout");
@@ -680,26 +682,32 @@ public class SamlSecurityRealm extends SecurityRealm {
             return "SAML 2.0";
         }
 
+        @RequirePOST
         public FormValidation doCheckLogoutUrl(@QueryParameter String logoutUrl) {
             return SamlFormValidation.checkUrlFormat(logoutUrl);
         }
 
+        @RequirePOST
         public FormValidation doCheckDisplayNameAttributeName(@QueryParameter String displayNameAttributeName) {
             return SamlFormValidation.checkStringFormat(displayNameAttributeName);
         }
 
+        @RequirePOST
         public FormValidation doCheckGroupsAttributeName(@QueryParameter String groupsAttributeName) {
             return SamlFormValidation.checkStringAttributeFormat(groupsAttributeName, SamlSecurityRealm.WARN_RECOMMENDED_TO_SET_THE_GROUPS_ATTRIBUTE, true);
         }
 
+        @RequirePOST
         public FormValidation doCheckUsernameAttributeName(@QueryParameter String usernameAttributeName) {
             return SamlFormValidation.checkStringAttributeFormat(usernameAttributeName, SamlSecurityRealm.WARN_RECOMMENDED_TO_SET_THE_USERNAME_ATTRIBUTE, true);
         }
 
+        @RequirePOST
         public FormValidation doCheckEmailAttributeName(@QueryParameter String emailAttributeName) {
             return SamlFormValidation.checkStringAttributeFormat(emailAttributeName, SamlSecurityRealm.WARN_RECOMMENDED_TO_SET_THE_EMAIL_ATTRIBUTE, true);
         }
 
+        @RequirePOST
         public FormValidation doCheckMaximumAuthenticationLifetime(@QueryParameter String maximumAuthenticationLifetime) {
             return SamlFormValidation.checkIntegerFormat(maximumAuthenticationLifetime);
         }

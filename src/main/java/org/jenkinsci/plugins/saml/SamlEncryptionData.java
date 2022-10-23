@@ -32,6 +32,7 @@ import edu.umd.cs.findbugs.annotations.NonNull;
 import org.apache.commons.lang.StringUtils;
 import org.kohsuke.stapler.DataBoundConstructor;
 import org.kohsuke.stapler.QueryParameter;
+import org.kohsuke.stapler.interceptor.RequirePOST;
 import hudson.Extension;
 import hudson.Util;
 import hudson.model.AbstractDescribableImpl;
@@ -148,22 +149,27 @@ public class SamlEncryptionData extends AbstractDescribableImpl<SamlEncryptionDa
             return "Encryption Configuration";
         }
 
+        @RequirePOST
         public FormValidation doCheckKeystorePath(@QueryParameter String keystorePath) {
             return SamlFormValidation.checkStringAttributeFormat(keystorePath, WARN_KEYSTORE_NOT_SET, true);
         }
 
+        @RequirePOST
         public FormValidation doCheckPrivateKeyAlias(@QueryParameter String privateKeyAlias) {
             return SamlFormValidation.checkStringAttributeFormat(privateKeyAlias, WARN_PRIVATE_KEY_ALIAS_NOT_SET, true);
         }
 
+        @RequirePOST
         public FormValidation doCheckKeystorePassword(@QueryParameter String keystorePassword) {
             return SamlFormValidation.checkStringAttributeFormat(keystorePassword, WARN_PRIVATE_KEYSTORE_PASS_NOT_SET, true);
         }
 
+        @RequirePOST
         public FormValidation doCheckPrivateKeyPassword(@QueryParameter String privateKeyPassword) {
             return SamlFormValidation.checkStringAttributeFormat(privateKeyPassword, WARN_PRIVATE_KEY_PASS_NOT_SET, true);
         }
 
+        @RequirePOST
         public FormValidation doTestKeyStore(@QueryParameter("keystorePath") String keystorePath,
                                                          @QueryParameter("keystorePassword") Secret keystorePassword,
                                                          @QueryParameter("privateKeyPassword") Secret privateKeyPassword,

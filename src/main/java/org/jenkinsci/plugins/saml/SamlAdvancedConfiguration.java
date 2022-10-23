@@ -21,6 +21,7 @@ import edu.umd.cs.findbugs.annotations.NonNull;
 import org.apache.commons.lang.StringUtils;
 import org.kohsuke.stapler.DataBoundConstructor;
 import org.kohsuke.stapler.DataBoundSetter;
+import org.kohsuke.stapler.interceptor.RequirePOST;
 import hudson.Extension;
 import hudson.Util;
 import hudson.model.AbstractDescribableImpl;
@@ -103,19 +104,23 @@ public class SamlAdvancedConfiguration extends AbstractDescribableImpl<SamlAdvan
         }
 
 
+        @RequirePOST
         public FormValidation doCheckAuthnContextClassRef(@org.kohsuke.stapler.QueryParameter String authnContextClassRef) {
            return SamlFormValidation.checkStringFormat(authnContextClassRef);
         }
 
 
+        @RequirePOST
         public FormValidation doCheckSpEntityId(@org.kohsuke.stapler.QueryParameter String spEntityId) {
             return SamlFormValidation.checkStringFormat(spEntityId);
         }
 
+        @RequirePOST
         public FormValidation doCheckNameIdPolicyFormat(@org.kohsuke.stapler.QueryParameter String nameIdPolicyFormat) {
             return SamlFormValidation.checkStringFormat(nameIdPolicyFormat);
         }
 
+        @RequirePOST
         public FormValidation doCheckMaximumSessionLifetime(@org.kohsuke.stapler.QueryParameter String maximumSessionLifetime) {
             if (StringUtils.isEmpty(maximumSessionLifetime)) {
                 return hudson.util.FormValidation.ok();

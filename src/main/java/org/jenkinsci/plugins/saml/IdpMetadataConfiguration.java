@@ -24,6 +24,7 @@ import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.kohsuke.stapler.DataBoundConstructor;
 import org.kohsuke.stapler.QueryParameter;
+import org.kohsuke.stapler.interceptor.RequirePOST;
 import hudson.Extension;
 import hudson.ProxyConfiguration;
 import hudson.model.AbstractDescribableImpl;
@@ -192,6 +193,7 @@ public class IdpMetadataConfiguration extends AbstractDescribableImpl<IdpMetadat
             return "";
         }
 
+        @RequirePOST
         public FormValidation doTestIdpMetadata(@QueryParameter("xml") String xml) {
             if (StringUtils.isBlank(xml)) {
                 return FormValidation.error(ERROR_IDP_METADATA_EMPTY);
@@ -200,10 +202,12 @@ public class IdpMetadataConfiguration extends AbstractDescribableImpl<IdpMetadat
             return new SamlValidateIdPMetadata(xml).get();
         }
 
+        @RequirePOST
         public FormValidation doCheckPeriod(@QueryParameter("period") String period) {
             return SamlFormValidation.checkIntegerFormat(period);
         }
 
+        @RequirePOST
         public FormValidation doCheckXml(@QueryParameter("xml") String xml, @QueryParameter("url") String url) {
             if (StringUtils.isBlank(xml) && StringUtils.isBlank(url)) {
                 return FormValidation.error(ERROR_IDP_METADATA_EMPTY);
@@ -212,6 +216,7 @@ public class IdpMetadataConfiguration extends AbstractDescribableImpl<IdpMetadat
             return FormValidation.ok();
         }
 
+        @RequirePOST
         public FormValidation doCheckUrl(@QueryParameter("url") String url) {
             if (StringUtils.isEmpty(url)) {
                 return FormValidation.ok();
@@ -224,6 +229,7 @@ public class IdpMetadataConfiguration extends AbstractDescribableImpl<IdpMetadat
             return FormValidation.ok();
         }
 
+        @RequirePOST
         public FormValidation doTestIdpMetadataURL(@QueryParameter("url") String url) {
             URLConnection urlConnection;
             try {
