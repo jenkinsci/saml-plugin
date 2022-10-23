@@ -11,11 +11,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.annotation.Nonnull;
-import javax.xml.XMLConstants;
-import javax.xml.transform.OutputKeys;
-import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerException;
-import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.stream.StreamResult;
 import javax.xml.transform.stream.StreamSource;
 import edu.umd.cs.findbugs.annotations.NonNull;
@@ -25,11 +21,13 @@ import org.apache.commons.lang.StringUtils;
 import org.kohsuke.stapler.DataBoundConstructor;
 import org.kohsuke.stapler.QueryParameter;
 import org.kohsuke.stapler.interceptor.RequirePOST;
+import org.xml.sax.SAXException;
 import hudson.Extension;
 import hudson.ProxyConfiguration;
 import hudson.model.AbstractDescribableImpl;
 import hudson.model.Descriptor;
 import hudson.util.FormValidation;
+import jenkins.util.xml.XMLUtils;
 import static org.jenkinsci.plugins.saml.SamlSecurityRealm.ERROR_IDP_METADATA_EMPTY;
 import static org.jenkinsci.plugins.saml.SamlSecurityRealm.ERROR_MALFORMED_URL;
 import static org.jenkinsci.plugins.saml.SamlSecurityRealm.NOT_POSSIBLE_TO_GET_THE_METADATA;
@@ -135,17 +133,10 @@ public class IdpMetadataConfiguration extends AbstractDescribableImpl<IdpMetadat
         try {
             URLConnection urlConnection = ProxyConfiguration.open(new URL(url));
             try (InputStream in = urlConnection.getInputStream()) {
-                TransformerFactory tf = TransformerFactory.newInstance();
-                tf.setAttribute(XMLConstants.ACCESS_EXTERNAL_DTD, "");
-                tf.setAttribute(XMLConstants.ACCESS_EXTERNAL_SCHEMA, "");
-                tf.setAttribute(XMLConstants.ACCESS_EXTERNAL_STYLESHEET, "");
-                tf.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true);
-                Transformer transformer = tf.newTransformer();
-                transformer.setOutputProperty(OutputKeys.OMIT_XML_DECLARATION, "no");
-                transformer.setOutputProperty(OutputKeys.INDENT, "yes");
                 StringWriter writer = new StringWriter();
-                transformer.transform(new StreamSource(in), new StreamResult(writer));
+                XMLUtils.safeTransform(new StreamSource(in), new StreamResult(writer));
                 String idpXml = writer.toString();
+
                 FormValidation validation = new SamlValidateIdPMetadata(idpXml).get();
                 if (FormValidation.Kind.OK == validation.kind) {
                     FileUtils.writeStringToFile(new File(SamlSecurityRealm.getIDPMetadataFilePath()), idpXml,
@@ -154,7 +145,7 @@ public class IdpMetadataConfiguration extends AbstractDescribableImpl<IdpMetadat
                     throw new IllegalArgumentException(validation.getMessage());
                 }
             }
-        } catch (IOException | TransformerException e) {
+        } catch (IOException | TransformerException | SAXException e) {
             throw new IOException("Was not possible to update the IdP Metadata from the URL " + url, e);
         }
     }
