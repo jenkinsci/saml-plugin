@@ -127,6 +127,8 @@ public abstract class OpenSAMLWrapper<T> {
         }
 
         config.setMaximumAuthenticationLifetime(samlPluginConfig.getMaximumAuthenticationLifetime());
+        // tolerate missing SAML response Destination attribute https://github.com/pac4j/pac4j/pull/1871
+        config.setResponseDestinationAttributeMandatory(false);
 
         if (samlPluginConfig.getAdvancedConfiguration() != null) {
 

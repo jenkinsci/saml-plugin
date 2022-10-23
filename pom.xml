@@ -25,7 +25,7 @@ under the License.
   <parent>
     <groupId>org.jenkins-ci.plugins</groupId>
     <artifactId>plugin</artifactId>
-    <version>4.47</version>
+    <version>4.48</version>
   </parent>
 
   <artifactId>saml</artifactId>
@@ -44,7 +44,7 @@ under the License.
   <properties>
     <revision>4</revision>
     <changelist>999999-SNAPSHOT</changelist>
-    <jenkins.version>2.361</jenkins.version>
+    <jenkins.version>2.361.1</jenkins.version>
     <gitHubRepo>jenkinsci/${project.artifactId}-plugin</gitHubRepo>
     <hpi.compatibleSinceVersion>3.343.vb_63a_6c3df23c</hpi.compatibleSinceVersion>
   </properties>
@@ -193,6 +193,14 @@ under the License.
           <groupId>javax.annotation</groupId>
           <artifactId>javax.annotation-api</artifactId>
         </exclusion>
+        <exclusion>
+          <groupId>com.fasterxml.jackson.core</groupId>
+          <artifactId>jackson-databind</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>com.fasterxml.woodstox</groupId>
+          <artifactId>woodstox-core</artifactId>
+        </exclusion>
       </exclusions>
     </dependency>
     <dependency>
@@ -207,6 +215,11 @@ under the License.
     <dependency>
       <groupId>org.jenkins-ci.plugins</groupId>
       <artifactId>bouncycastle-api</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.jenkins-ci.plugins</groupId>
+      <artifactId>jackson2-api</artifactId>
+      <version>2.13.4.20221013-295.v8e29ea_354141</version>
     </dependency>
     <dependency>
       <groupId>org.mockito</groupId>
@@ -238,7 +251,7 @@ under the License.
     <dependency>
       <groupId>org.testcontainers</groupId>
       <artifactId>testcontainers</artifactId>
-      <version>1.17.3</version>
+      <version>1.17.5</version>
       <scope>test</scope>
       <exclusions>
         <exclusion>
@@ -257,7 +270,7 @@ under the License.
       <dependency>
         <groupId>io.jenkins.tools.bom</groupId>
         <artifactId>bom-2.361.x</artifactId>
-        <version>1607.va_c1576527071</version>
+        <version>1643.v1cffef51df73</version>
         <type>pom</type>
         <scope>import</scope>
       </dependency>
@@ -265,7 +278,6 @@ under the License.
         <groupId>org.cryptacular</groupId>
         <artifactId>cryptacular</artifactId>
       </dependency>
-      <!-- TODO: remove when CVE-2019-12400 is resolved -->
       <dependency>
         <groupId>org.apache.santuario</groupId>
         <artifactId>xmlsec</artifactId>
