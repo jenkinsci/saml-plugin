@@ -70,7 +70,7 @@ public class SamlAdvancedConfiguration extends AbstractDescribableImpl<SamlAdvan
     }
 
     public Boolean getUseDiskCache() {
-        return useDiskCache;
+        return useDiskCache != null ? useDiskCache : false;
     }
 
     @DataBoundSetter
