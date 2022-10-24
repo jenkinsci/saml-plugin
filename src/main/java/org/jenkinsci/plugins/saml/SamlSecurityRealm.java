@@ -251,7 +251,6 @@ public class SamlSecurityRealm extends SecurityRealm {
      * @return the http response.
      */
     @SuppressWarnings("unused")
-    @RequirePOST
     public HttpResponse doCommenceLogin(final StaplerRequest request, final StaplerResponse response, @QueryParameter
             String from, @Header("Referer") final String referer) {
         LOG.fine("SamlSecurityRealm.doCommenceLogin called. Using consumerServiceUrl " + getSamlPluginConfig().getConsumerServiceUrl());
