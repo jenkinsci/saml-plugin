@@ -29,7 +29,6 @@ import javax.annotation.Nonnull;
 import javax.servlet.http.HttpSession;
 import edu.umd.cs.findbugs.annotations.NonNull;
 import org.acegisecurity.Authentication;
-import org.acegisecurity.userdetails.UsernameNotFoundException;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.jenkinsci.plugins.saml.conf.Attribute;
@@ -50,7 +49,6 @@ import org.pac4j.core.exception.http.WithLocationAction;
 import org.pac4j.core.exception.http.OkAction;
 import org.pac4j.core.exception.http.RedirectionAction;
 import org.pac4j.core.exception.http.SeeOtherAction;
-import org.springframework.dao.DataAccessException;
 import org.pac4j.saml.profile.SAML2Profile;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.GrantedAuthority;
@@ -626,32 +624,12 @@ public class SamlSecurityRealm extends SecurityRealm {
         LOG.log(Level.FINEST, "Here we could do the SAML Single Logout");
     }
 
-    /**
-     * This method is overwritten due to SAML has no way to retrieve the members of a Group and this cause issues on
-     * some Authorization plugins. Because of that we have to implement SamlGroupDetails
-     */
-    @SuppressWarnings("deprecation")
     @Override
-    public GroupDetails loadGroupByGroupname(String groupname) throws UsernameNotFoundException, DataAccessException {
+    public GroupDetails loadGroupByGroupname2(String groupname, boolean fetchMembers) throws org.springframework.security.core.userdetails.UsernameNotFoundException {
         GroupDetails dg = new SamlGroupDetails(groupname);
 
         if (dg.getMembers().isEmpty()) {
             throw new UserMayOrMayNotExistException2(groupname);
-        }
-        return dg;
-    }
-
-    /**
-     * This method is overwritten due to SAML has no way to retrieve the members of a Group and this cause issues on
-     * some Authorization plugins. Because of that we have to implement SamlGroupDetails
-     */
-    @SuppressWarnings("deprecation")
-    @Override
-    public GroupDetails loadGroupByGroupname(String groupname, boolean fetchMembers)
-            throws UsernameNotFoundException, DataAccessException {
-        GroupDetails dg = loadGroupByGroupname(groupname);
-        if (fetchMembers) {
-            dg.getMembers();
         }
         return dg;
     }
