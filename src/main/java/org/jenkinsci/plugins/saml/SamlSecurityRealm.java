@@ -595,9 +595,7 @@ public class SamlSecurityRealm extends SecurityRealm {
      * @return the http response.
      */
     @SuppressWarnings("unused")
-    @RequirePOST
     public HttpResponse doMetadata(StaplerRequest request, StaplerResponse response) {
-        Jenkins.get().checkPermission(Jenkins.ADMINISTER);
         return new SamlSPMetadataWrapper(getSamlPluginConfig(), request, response).get();
     }
 
