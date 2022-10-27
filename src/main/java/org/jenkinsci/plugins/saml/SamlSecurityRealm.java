@@ -624,6 +624,10 @@ public class SamlSecurityRealm extends SecurityRealm {
         LOG.log(Level.FINEST, "Here we could do the SAML Single Logout");
     }
 
+    /**
+     * This method is overwritten due to SAML has no way to retrieve the members of a Group and this cause issues on
+     * some Authorization plugins. Because of that we have to implement SamlGroupDetails
+     */
     @Override
     public GroupDetails loadGroupByGroupname2(String groupname, boolean fetchMembers) throws org.springframework.security.core.userdetails.UsernameNotFoundException {
         GroupDetails dg = new SamlGroupDetails(groupname);
