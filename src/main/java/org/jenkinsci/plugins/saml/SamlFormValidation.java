@@ -58,9 +58,6 @@ class SamlFormValidation {
         catch (AddressException ae) {
             return FormValidation.error(message);
         }
-        catch (NullPointerException ne) {
-            return FormValidation.warning(message);
-        }
 
         return FormValidation.ok();
 
