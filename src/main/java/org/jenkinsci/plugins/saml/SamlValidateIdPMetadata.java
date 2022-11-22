@@ -24,7 +24,6 @@ public class SamlValidateIdPMetadata extends OpenSAMLWrapper<FormValidation>{
      * @return ok if the IdP Metadata it right, if not return a validation error.
      */
     @Override
-    @edu.umd.cs.findbugs.annotations.SuppressFBWarnings(value="RCN_REDUNDANT_NULLCHECK_WOULD_HAVE_BEEN_A_NPE", justification="JENKINS-53692")
     protected FormValidation process() {
         try (final java.io.InputStream in = IOUtils.toInputStream(idpMetadata, "UTF-8")) {
             final org.w3c.dom.Document inCommonMDDoc = Configuration.getParserPool().parse(in);
