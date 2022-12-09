@@ -42,6 +42,8 @@ public class SamlAdvancedConfiguration extends AbstractDescribableImpl<SamlAdvan
 
     private Boolean useDiskCache = false;
 
+    private Boolean randomRelayState = false;
+
     @DataBoundConstructor
     public SamlAdvancedConfiguration(Boolean forceAuthn,
                                      String authnContextClassRef,
@@ -78,13 +80,23 @@ public class SamlAdvancedConfiguration extends AbstractDescribableImpl<SamlAdvan
         this.useDiskCache = useDiskCache;
     }
 
+    public Boolean getRandomRelayState() {
+        return randomRelayState != null ? randomRelayState : false;
+    }
+
+    @DataBoundSetter
+    public void setRandomRelayState(Boolean randomRelayState) {
+        this.randomRelayState = randomRelayState;
+    }
+
     @Override
     public String toString() {
         return "SamlAdvancedConfiguration{" + "forceAuthn=" + getForceAuthn() + ", authnContextClassRef='"
                + StringUtils.defaultIfBlank(getAuthnContextClassRef(), "none") + '\'' + ", spEntityId='"
                + StringUtils.defaultIfBlank(getSpEntityId(), "none") + '\'' + ", nameIdPolicyFormat='"
                + StringUtils.defaultIfBlank(getNameIdPolicyFormat(), "none") + '\''
-               + "useDiskCache=" + getUseDiskCache() + '}';
+               + ", useDiskCache=" + getUseDiskCache()
+               + ", randomRelayState=" + getRandomRelayState() + '}';
     }
 
     @SuppressWarnings("unused")

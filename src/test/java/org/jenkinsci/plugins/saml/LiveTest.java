@@ -85,6 +85,28 @@ public class LiveTest {
     }
 
     @Test
+    public void authenticationRelayStateRandom() throws Throwable {
+        then(() -> new AuthenticationRelayStateRandom(readIdPMetadataFromURL()));
+    }
+    private static class AuthenticationRelayStateRandom implements RealJenkinsRule.Step {
+        private final String idpMetadata;
+        AuthenticationRelayStateRandom(String idpMetadata) {
+            this.idpMetadata = idpMetadata;
+        }
+        @Override
+        public void run(JenkinsRule r) throws Throwable {
+            IdpMetadataConfiguration idpMetadataConfiguration = new IdpMetadataConfiguration(idpMetadata);
+            SamlAdvancedConfiguration advancedConfiguration = new SamlAdvancedConfiguration(
+                false, null, SERVICE_PROVIDER_ID, null);
+            advancedConfiguration.setRandomRelayState(true);
+            SamlSecurityRealm realm = configureBasicSettings(idpMetadataConfiguration, advancedConfiguration, SAML2_REDIRECT_BINDING_URI);
+            r.jenkins.setSecurityRealm(realm);
+            configureAuthorization();
+            makeLoginWithUser1(r);
+        }
+    }
+
+    @Test
     public void authenticationOKFromURL() throws Throwable {
         then(() -> new AuthenticationOKFromURL(createIdPMetadataURL()));
     }

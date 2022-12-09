@@ -17,7 +17,6 @@ under the License. */
 
 package org.jenkinsci.plugins.saml;
 
-import java.io.IOException;
 import java.util.Arrays;
 import java.util.logging.Logger;
 import org.apache.commons.lang.StringUtils;
@@ -25,6 +24,7 @@ import org.kohsuke.stapler.StaplerRequest;
 import org.kohsuke.stapler.StaplerResponse;
 import org.opensaml.core.config.InitializationException;
 import org.opensaml.core.config.InitializationService;
+import org.pac4j.core.util.generator.RandomValueGenerator;
 import org.pac4j.jee.context.JEEContext;
 import org.pac4j.core.context.WebContext;
 import org.pac4j.core.exception.TechnicalException;
@@ -130,7 +130,8 @@ public abstract class OpenSAMLWrapper<T> {
         // tolerate missing SAML response Destination attribute https://github.com/pac4j/pac4j/pull/1871
         config.setResponseDestinationAttributeMandatory(false);
 
-        if (samlPluginConfig.getAdvancedConfiguration() != null) {
+        SamlAdvancedConfiguration advancedConfiguration = samlPluginConfig.getAdvancedConfiguration();
+        if (advancedConfiguration != null) {
 
             // request forced authentication at the IdP, if selected
             config.setForceAuth(samlPluginConfig.getForceAuthn());
@@ -158,6 +159,9 @@ public abstract class OpenSAMLWrapper<T> {
         SAML2Client saml2Client = new SAML2Client(config);
         saml2Client.setCallbackUrl(samlPluginConfig.getConsumerServiceUrl());
         saml2Client.setCallbackUrlResolver(new NoParameterCallbackUrlResolver());
+        if(advancedConfiguration != null && advancedConfiguration.getRandomRelayState()){
+            saml2Client.setStateGenerator(new RandomValueGenerator());
+        }
         saml2Client.init();
 
         if (LOG.isLoggable(FINE)) {
