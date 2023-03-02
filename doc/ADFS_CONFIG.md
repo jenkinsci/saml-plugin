@@ -4,14 +4,23 @@ Example: Setting up Active Directory Federation Services (ADFS) to use with Jenk
 *Note:* replace adfs.example.com with the name of your ADFS, replace jenkins.example.com with the name of your Jenkins host.
 
 **On the Jenkins side:**
-* Download the IdP file to paste into the Jenkins config from your ADFS. It is generally exposed under the following URL:
 
-```
-https://adfs.example.com/FederationMetadata/2007-06/FederationMetadata.xml
-```
+* Set the `IdP Metadata URL` to `https://adfs.example.com/FederationMetadata/2007-06/FederationMetadata.xml`
+* Set the `Refresh Period` to `1440` (24h, suggested value)
 
-* Set the system property `-Dorg.apache.xml.security.ignoreLineBreaks=true` when starting Jenkins.
+This allows the SAML plugin to fetch the IdP file from ADFS and should avoid needing to update it when certs/keys change.
 
+If loading the xml manually, it may be necessary to set the system property `-Dorg.apache.xml.security.ignoreLineBreaks=true`
+when starting Jenkins. This does not appear to be necessary when allowing the plugin to fetch the XML directly.
+
+It is recommended to configure the following attributes, depending on your IdP configuration and preferences the values may be different.
+| Attribute | Value |
+|--|--|
+| Display Name | http://schemas.xmlsoap.org/claims/CommonName |
+| Group | http://schemas.xmlsoap.org/claims/Group |
+| Email | http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress |
+
+Username is not set as it is using the `Name Id` field.
 
 **On the Windows side:**
 
@@ -19,38 +28,28 @@ Open the Management console (mmc), make sure you have the AD FS Management snap-
 
 ![](images/Screen_Shot_2015-12-10_at_16.13.52.png)
 
-Go through the wizard. The properties at the end should look like indicated on the following screens.
 
-| **Monitoring:** unmodified                         | **Identifiers:** The relying party identifier is: http://jenkins.example.org/securityRealm/finishLogin |
-|----------------------------------------------------|--------------------------------------------------------------------------------------------------------|
-| ![](images/Screen_Shot_2015-12-10_at_16.11.42.png) | ![](images/Screen_Shot_2015-12-10_at_16.11.44.png)                                                     |
+Using the wizard and the SP metadata URL will make this process very straight forward.  The screenshots below are from
+the wizard with the verify step omitted. Depending on the ADFS version in use, you may receive the warning shown in the
+screenshot. Even if you don't receive the warning it is still a good idea to review all of the parameters. At this time,
+there are no known issues with ADFS being able to import and utilize the metadata.
 
-**Encryption:** import key from the JENKINS_HOME/saml-sp.metadata.xml file | **Signature:** import key from the JENKINS_HOME/saml-sp.metadata.xml file
------------- | -------------
-![](images/Screen_Shot_2015-12-10_at_16.11.46.png) | ![](images/Screen_Shot_2015-12-10_at_16.11.49.png)
+In the `Choose Access Control Policy` step, choose the appropriate policy to meet your requirements. The
+`Permit Everyone` policy was chosen here more for demonstration purposes.
 
-**Accepted Claims:** unmodified | **Organization:** unmodified
------------- | -------------
-![](images/Screen_Shot_2015-12-10_at_16.11.51.png) | ![](images/Screen_Shot_2015-12-10_at_16.11.55.png)
+![](images/ADFS-wizard-001.png) ![](images/ADFS-wizard-002.png)
 
-**Endpoints:** URL is http://jenkins.example.org/securityRealm/finishLogin, binding POST | **Proxy Endpoints:** unmodified
------------- | -------------
-![](images/Screen_Shot_2015-12-10_at_16.11.57.png) | ![](images/Screen_Shot_2015-12-10_at_16.12.00.png)
+![](images/ADFS-wizard-003.png) ![](images/ADFS-wizard-004.png)
 
-**Notes:** unmodified | **Advanced:** SHA-256
------------- | -------------
-![](images/Screen_Shot_2015-12-10_at_16.12.02.png) | ![](images/Screen_Shot_2015-12-10_at_16.12.05.png)
+![](images/ADFS-wizard-005.png) ![](images/ADFS-wizard-007.png)
 
- Select the Relying Party Trust and click on Edit Claim Rules.... You should expose the following LDAP attributes: | -                                                  
--------------------------------------------------------------------------------------------------------------------|----------------------------------------------------
- ![](images/Screen_Shot_2015-12-10_at_16.12.23.png)                                                                | ![](images/Screen_Shot_2015-12-10_at_16.12.27.png) 
+The second step is to configure the claims. This should be launched automatically by the last step of the wizard. If it
+is not, select the entry in the `Relying Part Trusts` and either right click and select `Edit Claim Issuance Policy...`
+or click `Edit Claim Issuance Policy...` on the right. These may need to be adjusted based on your environment. The
+following are used for demonstration purposes and align with the attributes set in Jenkins. Of note is the group
+attribute, the use of `unqualified names` will likely make using this attribute for authorization easier.
 
-Allow all users to connect, or modify depending on your setup: | -
------------- | -------------
-![](images/Screen_Shot_2015-12-10_at_16.12.36.png) | ![](images/Screen_Shot_2015-12-10_at_16.12.40.png)
+![](images/ADFS-claim-001.png)
 
-**Delegation Authorization Rules:** unmodified	 
-
-![](images/Screen_Shot_2015-12-10_at_16.12.45.png)
-
+![](images/ADFS-claim-002.png) ![](images/ADFS-claim-003.png)
 
