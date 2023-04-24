@@ -20,7 +20,7 @@ package org.jenkinsci.plugins.saml;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import javax.annotation.Nonnull;
+import edu.umd.cs.findbugs.annotations.NonNull;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -38,7 +38,7 @@ import jenkins.security.LastGrantedAuthoritiesProperty;
  */
 public class SamlUserDetailsService implements UserDetailsService {
 
-    public SamlUserDetails loadUserByUsername(@Nonnull String username) {
+    public SamlUserDetails loadUserByUsername(@NonNull String username) {
 
         // try to obtain user details from current authentication details
         Authentication auth = Jenkins.getAuthentication2();

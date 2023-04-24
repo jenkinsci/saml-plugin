@@ -17,7 +17,7 @@ under the License. */
 
 package org.jenkinsci.plugins.saml;
 
-import javax.annotation.Nonnull;
+import edu.umd.cs.findbugs.annotations.NonNull;
 import org.springframework.security.authentication.AbstractAuthenticationToken;
 
 /**
@@ -29,7 +29,7 @@ public final class SamlAuthenticationToken extends AbstractAuthenticationToken {
 
     private final SamlUserDetails userDetails;
 
-    public SamlAuthenticationToken(@Nonnull SamlUserDetails userDetails) {
+    public SamlAuthenticationToken(@NonNull SamlUserDetails userDetails) {
         super(userDetails.getAuthorities());
         this.userDetails = userDetails;
         this.setDetails(userDetails);

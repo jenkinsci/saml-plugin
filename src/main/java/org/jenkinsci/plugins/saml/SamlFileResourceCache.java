@@ -24,7 +24,7 @@ import org.pac4j.core.exception.TechnicalException;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.WritableResource;
 
-import javax.annotation.Nonnull;
+import edu.umd.cs.findbugs.annotations.NonNull;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
@@ -49,11 +49,11 @@ class SamlFileResourceCache implements WritableResource {
 
     private final static Map<String,String> cache = new HashMap<>();
 
-    public SamlFileResourceCache(@Nonnull String fileName) {
+    public SamlFileResourceCache(@NonNull String fileName) {
         this.fileName = fileName;
     }
 
-    public SamlFileResourceCache(@Nonnull String fileName, @Nonnull String data) {
+    public SamlFileResourceCache(@NonNull String fileName, @NonNull String data) {
         this.fileName = fileName;
         try {
             save(fileName, data);
@@ -150,7 +150,7 @@ class SamlFileResourceCache implements WritableResource {
         return !md5SumNew.equals(md5SumOld);
     }
 
-    private void save(@Nonnull String fileName, @Nonnull String data) throws IOException {
+    private void save(@NonNull String fileName, @NonNull String data) throws IOException {
         if(isNew(fileName, data)) {
             FileUtils.writeByteArrayToFile(new File(fileName), data.getBytes("UTF-8"));
             cache.put(fileName, data);

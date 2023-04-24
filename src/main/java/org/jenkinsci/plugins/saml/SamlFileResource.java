@@ -23,7 +23,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.URI;
 import java.net.URL;
-import javax.annotation.Nonnull;
+import edu.umd.cs.findbugs.annotations.NonNull;
 import edu.umd.cs.findbugs.annotations.NonNull;
 import org.apache.commons.lang.NotImplementedException;
 import org.springframework.core.io.Resource;
@@ -36,7 +36,7 @@ class SamlFileResource implements WritableResource {
 
     private final WritableResource resource;
 
-    public SamlFileResource(@Nonnull String fileName) {
+    public SamlFileResource(@NonNull String fileName) {
         if(getUseDiskCache()){
             this.resource = new SamlFileResourceCache(fileName);
         } else {
@@ -44,7 +44,7 @@ class SamlFileResource implements WritableResource {
         }
     }
 
-    public SamlFileResource(@Nonnull String fileName, @Nonnull String data) {
+    public SamlFileResource(@NonNull String fileName, @NonNull String data) {
         if(getUseDiskCache()){
             this.resource = new SamlFileResourceCache(fileName, data);
         } else {

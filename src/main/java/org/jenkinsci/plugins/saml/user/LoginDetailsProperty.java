@@ -148,7 +148,7 @@ public class LoginDetailsProperty extends UserProperty {
     public static class SecurityListenerImpl extends jenkins.security.SecurityListener {
 
         @Override
-        protected void loggedIn(@javax.annotation.Nonnull String username) {
+        protected void loggedIn(@edu.umd.cs.findbugs.annotations.NonNull String username) {
 
             SecurityRealm realm = Jenkins.get().getSecurityRealm();
             if (!(realm instanceof SamlSecurityRealm)) {

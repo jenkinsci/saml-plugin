@@ -10,7 +10,7 @@ import java.net.URLConnection;
 import java.nio.charset.StandardCharsets;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javax.annotation.Nonnull;
+import edu.umd.cs.findbugs.annotations.NonNull;
 import javax.xml.transform.TransformerException;
 import javax.xml.transform.stream.StreamResult;
 import javax.xml.transform.stream.StreamSource;
@@ -74,7 +74,7 @@ public class IdpMetadataConfiguration extends AbstractDescribableImpl<IdpMetadat
      * Inline Constructor.
      * @param xml IdP Metadata XML.
      */
-    public IdpMetadataConfiguration(@Nonnull String xml) {
+    public IdpMetadataConfiguration(@NonNull String xml) {
         this.xml = xml;
         this.period = 0L;
     }
@@ -84,7 +84,7 @@ public class IdpMetadataConfiguration extends AbstractDescribableImpl<IdpMetadat
      * @param url URL to grab the IdP Metadata.
      * @param period Period between updates of the IdP Metadata.
      */
-    public IdpMetadataConfiguration(@Nonnull String url, @Nonnull Long period) {
+    public IdpMetadataConfiguration(@NonNull String url, @NonNull Long period) {
         this.url = url;
         this.period = period;
     }

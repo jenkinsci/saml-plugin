@@ -25,7 +25,7 @@ import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
-import javax.annotation.Nonnull;
+import edu.umd.cs.findbugs.annotations.NonNull;
 import edu.umd.cs.findbugs.annotations.NonNull;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.NotImplementedException;
@@ -40,11 +40,11 @@ class SamlFileResourceDisk implements WritableResource {
 
     private final String fileName;
 
-    public SamlFileResourceDisk(@Nonnull String fileName) {
+    public SamlFileResourceDisk(@NonNull String fileName) {
         this.fileName = fileName;
     }
 
-    public SamlFileResourceDisk(@Nonnull String fileName, @Nonnull String data) {
+    public SamlFileResourceDisk(@NonNull String fileName, @NonNull String data) {
         this.fileName = fileName;
         try {
             FileUtils.writeByteArrayToFile(getFile(), data.getBytes(StandardCharsets.UTF_8));

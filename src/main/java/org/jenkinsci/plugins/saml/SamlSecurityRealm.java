@@ -25,7 +25,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javax.annotation.Nonnull;
+import edu.umd.cs.findbugs.annotations.NonNull;
 import javax.servlet.http.HttpSession;
 import edu.umd.cs.findbugs.annotations.NonNull;
 import org.acegisecurity.Authentication;
@@ -604,7 +604,7 @@ public class SamlSecurityRealm extends SecurityRealm {
      */
     @SuppressWarnings("deprecation")
     @Override
-    protected String getPostLogOutUrl(StaplerRequest req, @Nonnull Authentication auth) {
+    protected String getPostLogOutUrl(StaplerRequest req, @NonNull Authentication auth) {
         LOG.log(Level.FINE, "Doing Logout {}", auth.getPrincipal());
         // if we just redirect to the root and anonymous does not have Overall read then we will start a login all over again.
         // we are actually anonymous here as the security context has been cleared

@@ -20,7 +20,7 @@ package org.jenkinsci.plugins.saml;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
-import javax.annotation.Nonnull;
+import edu.umd.cs.findbugs.annotations.NonNull;
 import java.util.Arrays;
 import java.util.Collections;
 import org.springframework.security.core.GrantedAuthority;
@@ -36,7 +36,7 @@ public class SamlUserDetails implements UserDetails {
     private final String username;
     private final Collection<GrantedAuthority> authorities;
 
-    public SamlUserDetails(@Nonnull String username, Collection<GrantedAuthority> authorities) {
+    public SamlUserDetails(@NonNull String username, Collection<GrantedAuthority> authorities) {
         this.username = username;
         this.authorities = Collections.unmodifiableCollection(authorities);
     }
