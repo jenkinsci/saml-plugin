@@ -399,9 +399,12 @@ public class SamlSecurityRealm extends SecurityRealm {
             for (AttributeEntry attributeEntry : getSamlCustomAttributes()) {
                 if(attributeEntry instanceof Attribute){
                     Attribute attr =  (Attribute) attributeEntry;
-                    SamlCustomProperty.Attribute item = new SamlCustomProperty.Attribute(attr.getName(),attr.getDisplayName());
-                    item.setValue(profile.getAttribute(attr.getName()).toString());
-                    userProperty.getAttributes().add(item);
+                    attrValue = profile.getAttribute(attr.getName())
+                    if (attrValue != null) {
+                        SamlCustomProperty.Attribute item = new SamlCustomProperty.Attribute(attr.getName(),attr.getDisplayName());
+                        item.setValue(attrValue.toString());
+                        userProperty.getAttributes().add(item);
+                    }
                 }
             }
             try {
