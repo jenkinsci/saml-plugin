@@ -399,7 +399,7 @@ public class SamlSecurityRealm extends SecurityRealm {
             for (AttributeEntry attributeEntry : getSamlCustomAttributes()) {
                 if(attributeEntry instanceof Attribute){
                     Attribute attr =  (Attribute) attributeEntry;
-                    attrValue = profile.getAttribute(attr.getName())
+                    Object attrValue = profile.getAttribute(attr.getName());
                     if (attrValue != null) {
                         SamlCustomProperty.Attribute item = new SamlCustomProperty.Attribute(attr.getName(),attr.getDisplayName());
                         item.setValue(attrValue.toString());
