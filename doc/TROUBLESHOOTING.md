@@ -6,7 +6,9 @@ When you face an issue you could try to enable a logger to these two packages on
     * org.pac4j - FINE
     
 **If you have configured the Jenkins proxy setting, and you do not want to use the proxy to connect to your IdP you have to add your IdP to no-proxy hosts**
-    
+
+## Examples SAML XML documents
+
 ### IdP Metadata
 
 The IdP metadata should look like this one, the main data are the `entityID`, `IDPSSODescriptor` section, and `SingleSignOnService` the three sections are needed.
@@ -110,7 +112,7 @@ This is an example of SAMLResponse, it is the message sent by the IdP to Jenkins
 </Response>
 ```
 
-### SAMLException: Identity provider has no single sign on service available for the selected
+## SAMLException: Identity provider has no single sign on service available for the selected
 
 You have to check your IdP metadata contains the section `SingleSignOnService`
 
@@ -119,7 +121,7 @@ org.pac4j.saml.exceptions.SAMLException: Identity provider has no single sign on
 	at org.pac4j.saml.context.SAML2MessageContext.getIDPSingleSignOnService(SAML2MessageContext.java:93)
 ```
 
-### Azure AD
+## Azure AD
 
 After leaving the system for some period of time (like overnight) and trying to log in again you get this error
 
@@ -157,7 +159,7 @@ at java.lang.Thread.run(Thread.java:748)
 * Enable the advanced "force authentication" setting is another workaround.
  
 
-### Identity provider has no single sign on service available for the selected...
+## Identity provider has no single sign on service available for the selected...
 
 * Check the SP EntryID configured on the IdP
 * Check the binding methods supported on your IdP
@@ -182,7 +184,7 @@ org.pac4j.saml.exceptions.SAMLException: Identity provider has no single sign on
 	at org.kohsuke.stapler.Stapler.tryInvoke(Stapler.java:715)
 ```
 
-### Identity provider does not support encryption settings
+## Identity provider does not support encryption settings
 
 * Check the encryption methods, signing methods, and keys types supported by your IdP and set the encryption settings correctly  
 * Downgrade to 0.14 version, if it works, then enable encryption on that version to be sure that this is the issue
@@ -211,7 +213,7 @@ Caused by: java.lang.IllegalArgumentException: Illegal base64 character d
     at org.jenkinsci.plugins.saml.SamlSecurityRealm.doFinishLogin(SamlSecurityRealm.java:258)
 ```
 
-### The SAMLResponse is not correct base64 encode
+## The SAMLResponse is not correct base64 encode
 
 The SAMLResponse message is not valid because the `SAMLResponse` value is not in Base64 format, or it is corrupted.
 
@@ -226,7 +228,7 @@ Caused by: java.lang.IllegalStateException: org.pac4j.saml.exceptions.SAMLExcept
 	... 77 more
 ```
 
-### There is no SAMLResponse parameter in the POST message
+## There is no SAMLResponse parameter in the POST message
 
 The response message should have a parameter named `SAMLResponse` that should be the XML of the SAMLResponse in Base64 format.
 
@@ -239,7 +241,7 @@ Caused by: org.opensaml.messaging.decoder.MessageDecodingException: Request did 
 	... 87 more
 ```
 
-### No valid subject assertion found in response
+## No valid subject assertion found in response
 
 Check that the `SP Entry ID` it is the same in the SP (Jenkins) and IdP, by default Jenkins uses `JENKINS_URL/securityRealm/finishLogin` you can change this value if you use the SAML Plugin's Advanced Setting named "SP Entity ID".
 
@@ -272,7 +274,7 @@ at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:62
 at java.lang.Thread.run(Thread.java:748)
 ```
 
-### Authentication issue instant is too old or in the future
+## Authentication issue instant is too old or in the future
 
 You should check that your `Maximum Authentication Lifetime` setting is the same that your Idp has, if Jenkins has a lower value you will see this error. The solution is to set `Maximum Authentication Lifetime` to your token validity. Another workaround is to set `Advanced Configuration/Force Authentication` but this will ask for login everytime the session expires.
 
@@ -308,7 +310,7 @@ SEVERE: Current assertion validation failed, continue with the next oneorg.pac4j
   at java.lang.Thread.run(Thread.java:748)
 ```
 
-### Unable to create/read keystore
+## Unable to create/read keystore
 
 The key store is needed by the pac4j library even do you do not use encryption,
 because of that the plugin manages a dummy keystore, it is created and the key is maintained in case it expired.
@@ -354,7 +356,7 @@ rm $JENKINS_HOME/saml-jenkins-keystore.jks
 rm $JENKINS_HOME/saml-jenkins-keystore.xml
 ```
 
-### Intended destination ${URL} doesn't match any of the endpoint URLs on endpoint
+## Intended destination ${URL} doesn't match any of the endpoint URLs on endpoint
 
 ```
 2019-11-27 16:55:46.826+0000 [id=4549]	WARNING	o.j.p.saml.SamlSecurityRealm#doFinishLogin: Unable to validate the SAML Response: org.pac4j.saml.exceptions.SAMLException: Intended destination https://JENKINS_SERVER/securityRealm/finishLogin doesn't match any of the endpoint URLs on endpoint http://JENKINS_SERVER/securityRealm/finishLogin; nested exception is org.pac4j.saml.exceptions.SAMLException: org.pac4j.saml.exceptions.SAMLException: Intended destination https://JENKINS_SERVER/securityRealm/finishLogin doesn't match any of the endpoint URLs on endpoint http://JENKINS_SERVER/securityRealm/finishLogin
@@ -399,13 +401,13 @@ and Jenkins Core uses an old one.
 So the only solution is to stop using pac4j library, 
 and use OpenSAML library directly, but this is a reimplementation of the plugin.
 
-# After an update the authentication fails
+## After an update the authentication fails
 
 The first thing to check after and update in case of error it is if the Service provider metadata has changed,
 this metadata is available at the URL `JENKINS_URL/securityRealm/metadata`, or in the file `JENKINS_HOME/saml-sp-metadata.xml`
 If you IdP support to grab the metadata from an URL is recommended to use the metadata from the URL `JENKINS_URL/securityRealm/metadata`
 
-# After login a `HTTP ERROR 403 No valid crumb was included in the request` error happens
+## After login a `HTTP ERROR 403 No valid crumb was included in the request` error happens
 
 This is a configuration error, SAML plugin cannot return a ‘invalid breadcrumb’ error in a login process 
 if the SP and IdP are correctly configured. 
@@ -414,3 +416,27 @@ The error usually is related to the Jenkins URL configured, or a reverse proxy c
 Put the log in verbose mode and check the login process, check that the URLs you are redirected are correct. 
 See[Troubleshooting Guide](https://github.com/jenkinsci/saml-plugin/blob/main/doc/TROUBLESHOOTING.md#troubleshooting) 
 and [Configure your IdP](https://github.com/jenkinsci/saml-plugin/blob/main/doc/CONFIGURE.md#configuring-identity-provider-idp)
+
+## Authentication fails. Logs show `Response is not success ; actual urn:oasis:names:tc:SAML:2.0:status:Responder`
+
+Example of the full log message
+
+```
+2023-01-01 00:00:00.000+0000 [id=12345]	WARNING	o.j.p.saml.SamlSecurityRealm#doFinishLogin: Unable to validate the SAML Response: Response is not success ; actual urn:oasis:names:tc:SAML:2.0:status:Responder
+```
+
+There are likely to be more details regarding the status in the SAML Response. Configure log recorder as described above, reproduce the issue, and look for `SAMLResponse` as shown in example below. Contents of the `<Status>` tag should give a clue.
+
+### `Responder` status from Keycloak
+
+You are using the Keycloak and after inspecting the `SAMLResponse` for the cause of `Responder` status you see:
+
+```xml
+  <samlp:Status>
+    <samlp:StatusCode Value="urn:oasis:names:tc:SAML:2.0:status:Responder">
+      <samlp:StatusCode Value="urn:oasis:names:tc:SAML:2.0:status:InvalidNameIDPolicy"/>
+    </samlp:StatusCode>
+  </samlp:Status>
+```
+
+If you do not explicitly specify the `NameIDPolicy Format` on the Jenkins side and your Keycloak's Client's `Name ID format` is `email`, any user who does not have Email configured will fail to authenticated with the above status.

@@ -49,6 +49,7 @@ you also could set the sessions on Jenkins to be shorter than those on your IdP.
   rather than its default. Check with the IdP administrators to find out which authentication contexts are available
   * **SP Entity ID** - If this field is not empty, it overrides the default Entity ID for this Service Provider.
   Service Provider Entity IDs are usually a URL, like ***http://jenkins.example.org/securityRealm/finishLogin***.
+  * **NameIDPolicy Format** - Set your NameIDPolicy in the AuthnRequest, for example: `urn:oasis:names:tc:SAML:1.1:nameid-format:unspecified`
   * **Use cache for configuration files** - The SP metadata is written on every login, enable this setting change the behaviour to use cache, and save the file only if it has changes.
   * **Use Random relayState value** - When you enable this option the value of the relayState parameter sent to the IdP is a random generated value. The default value of relayState is `JENKINS_URL/securityRealm/finishLogin`
 * **Encryption** - If your provider requires encryption or signing, you can specify the keystore details here that should be used.
@@ -119,6 +120,10 @@ see [their docs on the SAML connector](https://onelogin.service-now.com/support?
 ### Azure
 
 [Configure Azure](CONFIGURE_AZURE.md)
+
+### Keycloak
+
+[Configure Keycloak](CONFIGURE_KEYCLOAK.md)
 
 ### Configuring Single Log Out
 
