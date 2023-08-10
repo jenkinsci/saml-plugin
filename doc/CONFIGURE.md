@@ -60,7 +60,7 @@ this key would be recreated when it expires, by default the key is not exposed i
   * **Keystore password** - The password used in the -storepass argument of the keytool command.
   * **Private Key password** - The password used in the -keypass argument of keytool.
   * **Auth Request Signature** - Enable signature of the Redirect Binding Auth Request,
-  If you enable it the encryption and signing key would available in the SP metadata file and URL (JENKINS_URL/securityRealm/metadata).
+  If you enable it the encryption and signing key would available in the SP metadata file and URL (`JENKINS_URL/securityRealm/metadata`).
   Disable signing auth request does not work with HTTP redirection binging, it only works for POST binding.
   * **Wants Assertion Signed** - It requests signed assertions send by the IdP.
   
@@ -71,7 +71,7 @@ you might see the term URI of the claim instead of the name of the attribute.
 
 The SAML plugin generates the Service provider (SP) metadata you need to provide to your IdP, 
 you can get that SP metadata by clicking in the metadata link in the plugin configuration page, 
-or at the URL JENKINS_URL/securityRealm/metadata, or in the file JENKINS_HOME/saml-sp-metadata.xml
+or at the URL JENKINS_URL/securityRealm/metadata, or in the file `JENKINS_HOME/saml-sp-metadata.xml`
 
 ## Configuring groups security
 
@@ -92,7 +92,7 @@ you can use this to configure role-based security with the [Role Strategy Plugin
 ## Configuring Identity Provider (IdP)
 
 On the IdP side, you need to specify the location in Jenkins which accepts the HTTP POST with the authentication data (SAML response).
-This is [URL of Jenkins]/securityRealm/finishLogin. This Jenkins URL  it is obtained from "Jenkins URL" field on Configure System,
+This is `JENKINS_URL/securityRealm/finishLogin`. This Jenkins URL  it is obtained from "Jenkins URL" field on Configure System,
 if you use a load balancer or reverse proxy or another kind of redirection in the middle check that the real URL it is configured on Configure System,
 if not the SAML Response will be not valid.  So for example ***https://jenkins.example.com/securityRealm/finishLogin***.
 
@@ -144,21 +144,22 @@ RewriteRule ^/?logout$ https://idp.example.com/simplesamlphp/saml2/idp/initSLO.p
 
 ## Backup files considerations
 
-If you do not configure encryption settings The plugin creates a key pair automatically and stores them in "JENKINS_HOME/saml-jenkins-keystore.jks",
-then store the data related into "JENKINS_HOME/saml-jenkins-keystore.xml", you can grab the public key from "JENKINS_HOME/saml-sp-metadata.xml".
+If you do not configure encryption settings The plugin creates a key pair automatically and stores them in `JENKINS_HOME/saml-jenkins-keystore.jks`,
+then store the data related into `JENKINS_HOME/saml-jenkins-keystore.xml`, you can grab the public key from `JENKINS_HOME/saml-sp-metadata.xml`.
 
 If you configured the encryption settings, you only have to copy the key store and the config files (you should maintain
-the secrets also). The default key store is "JENKINS_HOME/saml-jenkins-keystore.jks"
-the configuration is in "JENKINS_HOME/saml-jenkins-keystore.xml" some data is encrypted, so it is not for manual manage,
-and it only is valid for a Jenkins with the same JENKINS_HOME/secrets.
+the secrets also). The default key store is `JENKINS_HOME/saml-jenkins-keystore.jks`
+the configuration is in `JENKINS_HOME/saml-jenkins-keystore.xml` some data is encrypted, so it is not for manual manage,
+and it only is valid for a Jenkins with the same `JENKINS_HOME/secrets`.
 
 You need the following files to restore the SAML configuration
 
-JENKINS_HOME/config.xml
-JENKINS_HOME/saml-jenkins-keystore.jks
-JENKINS_HOME/saml-jenkins-keystore.xml
-JENKINS_HOME/saml-ipd-metadata.xml
-JENKINS_HOME/saml-sp-metadata.xml
+* `JENKINS_HOME/config.xml`
+* `JENKINS_HOME/saml-jenkins-keystore.jks`
+* `JENKINS_HOME/saml-jenkins-keystore.xml`
+* `JENKINS_HOME/saml-ipd-metadata.xml`
+* `JENKINS_HOME/saml-sp-metadata.xml`
+
 Also you need the same secret.key, if not the configuration is impossible to unencrypt
 but in any case, you use to make a backup of your full JENKINS_HOME to make your Jenkins instance work properly
 (not only SAML Plugin), I recommend you to take a look at this [CloudBees KB](https://support.cloudbees.com/hc/en-us/articles/216241937-Migration-Guide-CloudBees-Jenkins-Platform-and-CloudBees-Jenkins-Team-)
