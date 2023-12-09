@@ -46,7 +46,7 @@ under the License.
   <properties>
     <revision>4</revision>
     <changelist>999999-SNAPSHOT</changelist>
-    <jenkins.version>2.387.3</jenkins.version>
+    <jenkins.version>2.401.3</jenkins.version>
     <gitHubRepo>jenkinsci/${project.artifactId}-plugin</gitHubRepo>
     <hpi.compatibleSinceVersion>3.343.vb_63a_6c3df23c</hpi.compatibleSinceVersion>
   </properties>
@@ -223,7 +223,15 @@ under the License.
           <groupId>org.apache.commons</groupId>
           <artifactId>commons-lang3</artifactId>
         </exclusion>
+        <exclusion>
+          <groupId>joda-time</groupId>
+          <artifactId>joda-time</artifactId>
+        </exclusion>
       </exclusions>
+    </dependency>
+    <dependency>
+      <groupId>io.jenkins.plugins</groupId>
+      <artifactId>joda-time-api</artifactId>
     </dependency>
     <dependency>
       <groupId>org.pac4j</groupId>
@@ -279,8 +287,8 @@ under the License.
     <dependencies>
       <dependency>
         <groupId>io.jenkins.tools.bom</groupId>
-        <artifactId>bom-2.387.x</artifactId>
-        <version>2543.vfb_1a_5fb_9496d</version>
+        <artifactId>bom-2.401.x</artifactId>
+        <version>2641.v88e707466454</version>
         <type>pom</type>
         <scope>import</scope>
       </dependency>
