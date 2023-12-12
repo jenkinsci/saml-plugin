@@ -4,7 +4,12 @@ updates:
     directory: "/"
     schedule:
       interval: "daily"
-  - package-ecosystem: "github-actions"
+    groups:
+      pac4j:
+        patterns:
+          - "org.pac4j*"
+          - "pac4j-*"
+  - package-ecosystem: "GitHub-actions"
     directory: /
     schedule:
       interval: "daily"
