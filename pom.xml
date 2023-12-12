@@ -227,6 +227,10 @@ under the License.
           <groupId>joda-time</groupId>
           <artifactId>joda-time</artifactId>
         </exclusion>
+        <exclusion>
+          <groupId>org.apache.httpcomponents.client5</groupId>
+          <artifactId>httpclient5</artifactId>
+        </exclusion>
       </exclusions>
     </dependency>
     <dependency>
