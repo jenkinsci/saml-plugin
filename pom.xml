@@ -104,7 +104,7 @@ under the License.
     <dependency>
       <groupId>org.pac4j</groupId>
       <artifactId>pac4j-saml</artifactId>
-      <version>6.0.0</version>
+      <version>5.7.2</version>
       <optional>false</optional>
       <exclusions>
         <exclusion>
@@ -240,7 +240,7 @@ under the License.
     <dependency>
       <groupId>org.pac4j</groupId>
       <artifactId>pac4j-javaee</artifactId>
-      <version>6.0.0</version>
+      <version>5.7.2</version>
     </dependency>
     <dependency>
       <groupId>org.jenkins-ci.plugins</groupId>
