@@ -94,8 +94,12 @@ under the License.
       <artifactId>commons-lang3-api</artifactId>
     </dependency>
     <dependency>
-      <groupId>io.jenkins.plugins</groupId>
-      <artifactId>apache-httpcomponents-client-5-api</artifactId>
+      <groupId>org.jenkins-ci.plugins</groupId>
+      <artifactId>apache-httpcomponents-client-4-api</artifactId>
+      <!-- for Pac4J 6+
+        <groupId>io.jenkins.plugins</groupId>
+        <artifactId>apache-httpcomponents-client-5-api</artifactId>
+      -->
     </dependency>
     <dependency>
       <groupId>io.jenkins.plugins</groupId>
