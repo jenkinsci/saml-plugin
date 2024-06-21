@@ -23,10 +23,10 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.jvnet.hudson.test.JenkinsRule;
 import org.kohsuke.stapler.HttpResponse;
-import org.kohsuke.stapler.StaplerResponse;
+import org.kohsuke.stapler.StaplerResponse2;
 import org.mockito.Mockito;
 
-import javax.servlet.ServletException;
+import jakarta.servlet.ServletException;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
@@ -60,7 +60,7 @@ public class OpenSamlWrapperTest {
         jenkinsRule.jenkins.setSecurityRealm(samlSecurity);
         SamlSPMetadataWrapper samlSPMetadataWrapper = new SamlSPMetadataWrapper(samlSecurity.getSamlPluginConfig(), null, null);
         HttpResponse process = samlSPMetadataWrapper.get();
-        StaplerResponse mockResponse = Mockito.mock(StaplerResponse.class);
+        StaplerResponse2 mockResponse = Mockito.mock(StaplerResponse2.class);
         StringWriter stringWriter = new StringWriter();
         when(mockResponse.getWriter()).thenReturn(new PrintWriter(stringWriter));
         process.generateResponse(null, mockResponse, null);
@@ -89,7 +89,7 @@ public class OpenSamlWrapperTest {
         jenkinsRule.jenkins.setSecurityRealm(samlSecurity);
         SamlSPMetadataWrapper samlSPMetadataWrapper = new SamlSPMetadataWrapper(samlSecurity.getSamlPluginConfig(), null, null);
         HttpResponse process = samlSPMetadataWrapper.get();
-        StaplerResponse mockResponse = Mockito.mock(StaplerResponse.class);
+        StaplerResponse2 mockResponse = Mockito.mock(StaplerResponse2.class);
         StringWriter stringWriter = new StringWriter();
         when(mockResponse.getWriter()).thenReturn(new PrintWriter(stringWriter));
         process.generateResponse(null, mockResponse, null);
