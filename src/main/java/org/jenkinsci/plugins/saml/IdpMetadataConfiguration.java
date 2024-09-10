@@ -8,6 +8,8 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import edu.umd.cs.findbugs.annotations.NonNull;
@@ -116,7 +118,7 @@ public class IdpMetadataConfiguration extends AbstractDescribableImpl<IdpMetadat
     public void createIdPMetadataFile() throws IOException {
         try {
             if (StringUtils.isNotBlank(xml)) {
-                FileUtils.writeStringToFile(new File(SamlSecurityRealm.getIDPMetadataFilePath()), xml,
+                Files.write(new File(SamlSecurityRealm.getIDPMetadataFilePath()).toPath(), List.of(xml),
                                             StandardCharsets.UTF_8);
             } else {
                 updateIdPMetadata();
@@ -140,7 +142,7 @@ public class IdpMetadataConfiguration extends AbstractDescribableImpl<IdpMetadat
 
                 FormValidation validation = new SamlValidateIdPMetadata(idpXml).get();
                 if (FormValidation.Kind.OK == validation.kind) {
-                    FileUtils.writeStringToFile(new File(SamlSecurityRealm.getIDPMetadataFilePath()), idpXml,
+                    Files.write(new File(SamlSecurityRealm.getIDPMetadataFilePath()).toPath(), List.of(idpXml),
                                                 StandardCharsets.UTF_8);
                 } else {
                     throw new IllegalArgumentException(validation.getMessage());

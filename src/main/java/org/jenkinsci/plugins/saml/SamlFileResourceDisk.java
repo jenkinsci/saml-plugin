@@ -27,6 +27,7 @@ import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import edu.umd.cs.findbugs.annotations.NonNull;
 import edu.umd.cs.findbugs.annotations.NonNull;
+import java.nio.file.Files;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.NotImplementedException;
 import org.pac4j.core.exception.TechnicalException;
@@ -47,7 +48,7 @@ class SamlFileResourceDisk implements WritableResource {
     public SamlFileResourceDisk(@NonNull String fileName, @NonNull String data) {
         this.fileName = fileName;
         try {
-            FileUtils.writeByteArrayToFile(getFile(), data.getBytes(StandardCharsets.UTF_8));
+            Files.write(getFile().toPath(), data.getBytes(StandardCharsets.UTF_8));
         } catch (UnsupportedEncodingException e) {
             throw new TechnicalException("Could not get string bytes.", e);
         } catch (java.io.IOException e) {
@@ -129,6 +130,6 @@ class SamlFileResourceDisk implements WritableResource {
     @NonNull
     @Override
     public OutputStream getOutputStream() throws IOException {
-        return FileUtils.openOutputStream(getFile());
+        return Files.newOutputStream(getFile().toPath());
     }
 }

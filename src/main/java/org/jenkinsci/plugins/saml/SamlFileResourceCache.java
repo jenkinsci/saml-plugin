@@ -33,6 +33,7 @@ import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.net.URL;
+import java.nio.file.Files;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Logger;
@@ -152,7 +153,7 @@ class SamlFileResourceCache implements WritableResource {
 
     private void save(@NonNull String fileName, @NonNull String data) throws IOException {
         if(isNew(fileName, data)) {
-            FileUtils.writeByteArrayToFile(new File(fileName), data.getBytes("UTF-8"));
+            Files.write(new File(fileName).toPath(), data.getBytes("UTF-8"));
             cache.put(fileName, data);
         }
     }
