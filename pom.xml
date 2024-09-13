@@ -307,7 +307,7 @@ under the License.
       <dependency>
         <groupId>jakarta.servlet</groupId>
         <artifactId>jakarta.servlet-api</artifactId>
-        <version>5.0.0</version>
+        <version>6.1.0</version>
       </dependency>
       <dependency>
         <groupId>org.apache.santuario</groupId>
