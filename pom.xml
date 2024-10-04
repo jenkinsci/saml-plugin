@@ -26,7 +26,7 @@ under the License.
   <parent>
     <groupId>org.jenkins-ci.plugins</groupId>
     <artifactId>plugin</artifactId>
-    <version>4.88</version>
+    <version>5.1</version>
     <relativePath />
   </parent>
 
@@ -46,12 +46,9 @@ under the License.
   <properties>
     <revision>4</revision>
     <changelist>999999-SNAPSHOT</changelist>
-    <jenkins.version>2.475</jenkins.version>
+    <jenkins.version>2.479</jenkins.version>
     <gitHubRepo>jenkinsci/${project.artifactId}-plugin</gitHubRepo>
     <hpi.compatibleSinceVersion>3.343.vb_63a_6c3df23c</hpi.compatibleSinceVersion>
-    <!-- TODO JENKINS-73339 until in parent POM -->
-    <jenkins-test-harness.version>2254.vcff7a_d4969e5</jenkins-test-harness.version>
-    <maven.compiler.release>17</maven.compiler.release>
   </properties>
 
   <licenses>
@@ -302,12 +299,6 @@ under the License.
         <version>3413.v0d896b_76a_30d</version>
         <type>pom</type>
         <scope>import</scope>
-      </dependency>
-      <!-- TODO JENKINS-73339 until in parent POM, work around https://github.com/jenkinsci/plugin-pom/issues/936 -->
-      <dependency>
-        <groupId>jakarta.servlet</groupId>
-        <artifactId>jakarta.servlet-api</artifactId>
-        <version>5.0.0</version>
       </dependency>
       <dependency>
         <groupId>org.apache.santuario</groupId>
