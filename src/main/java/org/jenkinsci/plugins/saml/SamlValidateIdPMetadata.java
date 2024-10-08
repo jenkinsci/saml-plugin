@@ -1,8 +1,8 @@
 package org.jenkinsci.plugins.saml;
 
 import java.io.IOException;
-import net.shibboleth.utilities.java.support.component.ComponentInitializationException;
-import net.shibboleth.utilities.java.support.xml.XMLParserException;
+import net.shibboleth.shared.component.ComponentInitializationException;
+import net.shibboleth.shared.xml.XMLParserException;
 import org.apache.commons.io.IOUtils;
 import org.opensaml.saml.metadata.resolver.impl.DOMMetadataResolver;
 import org.pac4j.saml.util.Configuration;

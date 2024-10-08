@@ -17,9 +17,10 @@ under the License. */
 
 package org.jenkinsci.plugins.saml;
 
-import org.kohsuke.stapler.StaplerRequest;
-import org.kohsuke.stapler.StaplerResponse;
-import org.pac4j.jee.context.session.JEESessionStore;
+import org.kohsuke.stapler.StaplerRequest2;
+import org.kohsuke.stapler.StaplerResponse2;
+import org.pac4j.core.context.CallContext;
+import org.pac4j.core.context.session.SessionStore;
 import org.pac4j.core.exception.http.HttpAction;
 import org.pac4j.core.exception.http.RedirectionAction;
 import org.pac4j.core.context.WebContext;
@@ -30,7 +31,7 @@ import org.pac4j.saml.client.SAML2Client;
  */
 public class SamlRedirectActionWrapper extends OpenSAMLWrapper<RedirectionAction> {
 
-    public SamlRedirectActionWrapper(SamlPluginConfig samlPluginConfig, StaplerRequest request, StaplerResponse response) {
+    public SamlRedirectActionWrapper(SamlPluginConfig samlPluginConfig, StaplerRequest2 request, StaplerResponse2 response) {
         this.request = request;
         this.response = response;
         this.samlPluginConfig = samlPluginConfig;
@@ -46,7 +47,9 @@ public class SamlRedirectActionWrapper extends OpenSAMLWrapper<RedirectionAction
         try {
             SAML2Client client = createSAML2Client();
             WebContext context = createWebContext();
-            RedirectionAction redirection = client.getRedirectionAction(context, JEESessionStore.INSTANCE).orElse(null);
+            SessionStore sessionStore = createSessionStore();
+            CallContext ctx = new CallContext(context, sessionStore);
+            RedirectionAction redirection = client.getRedirectionAction(ctx).orElse(null);
             client.destroy();
             return redirection;
         } catch (HttpAction e) {

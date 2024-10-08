@@ -20,15 +20,18 @@ package org.jenkinsci.plugins.saml;
 import java.util.Arrays;
 import java.util.logging.Logger;
 import org.apache.commons.lang.StringUtils;
-import org.kohsuke.stapler.StaplerRequest;
-import org.kohsuke.stapler.StaplerResponse;
+import org.kohsuke.stapler.StaplerRequest2;
+import org.kohsuke.stapler.StaplerResponse2;
 import org.opensaml.core.config.InitializationException;
 import org.opensaml.core.config.InitializationService;
+import org.pac4j.core.context.session.SessionStore;
 import org.pac4j.core.util.generator.RandomValueGenerator;
 import org.pac4j.jee.context.JEEContext;
 import org.pac4j.core.context.WebContext;
 import org.pac4j.core.exception.TechnicalException;
 import org.pac4j.core.http.callback.NoParameterCallbackUrlResolver;
+import org.pac4j.jee.context.JEEFrameworkParameters;
+import org.pac4j.jee.context.session.JEESessionStoreFactory;
 import org.pac4j.saml.client.SAML2Client;
 import org.pac4j.saml.config.SAML2Configuration;
 import static java.util.logging.Level.FINE;
@@ -48,8 +51,8 @@ public abstract class OpenSAMLWrapper<T> {
     private static final BundleKeyStore KS = new BundleKeyStore();
 
     protected SamlPluginConfig samlPluginConfig;
-    protected StaplerRequest request;
-    protected StaplerResponse response;
+    protected StaplerRequest2 request;
+    protected StaplerResponse2 response;
 
     /**
      * Initialize the OpenSaml services and run the process defined on the abstract method process().
@@ -91,6 +94,10 @@ public abstract class OpenSAMLWrapper<T> {
         return new JEEContext(request, response);
     }
 
+    protected SessionStore createSessionStore() {
+        return JEESessionStoreFactory.INSTANCE.newSessionStore(new JEEFrameworkParameters(request, response));
+    }
+
     /**
      * @return a SAML2Client object to interact with the IdP service.
      */
@@ -112,7 +119,7 @@ public abstract class OpenSAMLWrapper<T> {
             config.setKeystorePath(encryptionData.getKeystorePath());
             config.setKeystorePassword(encryptionData.getKeystorePasswordPlainText());
             config.setPrivateKeyPassword(encryptionData.getPrivateKeyPasswordPlainText());
-            config.setKeystoreAlias(encryptionData.getPrivateKeyAlias());
+            config.setKeyStoreAlias(encryptionData.getPrivateKeyAlias());
         } else {
             if (!KS.isValid()) {
                 KS.init();
@@ -123,7 +130,7 @@ public abstract class OpenSAMLWrapper<T> {
             config.setKeystorePath(KS.getKeystorePath());
             config.setKeystorePassword(KS.getKsPassword());
             config.setPrivateKeyPassword(KS.getKsPkPassword());
-            config.setKeystoreAlias(KS.getKsPkAlias());
+            config.setKeyStoreAlias(KS.getKsPkAlias());
         }
 
         config.setMaximumAuthenticationLifetime(samlPluginConfig.getMaximumAuthenticationLifetime());

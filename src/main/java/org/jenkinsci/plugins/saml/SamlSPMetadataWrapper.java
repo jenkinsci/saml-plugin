@@ -17,11 +17,10 @@ under the License. */
 
 package org.jenkinsci.plugins.saml;
 
-import java.io.IOException;
 import org.kohsuke.stapler.HttpResponse;
 import org.kohsuke.stapler.HttpResponses;
-import org.kohsuke.stapler.StaplerRequest;
-import org.kohsuke.stapler.StaplerResponse;
+import org.kohsuke.stapler.StaplerRequest2;
+import org.kohsuke.stapler.StaplerResponse2;
 import org.pac4j.core.exception.TechnicalException;
 import org.pac4j.saml.client.SAML2Client;
 
@@ -30,7 +29,7 @@ import org.pac4j.saml.client.SAML2Client;
  */
 public class SamlSPMetadataWrapper extends OpenSAMLWrapper<HttpResponse> {
 
-    public SamlSPMetadataWrapper(SamlPluginConfig samlPluginConfig, StaplerRequest request, StaplerResponse response) {
+    public SamlSPMetadataWrapper(SamlPluginConfig samlPluginConfig, StaplerRequest2 request, StaplerResponse2 response) {
         this.request = request;
         this.response = response;
         this.samlPluginConfig = samlPluginConfig;

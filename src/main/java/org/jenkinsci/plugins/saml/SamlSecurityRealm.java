@@ -26,9 +26,10 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import edu.umd.cs.findbugs.annotations.NonNull;
-import javax.servlet.http.HttpSession;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.http.HttpSession;
 import edu.umd.cs.findbugs.annotations.NonNull;
-import org.acegisecurity.Authentication;
+import org.springframework.security.core.Authentication;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.jenkinsci.plugins.saml.conf.Attribute;
@@ -41,8 +42,8 @@ import org.kohsuke.stapler.Header;
 import org.kohsuke.stapler.HttpResponse;
 import org.kohsuke.stapler.HttpResponses;
 import org.kohsuke.stapler.QueryParameter;
-import org.kohsuke.stapler.StaplerRequest;
-import org.kohsuke.stapler.StaplerResponse;
+import org.kohsuke.stapler.StaplerRequest2;
+import org.kohsuke.stapler.StaplerResponse2;
 import org.kohsuke.stapler.interceptor.RequirePOST;
 import org.pac4j.core.exception.http.FoundAction;
 import org.pac4j.core.exception.http.WithLocationAction;
@@ -249,7 +250,7 @@ public class SamlSecurityRealm extends SecurityRealm {
      * @return the http response.
      */
     @SuppressWarnings("unused")
-    public HttpResponse doCommenceLogin(final StaplerRequest request, final StaplerResponse response, @QueryParameter
+    public HttpResponse doCommenceLogin(final StaplerRequest2 request, final StaplerResponse2 response, @QueryParameter
             String from, @Header("Referer") final String referer) {
         LOG.fine("SamlSecurityRealm.doCommenceLogin called. Using consumerServiceUrl " + getSamlPluginConfig().getConsumerServiceUrl());
 
@@ -300,7 +301,7 @@ public class SamlSecurityRealm extends SecurityRealm {
      */
     @SuppressWarnings("unused")
     @RequirePOST
-    public HttpResponse doFinishLogin(final StaplerRequest request, final StaplerResponse response) {
+    public HttpResponse doFinishLogin(final StaplerRequest2 request, final StaplerResponse2 response) {
         LOG.finer("SamlSecurityRealm.doFinishLogin called");
         String referer = (String) request.getSession().getAttribute(REFERER_ATTRIBUTE);
         // redirect back to original page
@@ -381,7 +382,7 @@ public class SamlSecurityRealm extends SecurityRealm {
      * fixation.
      * @param request request.
      */
-    private void recreateSession(StaplerRequest request) {
+    private void recreateSession(StaplerRequest2 request) {
         HttpSession session = request.getSession(false);
         if(session != null){
             LOG.finest("Invalidate previous session");
@@ -421,7 +422,7 @@ public class SamlSecurityRealm extends SecurityRealm {
      * Tries to log the content of the SAMLResponse even it is not valid.
      * @param request Request received in doFinishLogin, it should be a SAMLResponse.
      */
-    private void logSamlResponse(StaplerRequest request) {
+    private void logSamlResponse(StaplerRequest2 request) {
         if(LOG.isLoggable(Level.FINEST)){
             try {
                 String samlResponse = request.getParameter("SAMLResponse");
@@ -596,30 +597,30 @@ public class SamlSecurityRealm extends SecurityRealm {
      * @return the http response.
      */
     @SuppressWarnings("unused")
-    public HttpResponse doMetadata(StaplerRequest request, StaplerResponse response) {
+    public HttpResponse doMetadata(StaplerRequest2 request, StaplerResponse2 response) {
         return new SamlSPMetadataWrapper(getSamlPluginConfig(), request, response).get();
     }
 
     /**
-     * @see SecurityRealm#getPostLogOutUrl
+     * @see SecurityRealm#getPostLogOutUrl2
      * Note: It does not call the logout service on SAML because the library does not implement it on this version,
      * it will be done when we upgrade the library.
      */
     @SuppressWarnings("deprecation")
     @Override
-    protected String getPostLogOutUrl(StaplerRequest req, @NonNull Authentication auth) {
+    protected String getPostLogOutUrl2(StaplerRequest2 req, @NonNull Authentication auth) {
         LOG.log(Level.FINE, "Doing Logout {}", auth.getPrincipal());
         // if we just redirect to the root and anonymous does not have Overall read then we will start a login all over again.
         // we are actually anonymous here as the security context has been cleared
         if (Jenkins.get().hasPermission(Jenkins.READ) && StringUtils.isBlank(getLogoutUrl())) {
-            return super.getPostLogOutUrl(req, auth);
+            return super.getPostLogOutUrl2(req, auth);
         }
         return getEffectiveLogoutUrl();
     }
 
     @Override
     @RequirePOST
-    public void doLogout(StaplerRequest req, StaplerResponse rsp) throws IOException, javax.servlet.ServletException {
+    public void doLogout(StaplerRequest2 req, StaplerResponse2 rsp) throws IOException, ServletException {
         Jenkins.get().checkPermission(Jenkins.READ);
         super.doLogout(req, rsp);
         LOG.log(Level.FINEST, "Here we could do the SAML Single Logout");

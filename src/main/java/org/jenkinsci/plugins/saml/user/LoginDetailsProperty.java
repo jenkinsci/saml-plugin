@@ -28,7 +28,7 @@ import hudson.security.SecurityRealm;
 import jenkins.model.Jenkins;
 import org.jenkinsci.plugins.saml.SamlSecurityRealm;
 import org.kohsuke.stapler.DataBoundConstructor;
-import org.kohsuke.stapler.StaplerRequest;
+import org.kohsuke.stapler.StaplerRequest2;
 
 import java.util.Date;
 import java.util.logging.Level;
@@ -37,7 +37,7 @@ import net.sf.json.JSONObject;
 import org.apache.commons.lang.time.FastDateFormat;
 import org.jenkinsci.plugins.saml.SamlSecurityRealm;
 import org.kohsuke.stapler.DataBoundConstructor;
-import org.kohsuke.stapler.StaplerRequest;
+import org.kohsuke.stapler.StaplerRequest2;
 import org.springframework.security.core.Authentication;
 import hudson.Extension;
 import hudson.model.User;
@@ -135,7 +135,7 @@ public class LoginDetailsProperty extends UserProperty {
     }
 
     @Override
-    public UserProperty reconfigure(StaplerRequest req, JSONObject form) {
+    public UserProperty reconfigure(StaplerRequest2 req, JSONObject form) {
         return this;
     }
 
