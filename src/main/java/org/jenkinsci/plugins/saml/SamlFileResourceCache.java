@@ -31,11 +31,13 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
+import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
 import java.nio.file.Files;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
@@ -51,10 +53,12 @@ class SamlFileResourceCache implements WritableResource {
     private final static Map<String,String> cache = new HashMap<>();
 
     public SamlFileResourceCache(@NonNull String fileName) {
+        LOG.log(Level.FINER, "Creating Resource cache: %s", fileName );
         this.fileName = fileName;
     }
 
     public SamlFileResourceCache(@NonNull String fileName, @NonNull String data) {
+        LOG.log(Level.FINER, "Creating Resource cache from data: %s", fileName );
         this.fileName = fileName;
         try {
             save(fileName, data);
@@ -81,13 +85,13 @@ class SamlFileResourceCache implements WritableResource {
     }
 
     @Override
-    public URL getURL() {
-        throw new NotImplementedException();
+    public URL getURL() throws MalformedURLException {
+        return getURI().toURL();
     }
 
     @Override
     public URI getURI() {
-        throw new NotImplementedException();
+        return getFile().toURI();
     }
 
     @Override
@@ -102,26 +106,27 @@ class SamlFileResourceCache implements WritableResource {
 
     @Override
     public InputStream getInputStream() throws IOException {
+        LOG.log(Level.FINER, "Get cache inputStream : %s", fileName );
         if (cache.containsKey(fileName)){
             return IOUtils.toInputStream(cache.get(fileName),"UTF-8");
         } else {
-            return FileUtils.openInputStream(new File(fileName));
+            return FileUtils.openInputStream(getFile());
         }
     }
 
     @Override
     public File getFile() {
-        throw new NotImplementedException();
+        return new File(fileName);
     }
 
     @Override
     public long contentLength() {
-        return new File(fileName).length();
+        return getFile().length();
     }
 
     @Override
     public long lastModified() {
-        return new File(fileName).lastModified();
+        return getFile().lastModified();
     }
 
     @Override
@@ -136,6 +141,7 @@ class SamlFileResourceCache implements WritableResource {
 
     @Override
     public OutputStream getOutputStream() throws IOException {
+        LOG.log(Level.FINER, "Creating cache outputStream: %s", fileName );
         return new ByteArrayOutputStream(){
             @Override
             public void close() throws IOException {
@@ -153,6 +159,7 @@ class SamlFileResourceCache implements WritableResource {
 
     private void save(@NonNull String fileName, @NonNull String data) throws IOException {
         if(isNew(fileName, data)) {
+            LOG.log(Level.FINER, "Save resource to disk : %s", fileName );
             Files.write(new File(fileName).toPath(), data.getBytes("UTF-8"));
             cache.put(fileName, data);
         }

@@ -23,11 +23,12 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.URI;
 import java.net.URL;
-import edu.umd.cs.findbugs.annotations.NonNull;
-import edu.umd.cs.findbugs.annotations.NonNull;
+
 import org.apache.commons.lang.NotImplementedException;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.WritableResource;
+
+import edu.umd.cs.findbugs.annotations.NonNull;
 
 /**
  * Class to manage the metadata files.
@@ -82,14 +83,14 @@ class SamlFileResource implements WritableResource {
 
     @NonNull
     @Override
-    public URL getURL() {
-        throw new NotImplementedException();
+    public URL getURL() throws IOException {
+        return resource.getURL();
     }
 
     @NonNull
     @Override
-    public URI getURI() {
-        throw new NotImplementedException();
+    public URI getURI() throws IOException {
+        return resource.getURI();
     }
 
     @Override

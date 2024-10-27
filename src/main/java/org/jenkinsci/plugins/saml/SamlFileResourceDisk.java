@@ -22,17 +22,19 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
+import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
-import edu.umd.cs.findbugs.annotations.NonNull;
-import edu.umd.cs.findbugs.annotations.NonNull;
 import java.nio.file.Files;
+
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.NotImplementedException;
 import org.pac4j.core.exception.TechnicalException;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.WritableResource;
+
+import edu.umd.cs.findbugs.annotations.NonNull;
 
 /**
  * Class to manage the metadata files.
@@ -73,14 +75,14 @@ class SamlFileResourceDisk implements WritableResource {
 
     @NonNull
     @Override
-    public URL getURL() {
-        throw new NotImplementedException();
+    public URL getURL() throws MalformedURLException {
+        return getURI().toURL();
     }
 
     @NonNull
     @Override
     public URI getURI() {
-        throw new NotImplementedException();
+        return getFile().toURI();
     }
 
     @Override
