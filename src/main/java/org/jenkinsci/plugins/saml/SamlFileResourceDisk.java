@@ -17,6 +17,7 @@ under the License. */
 
 package org.jenkinsci.plugins.saml;
 
+import edu.umd.cs.findbugs.annotations.NonNull;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -27,14 +28,11 @@ import java.net.URI;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
-
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.NotImplementedException;
 import org.pac4j.core.exception.TechnicalException;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.WritableResource;
-
-import edu.umd.cs.findbugs.annotations.NonNull;
 
 /**
  * Class to manage the metadata files.

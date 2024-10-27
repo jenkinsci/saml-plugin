@@ -17,7 +17,18 @@ under the License. */
 
 package org.jenkinsci.plugins.saml;
 
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.core.StringContains.containsString;
+import static org.mockito.Mockito.when;
+import static org.opensaml.saml.common.xml.SAMLConstants.SAML2_REDIRECT_BINDING_URI;
+
 import hudson.util.Secret;
+import jakarta.servlet.ServletException;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.io.StringWriter;
+import java.nio.charset.StandardCharsets;
+import java.util.Objects;
 import org.apache.commons.io.IOUtils;
 import org.junit.Rule;
 import org.junit.Test;
@@ -25,18 +36,6 @@ import org.jvnet.hudson.test.JenkinsRule;
 import org.kohsuke.stapler.HttpResponse;
 import org.kohsuke.stapler.StaplerResponse2;
 import org.mockito.Mockito;
-
-import jakarta.servlet.ServletException;
-import java.io.IOException;
-import java.io.PrintWriter;
-import java.io.StringWriter;
-import java.nio.charset.StandardCharsets;
-import java.util.Objects;
-
-import static org.hamcrest.core.StringContains.containsString;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.mockito.Mockito.when;
-import static org.opensaml.saml.common.xml.SAMLConstants.SAML2_REDIRECT_BINDING_URI;
 
 /**
  * Different OpenSAMLWrapper classes tests
@@ -49,16 +48,27 @@ public class OpenSamlWrapperTest {
     @Test
     public void metadataWrapper() throws IOException, ServletException {
         String metadata = IOUtils.toString(
-            Objects.requireNonNull(this.getClass().getClassLoader().getResourceAsStream(
-                "org/jenkinsci" + "/plugins/saml" + "/OpenSamlWrapperTest/metadataWrapper/metadata.xml")),
-            StandardCharsets.UTF_8);
-        SamlSecurityRealm samlSecurity = new SamlSecurityRealm(new IdpMetadataConfiguration(metadata),
-                "displayName", "groups", 10000,
-                "uid", "email", "/logout", null,
-                null, "none",SAML2_REDIRECT_BINDING_URI,
+                Objects.requireNonNull(this.getClass()
+                        .getClassLoader()
+                        .getResourceAsStream("org/jenkinsci" + "/plugins/saml"
+                                + "/OpenSamlWrapperTest/metadataWrapper/metadata.xml")),
+                StandardCharsets.UTF_8);
+        SamlSecurityRealm samlSecurity = new SamlSecurityRealm(
+                new IdpMetadataConfiguration(metadata),
+                "displayName",
+                "groups",
+                10000,
+                "uid",
+                "email",
+                "/logout",
+                null,
+                null,
+                "none",
+                SAML2_REDIRECT_BINDING_URI,
                 java.util.Collections.emptyList());
         jenkinsRule.jenkins.setSecurityRealm(samlSecurity);
-        SamlSPMetadataWrapper samlSPMetadataWrapper = new SamlSPMetadataWrapper(samlSecurity.getSamlPluginConfig(), null, null);
+        SamlSPMetadataWrapper samlSPMetadataWrapper =
+                new SamlSPMetadataWrapper(samlSecurity.getSamlPluginConfig(), null, null);
         HttpResponse process = samlSPMetadataWrapper.get();
         StaplerResponse2 mockResponse = Mockito.mock(StaplerResponse2.class);
         StringWriter stringWriter = new StringWriter();
@@ -67,27 +77,45 @@ public class OpenSamlWrapperTest {
         String result = stringWriter.toString();
         // Some random checks as the full XML comparison fails because of reformatting on processing
         assertThat(result, containsString("EntityDescriptor"));
-        assertThat(result, containsString("<md:NameIDFormat>urn:oasis:names:tc:SAML:2.0:nameid-format:transient</md:NameIDFormat>"));
+        assertThat(
+                result,
+                containsString(
+                        "<md:NameIDFormat>urn:oasis:names:tc:SAML:2.0:nameid-format:transient</md:NameIDFormat>"));
         assertThat(result, containsString("<md:SPSSODescriptor"));
     }
 
     @Test
     public void metadataWrapperWitEncrytionConfigured() throws IOException, ServletException {
         String metadata = IOUtils.toString(
-            Objects.requireNonNull(this.getClass().getClassLoader().getResourceAsStream(
-                "org/jenkinsci" + "/plugins/saml/" + "OpenSamlWrapperTest/metadataWrapper/metadata.xml")),
-            StandardCharsets.UTF_8);
+                Objects.requireNonNull(this.getClass()
+                        .getClassLoader()
+                        .getResourceAsStream("org/jenkinsci" + "/plugins/saml/"
+                                + "OpenSamlWrapperTest/metadataWrapper/metadata.xml")),
+                StandardCharsets.UTF_8);
         BundleKeyStore ks = new BundleKeyStore();
-        SamlEncryptionData encryptionData = new SamlEncryptionData(ks.getKeystorePath(),
-                Secret.fromString(ks.getKsPassword()), Secret.fromString(ks.getKsPkPassword()), ks.getKsPkAlias(),
-                                                                   true, true);
-        SamlSecurityRealm samlSecurity = new SamlSecurityRealm(new IdpMetadataConfiguration(metadata),
-                "displayName", "groups", 10000,
-                "uid", "email", "/logout", null,
-                encryptionData, "none",SAML2_REDIRECT_BINDING_URI,
+        SamlEncryptionData encryptionData = new SamlEncryptionData(
+                ks.getKeystorePath(),
+                Secret.fromString(ks.getKsPassword()),
+                Secret.fromString(ks.getKsPkPassword()),
+                ks.getKsPkAlias(),
+                true,
+                true);
+        SamlSecurityRealm samlSecurity = new SamlSecurityRealm(
+                new IdpMetadataConfiguration(metadata),
+                "displayName",
+                "groups",
+                10000,
+                "uid",
+                "email",
+                "/logout",
+                null,
+                encryptionData,
+                "none",
+                SAML2_REDIRECT_BINDING_URI,
                 java.util.Collections.emptyList());
         jenkinsRule.jenkins.setSecurityRealm(samlSecurity);
-        SamlSPMetadataWrapper samlSPMetadataWrapper = new SamlSPMetadataWrapper(samlSecurity.getSamlPluginConfig(), null, null);
+        SamlSPMetadataWrapper samlSPMetadataWrapper =
+                new SamlSPMetadataWrapper(samlSecurity.getSamlPluginConfig(), null, null);
         HttpResponse process = samlSPMetadataWrapper.get();
         StaplerResponse2 mockResponse = Mockito.mock(StaplerResponse2.class);
         StringWriter stringWriter = new StringWriter();
@@ -96,7 +124,10 @@ public class OpenSamlWrapperTest {
         String result = stringWriter.toString();
         // Some random checks as the full XML comparison fails because of reformatting on processing
         assertThat(result, containsString("EntityDescriptor"));
-        assertThat(result, containsString("<md:NameIDFormat>urn:oasis:names:tc:SAML:2.0:nameid-format:transient</md:NameIDFormat>"));
+        assertThat(
+                result,
+                containsString(
+                        "<md:NameIDFormat>urn:oasis:names:tc:SAML:2.0:nameid-format:transient</md:NameIDFormat>"));
         assertThat(result, containsString("<md:SPSSODescriptor"));
         assertThat(result, containsString("<ds:X509Certificate>"));
     }

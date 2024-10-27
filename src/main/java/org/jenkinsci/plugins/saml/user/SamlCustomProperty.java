@@ -16,21 +16,21 @@ specific language governing permissions and limitations
 under the License. */
 package org.jenkinsci.plugins.saml.user;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
 import edu.umd.cs.findbugs.annotations.NonNull;
-import net.sf.json.JSONObject;
-import org.jenkinsci.plugins.saml.SamlSecurityRealm;
-import org.kohsuke.stapler.DataBoundConstructor;
-import org.kohsuke.stapler.StaplerRequest2;
 import hudson.Extension;
 import hudson.model.AbstractDescribableImpl;
 import hudson.model.Descriptor;
 import hudson.model.User;
 import hudson.model.UserProperty;
 import hudson.model.UserPropertyDescriptor;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
 import jenkins.model.Jenkins;
+import net.sf.json.JSONObject;
+import org.jenkinsci.plugins.saml.SamlSecurityRealm;
+import org.kohsuke.stapler.DataBoundConstructor;
+import org.kohsuke.stapler.StaplerRequest2;
 
 /**
  * Store custom SAMl Attributes read from SAML Response.
@@ -84,12 +84,16 @@ public class SamlCustomProperty extends UserProperty {
 
         @Override
         public boolean equals(Object o) {
-            if (this == o) return true;
-            if (o == null || getClass() != o.getClass()) return false;
+            if (this == o) {
+                return true;
+            }
+            if (o == null || getClass() != o.getClass()) {
+                return false;
+            }
             Attribute attribute = (Attribute) o;
-            return Objects.equals(name, attribute.name) &&
-                    Objects.equals(displayName, attribute.displayName) &&
-                    Objects.equals(value, attribute.value);
+            return Objects.equals(name, attribute.name)
+                    && Objects.equals(displayName, attribute.displayName)
+                    && Objects.equals(value, attribute.value);
         }
 
         @Override
@@ -107,7 +111,6 @@ public class SamlCustomProperty extends UserProperty {
                 return "SAML Attribute";
             }
         }
-
     }
 
     @DataBoundConstructor
@@ -116,8 +119,8 @@ public class SamlCustomProperty extends UserProperty {
     }
 
     @NonNull
-    public List<Attribute> getAttributes(){
-        if(attributes == null){
+    public List<Attribute> getAttributes() {
+        if (attributes == null) {
             return java.util.Collections.emptyList();
         }
         return attributes;
@@ -136,11 +139,13 @@ public class SamlCustomProperty extends UserProperty {
     @SuppressWarnings("unused")
     @Extension
     public static final class DescriptorImpl extends UserPropertyDescriptor {
+        @Override
         @NonNull
         public String getDisplayName() {
             return "Saml Custom Attributes property";
         }
 
+        @Override
         public SamlCustomProperty newInstance(User user) {
             return new SamlCustomProperty(new ArrayList<>());
         }

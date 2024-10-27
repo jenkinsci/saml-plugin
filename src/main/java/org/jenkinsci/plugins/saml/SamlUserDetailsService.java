@@ -17,19 +17,19 @@ under the License. */
 
 package org.jenkinsci.plugins.saml;
 
+import edu.umd.cs.findbugs.annotations.NonNull;
+import hudson.model.User;
+import hudson.security.SecurityRealm;
+import hudson.security.UserMayOrMayNotExistException2;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import edu.umd.cs.findbugs.annotations.NonNull;
+import jenkins.model.Jenkins;
+import jenkins.security.LastGrantedAuthoritiesProperty;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetailsService;
-import hudson.model.User;
-import hudson.security.SecurityRealm;
-import hudson.security.UserMayOrMayNotExistException2;
-import jenkins.model.Jenkins;
-import jenkins.security.LastGrantedAuthoritiesProperty;
 
 /**
  * This service is responsible for restoring UserDetails object by userId
@@ -38,6 +38,7 @@ import jenkins.security.LastGrantedAuthoritiesProperty;
  */
 public class SamlUserDetailsService implements UserDetailsService {
 
+    @Override
     public SamlUserDetails loadUserByUsername(@NonNull String username) {
 
         // try to obtain user details from current authentication details
@@ -53,7 +54,7 @@ public class SamlUserDetailsService implements UserDetailsService {
             throw new UserMayOrMayNotExistException2(username);
         }
 
-        List<GrantedAuthority>authorities = new ArrayList<>();
+        List<GrantedAuthority> authorities = new ArrayList<>();
         authorities.add(SecurityRealm.AUTHENTICATED_AUTHORITY2);
 
         if (username.compareTo(user.getId()) == 0) {

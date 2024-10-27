@@ -1,5 +1,15 @@
 package org.jenkinsci.plugins.saml;
 
+import static org.jenkinsci.plugins.saml.SamlSecurityRealm.ERROR_IDP_METADATA_EMPTY;
+import static org.jenkinsci.plugins.saml.SamlSecurityRealm.ERROR_MALFORMED_URL;
+import static org.jenkinsci.plugins.saml.SamlSecurityRealm.NOT_POSSIBLE_TO_GET_THE_METADATA;
+
+import edu.umd.cs.findbugs.annotations.NonNull;
+import hudson.Extension;
+import hudson.ProxyConfiguration;
+import hudson.model.AbstractDescribableImpl;
+import hudson.model.Descriptor;
+import hudson.util.FormValidation;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -12,11 +22,11 @@ import java.nio.file.Files;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import edu.umd.cs.findbugs.annotations.NonNull;
 import javax.xml.transform.TransformerException;
 import javax.xml.transform.stream.StreamResult;
 import javax.xml.transform.stream.StreamSource;
-import edu.umd.cs.findbugs.annotations.NonNull;
+import jenkins.model.Jenkins;
+import jenkins.util.xml.XMLUtils;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
@@ -24,16 +34,6 @@ import org.kohsuke.stapler.DataBoundConstructor;
 import org.kohsuke.stapler.QueryParameter;
 import org.kohsuke.stapler.interceptor.RequirePOST;
 import org.xml.sax.SAXException;
-import hudson.Extension;
-import hudson.ProxyConfiguration;
-import hudson.model.AbstractDescribableImpl;
-import hudson.model.Descriptor;
-import hudson.util.FormValidation;
-import jenkins.model.Jenkins;
-import jenkins.util.xml.XMLUtils;
-import static org.jenkinsci.plugins.saml.SamlSecurityRealm.ERROR_IDP_METADATA_EMPTY;
-import static org.jenkinsci.plugins.saml.SamlSecurityRealm.ERROR_MALFORMED_URL;
-import static org.jenkinsci.plugins.saml.SamlSecurityRealm.NOT_POSSIBLE_TO_GET_THE_METADATA;
 
 /**
  * Class to store the info about how to manage the IdP Metadata.
@@ -65,7 +65,7 @@ public class IdpMetadataConfiguration extends AbstractDescribableImpl<IdpMetadat
     public IdpMetadataConfiguration(String xml, String url, Long period) {
         this.xml = xml;
         this.url = url;
-        if(StringUtils.isBlank(url) || period == null){
+        if (StringUtils.isBlank(url) || period == null) {
             this.period = 0L;
         } else {
             this.period = period;
@@ -118,8 +118,10 @@ public class IdpMetadataConfiguration extends AbstractDescribableImpl<IdpMetadat
     public void createIdPMetadataFile() throws IOException {
         try {
             if (StringUtils.isNotBlank(xml)) {
-                Files.write(new File(SamlSecurityRealm.getIDPMetadataFilePath()).toPath(), List.of(xml),
-                                            StandardCharsets.UTF_8);
+                Files.write(
+                        new File(SamlSecurityRealm.getIDPMetadataFilePath()).toPath(),
+                        List.of(xml),
+                        StandardCharsets.UTF_8);
             } else {
                 updateIdPMetadata();
             }
@@ -142,8 +144,10 @@ public class IdpMetadataConfiguration extends AbstractDescribableImpl<IdpMetadat
 
                 FormValidation validation = new SamlValidateIdPMetadata(idpXml).get();
                 if (FormValidation.Kind.OK == validation.kind) {
-                    Files.write(new File(SamlSecurityRealm.getIDPMetadataFilePath()).toPath(), List.of(idpXml),
-                                                StandardCharsets.UTF_8);
+                    Files.write(
+                            new File(SamlSecurityRealm.getIDPMetadataFilePath()).toPath(),
+                            List.of(idpXml),
+                            StandardCharsets.UTF_8);
                 } else {
                     throw new IllegalArgumentException(validation.getMessage());
                 }
@@ -239,7 +243,8 @@ public class IdpMetadataConfiguration extends AbstractDescribableImpl<IdpMetadat
             }
 
             try (InputStream in = urlConnection.getInputStream()) {
-                String xml = IOUtils.toString(in,StringUtils.defaultIfEmpty(urlConnection.getContentEncoding(),"UTF-8"));
+                String xml =
+                        IOUtils.toString(in, StringUtils.defaultIfEmpty(urlConnection.getContentEncoding(), "UTF-8"));
                 return new SamlValidateIdPMetadata(xml).get();
             } catch (MalformedURLException e) {
                 return FormValidation.error(ERROR_MALFORMED_URL);

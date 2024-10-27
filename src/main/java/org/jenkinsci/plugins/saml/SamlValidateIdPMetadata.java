@@ -1,21 +1,21 @@
 package org.jenkinsci.plugins.saml;
 
+import hudson.util.FormValidation;
 import java.io.IOException;
 import net.shibboleth.shared.component.ComponentInitializationException;
 import net.shibboleth.shared.xml.XMLParserException;
 import org.apache.commons.io.IOUtils;
 import org.opensaml.saml.metadata.resolver.impl.DOMMetadataResolver;
 import org.pac4j.saml.util.Configuration;
-import hudson.util.FormValidation;
 
 /**
  * validate the IdP metadata, this class is used from the configuration screen to validate the XML in the IdP Metadata textarea.
  */
-public class SamlValidateIdPMetadata extends OpenSAMLWrapper<FormValidation>{
+public class SamlValidateIdPMetadata extends OpenSAMLWrapper<FormValidation> {
 
     private final String idpMetadata;
 
-    public SamlValidateIdPMetadata(String idpMetadata){
+    public SamlValidateIdPMetadata(String idpMetadata) {
         this.idpMetadata = idpMetadata;
     }
 
@@ -26,7 +26,8 @@ public class SamlValidateIdPMetadata extends OpenSAMLWrapper<FormValidation>{
     @Override
     protected FormValidation process() {
         try (final java.io.InputStream in = IOUtils.toInputStream(idpMetadata, "UTF-8")) {
-            final org.w3c.dom.Document inCommonMDDoc = Configuration.getParserPool().parse(in);
+            final org.w3c.dom.Document inCommonMDDoc =
+                    Configuration.getParserPool().parse(in);
             final org.w3c.dom.Element metadataRoot = inCommonMDDoc.getDocumentElement();
             DOMMetadataResolver idpMetadataProvider = new DOMMetadataResolver(metadataRoot);
             idpMetadataProvider.setParserPool(Configuration.getParserPool());
