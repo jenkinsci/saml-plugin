@@ -17,6 +17,8 @@ under the License. */
 
 package org.jenkinsci.plugins.saml;
 
+import java.io.IOException;
+
 import org.kohsuke.stapler.StaplerRequest2;
 import org.kohsuke.stapler.StaplerResponse2;
 import org.pac4j.core.context.CallContext;
@@ -44,15 +46,14 @@ public class SamlRedirectActionWrapper extends OpenSAMLWrapper<RedirectionAction
     @SuppressWarnings("unused")
     @Override
     protected RedirectionAction process() throws IllegalStateException {
-        try {
-            SAML2Client client = createSAML2Client();
+        try (SAML2Client client = createSAML2Client()) {
             WebContext context = createWebContext();
             SessionStore sessionStore = createSessionStore();
             CallContext ctx = new CallContext(context, sessionStore);
             RedirectionAction redirection = client.getRedirectionAction(ctx).orElse(null);
             client.destroy();
             return redirection;
-        } catch (HttpAction e) {
+        } catch (HttpAction|IOException e) {
             throw new IllegalStateException(e);
         }
     }

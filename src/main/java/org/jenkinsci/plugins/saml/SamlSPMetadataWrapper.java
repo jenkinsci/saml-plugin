@@ -17,6 +17,8 @@ under the License. */
 
 package org.jenkinsci.plugins.saml;
 
+import java.io.IOException;
+
 import org.kohsuke.stapler.HttpResponse;
 import org.kohsuke.stapler.HttpResponses;
 import org.kohsuke.stapler.StaplerRequest2;
@@ -41,12 +43,11 @@ public class SamlSPMetadataWrapper extends OpenSAMLWrapper<HttpResponse> {
      */
     @Override
     protected HttpResponse process() throws IllegalStateException {
-        SAML2Client client = createSAML2Client();
         String metadata = "";
-        try {
+        try (SAML2Client client = createSAML2Client()) {
             metadata = client.getServiceProviderMetadataResolver().getMetadata();
             client.destroy();
-        } catch (TechnicalException e) {
+        } catch (TechnicalException|IOException e) {
            throw new IllegalStateException(e);
         }
         return HttpResponses.text(metadata);

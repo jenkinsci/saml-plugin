@@ -17,6 +17,7 @@ under the License. */
 
 package org.jenkinsci.plugins.saml;
 
+import java.io.IOException;
 import java.util.logging.Logger;
 import org.kohsuke.stapler.StaplerRequest2;
 import org.kohsuke.stapler.StaplerResponse2;
@@ -52,8 +53,7 @@ public class SamlProfileWrapper extends OpenSAMLWrapper<SAML2Profile> {
     protected SAML2Profile process() {
         SAML2AuthenticationCredentials credentials;
         SAML2Profile saml2Profile;
-        try {
-            SAML2Client client = createSAML2Client();
+        try (SAML2Client client = createSAML2Client()) {
             WebContext context = createWebContext();
             SessionStore sessionStore = createSessionStore();
             CallContext ctx = new CallContext(context, sessionStore);
@@ -61,7 +61,7 @@ public class SamlProfileWrapper extends OpenSAMLWrapper<SAML2Profile> {
             credentials = (SAML2AuthenticationCredentials) client.validateCredentials(ctx, unvalidated).orElse(null);
             saml2Profile = (SAML2Profile) client.getUserProfile(ctx, credentials).orElse(null);
             client.destroy();
-        } catch (HttpAction|SAMLException e) {
+        } catch (HttpAction|SAMLException|IOException e) {
             //if the SAMLResponse is not valid we send the user again to the IdP
             throw new BadCredentialsException(e.getMessage(), e);
         }
