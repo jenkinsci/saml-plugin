@@ -277,6 +277,7 @@ under the License.
         <artifactId>xmlsec</artifactId>
         <version>4.0.3</version>
       </dependency>
+      <!-- TODO remove when update to pac4j 6.1-->
       <dependency>
         <groupId>org.apache.velocity</groupId>
         <artifactId>velocity-engine-core</artifactId>
