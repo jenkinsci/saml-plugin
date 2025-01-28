@@ -1,26 +1,32 @@
 package org.jenkinsci.plugins.saml;
 
-import java.util.List;
 import hudson.security.SecurityRealm;
-import io.jenkins.plugins.casc.misc.RoundTripAbstractTest;
+import io.jenkins.plugins.casc.misc.junit.jupiter.AbstractRoundTripTest;
 import org.jenkinsci.plugins.saml.conf.Attribute;
 import org.jenkinsci.plugins.saml.conf.AttributeEntry;
-import org.jvnet.hudson.test.RestartableJenkinsRule;
+import org.jvnet.hudson.test.JenkinsRule;
+import org.jvnet.hudson.test.junit.jupiter.WithJenkins;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.hamcrest.MatcherAssert.assertThat;
+import java.util.List;
+
 import static org.hamcrest.CoreMatchers.containsString;
-import static org.junit.Assert.assertTrue;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
-public class SamlJCasCCompatibilityTest extends RoundTripAbstractTest {
+
+@WithJenkins
+class SamlJCasCCompatibilityTest extends AbstractRoundTripTest {
+
     @Override
-    protected void assertConfiguredAsExpected(RestartableJenkinsRule restartableJenkinsRule, String s) {
-        final SecurityRealm realm = restartableJenkinsRule.j.jenkins.getSecurityRealm();
+    protected void assertConfiguredAsExpected(JenkinsRule jenkinsRule, String s) {
+        final SecurityRealm realm = jenkinsRule.jenkins.getSecurityRealm();
         assertNotNull(realm);
-        assertTrue(realm instanceof SamlSecurityRealm);
+        assertInstanceOf(SamlSecurityRealm.class, realm);
 
-        final SamlSecurityRealm samlRealm = (SamlSecurityRealm)realm;
+        final SamlSecurityRealm samlRealm = (SamlSecurityRealm) realm;
         // Simple attributes
         assertEquals("http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name", samlRealm.getDisplayNameAttributeName());
         assertEquals("http://schemas.xmlsoap.org/claims/Group", samlRealm.getGroupsAttributeName());
@@ -55,10 +61,10 @@ public class SamlJCasCCompatibilityTest extends RoundTripAbstractTest {
         final List<AttributeEntry> customAttributes = samlRealm.getSamlCustomAttributes();
         assertNotNull(customAttributes);
         assertEquals(2, customAttributes.size());
-        assertEquals("attribute1", ((Attribute)customAttributes.get(0)).getName());
-        assertEquals("display1", ((Attribute)customAttributes.get(0)).getDisplayName());
-        assertEquals("attribute2", ((Attribute)customAttributes.get(1)).getName());
-        assertEquals("display2", ((Attribute)customAttributes.get(1)).getDisplayName());
+        assertEquals("attribute1", ((Attribute) customAttributes.get(0)).getName());
+        assertEquals("display1", ((Attribute) customAttributes.get(0)).getDisplayName());
+        assertEquals("attribute2", ((Attribute) customAttributes.get(1)).getName());
+        assertEquals("display2", ((Attribute) customAttributes.get(1)).getDisplayName());
     }
 
     @Override

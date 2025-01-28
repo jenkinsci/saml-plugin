@@ -16,34 +16,36 @@ specific language governing permissions and limitations
 under the License. */
 package org.jenkinsci.plugins.saml;
 
-import java.io.IOException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.jvnet.hudson.test.JenkinsRule;
+import org.jvnet.hudson.test.junit.jupiter.WithJenkins;
 import org.jvnet.hudson.test.recipes.LocalData;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+
+import java.io.IOException;
+
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * Test the ScrumExclusion.
+ *
  * @author Ivan Fernandez Calvo
  */
-public class SamlCrumbExclusionTest {
+@WithJenkins
+class SamlCrumbExclusionTest {
 
-    @Rule
-    public JenkinsRule jenkinsRule = new JenkinsRule();
     private HttpServletRequest requestOK;
     private HttpServletRequest requestError;
     private HttpServletResponse response;
     private FilterChain filterChain;
 
-    @Before
-    public void setup(){
+    @BeforeEach
+    void setup() {
         requestOK = new FakeRequest("/securityRealm/finishLogin");
         requestError = new FakeRequest("/foo/securityRealm/finishLogin");
         response = null;
@@ -53,14 +55,14 @@ public class SamlCrumbExclusionTest {
 
     @LocalData("testReadSimpleConfiguration")
     @Test
-    public void testURL() throws ServletException, IOException {
+    void testURL(JenkinsRule jenkinsRule) throws ServletException, IOException {
         SamlCrumbExclusion exclusion = new SamlCrumbExclusion();
         assertTrue(exclusion.process(requestOK, response, filterChain));
         assertFalse(exclusion.process(requestError, response, filterChain));
     }
 
     @Test
-    public void testRealmDisabled() throws ServletException, IOException {
+    void testRealmDisabled(JenkinsRule jenkinsRule) throws ServletException, IOException {
         SamlCrumbExclusion exclusion = new SamlCrumbExclusion();
         assertFalse(exclusion.process(requestOK, response, filterChain));
         assertFalse(exclusion.process(requestError, response, filterChain));
