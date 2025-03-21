@@ -1,23 +1,22 @@
 <?jelly escape-by-default='true'?>
 <j:jelly xmlns:j="jelly:core"
          xmlns:f="/lib/form">
-    <f:entry title="Force Authentication" field="forceAuthn" help="/plugin/saml/help/forceAuthn.html">
+    <f:entry title="Force Authentication" field="forceAuthn">
         <f:checkbox/>
     </f:entry>
-    <f:entry title="Authentication Context" field="authnContextClassRef"
-             help="/plugin/saml/help/authnContextClassRef.html">
+    <f:entry title="Authentication Context" field="authnContextClassRef">
         <f:textbox/>
     </f:entry>
-    <f:entry title="SP Entity ID" field="spEntityId" help="/plugin/saml/help/spEntityId.html">
+    <f:entry title="SP Entity ID" field="spEntityId">
         <f:textbox/>
     </f:entry>
-    <f:entry title="NameIDPolicy Format" field="nameIdPolicyFormat" help="/plugin/saml/help/nameIdPolicyFormat.html">
+    <f:entry title="NameIDPolicy Format" field="nameIdPolicyFormat">
         <f:textbox/>
     </f:entry>
-    <f:entry title="Use cache for configuration files" field="useDiskCache" help="/plugin/saml/help/useDiskCache.html">
+    <f:entry title="Use cache for configuration files" field="useDiskCache">
         <f:checkbox/>
     </f:entry>
-    <f:entry title="Use Random relayState value" field="randomRelayState" help="/plugin/saml/help/randomRelayState.html">
+    <f:entry title="Use Random relayState value" field="randomRelayState">
         <f:checkbox/>
     </f:entry>
 </j:jelly>

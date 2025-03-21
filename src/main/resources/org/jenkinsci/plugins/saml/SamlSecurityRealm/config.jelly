@@ -1,34 +1,29 @@
 <?jelly escape-by-default='true'?>
-<j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:f="/lib/form" xmlns:d="jelly:define" xmlns:local="local">
+<j:jelly xmlns:j="jelly:core" xmlns:f="/lib/form">
     <f:property field="idpMetadataConfiguration"/>
-    <f:entry title="Display Name Attribute" field="displayNameAttributeName"
-             help="/plugin/saml/help/displayNameAttributeName.html">
+    <f:entry title="Display Name Attribute" field="displayNameAttributeName">
         <f:textbox default="http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name"/>
     </f:entry>
-    <f:entry title="Group Attribute" field="groupsAttributeName" help="/plugin/saml/help/groupsAttributeName.html">
+    <f:entry title="Group Attribute" field="groupsAttributeName">
         <f:textbox default="http://schemas.xmlsoap.org/claims/Group"/>
     </f:entry>
-    <f:entry title="Maximum Authentication Lifetime" field="maximumAuthenticationLifetime"
-             help="/plugin/saml/help/maximumAuthenticationLifetime.html">
+    <f:entry title="Maximum Authentication Lifetime" field="maximumAuthenticationLifetime">
         <f:number clazz="required number" min="0" default="86400"/>
     </f:entry>
-    <f:entry title="Username Attribute" field="usernameAttributeName"
-             help="/plugin/saml/help/usernameAttributeName.html">
+    <f:entry title="Username Attribute" field="usernameAttributeName">
         <f:textbox/>
     </f:entry>
-    <f:entry title="Email Attribute" field="emailAttributeName"
-             help="/plugin/saml/help/emailAttributeName.html">
+    <f:entry title="Email Attribute" field="emailAttributeName">
         <f:textbox/>
     </f:entry>
-    <f:entry title="Username Case Conversion" field="usernameCaseConversion"
-             help="/plugin/saml/help/usernameCaseConversion.html">
+    <f:entry title="Username Case Conversion" field="usernameCaseConversion">
         <select name="usernameCaseConversion">
             <f:option value="none" selected="${instance.usernameCaseConversion == 'none'}">None</f:option>
             <f:option value="lowercase" selected="${instance.usernameCaseConversion == 'lowercase'}">Lowercase</f:option>
             <f:option value="uppercase" selected="${instance.usernameCaseConversion == 'uppercase'}">Uppercase</f:option>
         </select>
     </f:entry>
-    <f:entry title="Data Binding Method" field="binding" help="/plugin/saml/help/binding.html">
+    <f:entry title="Data Binding Method" field="binding">
         <select name="binding">
             <f:option value="urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect"
                       selected="${instance.binding == 'urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect'}">HTTP-Redirect</f:option>
@@ -36,12 +31,12 @@
                       selected="${instance.binding == 'urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST'}">HTTP-POST</f:option>
         </select>
     </f:entry>
-    <f:entry title="Logout URL" field="logoutUrl" help="/plugin/saml/help/logoutUrl.html">
+    <f:entry title="Logout URL" field="logoutUrl">
         <f:textbox/>
     </f:entry>
 
-    <f:optionalProperty title="Advanced Configuration" field="advancedConfiguration" help="/plugin/saml/help/advancedConfiguration.html"/>
-    <f:optionalProperty title="Encryption Configuration" field="encryptionData" help="/plugin/saml/help/encryption.html"/>
+    <f:optionalProperty title="Advanced Configuration" field="advancedConfiguration"/>
+    <f:optionalProperty title="Encryption Configuration" field="encryptionData"/>
 
     <f:entry title="Custom Attributes">
         <f:repeatableHeteroProperty field="samlCustomAttributes" hasHeader="true"/>

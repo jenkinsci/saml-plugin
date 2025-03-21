@@ -1,24 +1,24 @@
 <?jelly escape-by-default='true'?>
 <j:jelly xmlns:j="jelly:core"
          xmlns:f="/lib/form">
-    <f:entry title="Keystore path" field="keystorePath" help="/plugin/saml/help/keystorePath.html">
+    <f:entry title="Keystore path" field="keystorePath">
         <f:textbox/>
     </f:entry>
-    <f:entry title="Keystore password" field="keystorePassword" help="/plugin/saml/help/keystorePassword.html">
+    <f:entry title="Keystore password" field="keystorePassword">
         <f:password/>
     </f:entry>
-    <f:entry title="Private Key Alias" field="privateKeyAlias" help="/plugin/saml/help/keyAlias.html">
+    <f:entry title="Private Key Alias" field="privateKeyAlias">
         <f:textbox/>
     </f:entry>
-    <f:entry title="Private Key password" field="privateKeyPassword" help="/plugin/saml/help/keyPassword.html">
+    <f:entry title="Private Key password" field="privateKeyPassword">
         <f:password/>
     </f:entry>
     <f:validateButton title="Test keystore" progress="Testing..." method="testKeyStore"
                       with="keystorePath,keystorePassword,privateKeyPassword,privateKeyAlias"/>
-    <f:entry title="Auth Request Signature" field="forceSignRedirectBindingAuthnRequest" help="/plugin/saml/help/forceSignRedirectBindingAuthnRequest.html">
+    <f:entry title="Auth Request Signature" field="forceSignRedirectBindingAuthnRequest">
         <f:checkbox/>
     </f:entry>
-    <f:entry title="Wants Assertion Signed" field="wantsAssertionsSigned" help="/plugin/saml/help/wantsAssertionsSigned.html">
+    <f:entry title="Wants Assertion Signed" field="wantsAssertionsSigned">
         <f:checkbox/>
     </f:entry>
 </j:jelly>
