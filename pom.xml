@@ -265,7 +265,7 @@ under the License.
       <dependency>
         <groupId>org.apache.santuario</groupId>
         <artifactId>xmlsec</artifactId>
-        <version>4.0.3</version>
+        <version>4.0.4</version>
       </dependency>
       <!-- TODO remove when update to pac4j 6.1-->
       <dependency>
