@@ -43,7 +43,6 @@ public class SamlRedirectActionWrapper extends OpenSAMLWrapper<RedirectionAction
      * @return the redirection URL to the IdP.
      * @throws IllegalStateException if something goes wrong.
      */
-    @SuppressWarnings("unused")
     @Override
     protected RedirectionAction process() throws IllegalStateException {
         try (SAML2Client client = createSAML2Client()) {
@@ -53,7 +52,7 @@ public class SamlRedirectActionWrapper extends OpenSAMLWrapper<RedirectionAction
             RedirectionAction redirection = client.getRedirectionAction(ctx).orElse(null);
             client.destroy();
             return redirection;
-        } catch (HttpAction|IOException e) {
+        } catch (HttpAction e) {
             throw new IllegalStateException(e);
         }
     }

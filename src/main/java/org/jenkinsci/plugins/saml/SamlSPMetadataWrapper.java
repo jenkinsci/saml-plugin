@@ -47,7 +47,7 @@ public class SamlSPMetadataWrapper extends OpenSAMLWrapper<HttpResponse> {
         try (SAML2Client client = createSAML2Client()) {
             metadata = client.getServiceProviderMetadataResolver().getMetadata();
             client.destroy();
-        } catch (TechnicalException|IOException e) {
+        } catch (TechnicalException e) {
            throw new IllegalStateException(e);
         }
         return HttpResponses.text(metadata);

@@ -48,7 +48,6 @@ public class SamlProfileWrapper extends OpenSAMLWrapper<SAML2Profile> {
     /**
      * @return the SAML2Profile of the user returned by the IdP.
      */
-    @SuppressWarnings("unused")
     @Override
     protected SAML2Profile process() {
         SAML2AuthenticationCredentials credentials;
@@ -61,7 +60,7 @@ public class SamlProfileWrapper extends OpenSAMLWrapper<SAML2Profile> {
             credentials = (SAML2AuthenticationCredentials) client.validateCredentials(ctx, unvalidated).orElse(null);
             saml2Profile = (SAML2Profile) client.getUserProfile(ctx, credentials).orElse(null);
             client.destroy();
-        } catch (HttpAction|SAMLException|IOException e) {
+        } catch (HttpAction|SAMLException e) {
             //if the SAMLResponse is not valid we send the user again to the IdP
             throw new BadCredentialsException(e.getMessage(), e);
         }
