@@ -65,7 +65,6 @@ import hudson.util.FormValidation;
 import jenkins.model.Jenkins;
 import jenkins.security.SecurityListener;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.context.SecurityContextImpl;
 
 import static org.apache.commons.codec.binary.Base64.decodeBase64;
 import static org.apache.commons.codec.binary.Base64.isBase64;
