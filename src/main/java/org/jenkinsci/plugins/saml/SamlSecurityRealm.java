@@ -332,7 +332,7 @@ public class SamlSecurityRealm extends SecurityRealm {
 
         SamlAuthenticationToken samlAuthToken = new SamlAuthenticationToken(userDetails);
 
-        SecurityContextHolder.setContext(new SecurityContextImpl(samlAuthToken));
+        SecurityContextHolder.getContext().setAuthentication(samlAuthToken);
         SecurityListener.fireAuthenticated2(userDetails);
         User user = User.current();
 
