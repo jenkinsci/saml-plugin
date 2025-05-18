@@ -53,11 +53,11 @@ import org.pac4j.saml.profile.SAML2Profile;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
 import hudson.Extension;
 import hudson.Util;
 import hudson.model.Descriptor;
 import hudson.model.User;
-import hudson.security.ACL;
 import hudson.security.GroupDetails;
 import hudson.security.SecurityRealm;
 import hudson.security.UserMayOrMayNotExistException2;
@@ -330,7 +330,7 @@ public class SamlSecurityRealm extends SecurityRealm {
 
         SamlAuthenticationToken samlAuthToken = new SamlAuthenticationToken(userDetails);
 
-        ACL.as2(samlAuthToken);
+        SecurityContextHolder.getContext().setAuthentication(samlAuthToken);
         SecurityListener.fireAuthenticated2(userDetails);
         User user = User.current();
 
