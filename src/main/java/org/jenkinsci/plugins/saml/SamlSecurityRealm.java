@@ -108,7 +108,6 @@ public class SamlSecurityRealm extends SecurityRealm {
     public static final String CONSUMER_SERVICE_URL_PATH = "securityRealm/finishLogin";
 
     private static final Logger LOG = Logger.getLogger(SamlSecurityRealm.class.getName());
-    private static final String REFERER_ATTRIBUTE = SamlSecurityRealm.class.getName() + ".referer";
     public static final String WARN_THERE_IS_NOT_KEY_STORE = "There is not keyStore to validate";
     public static final String ERROR_NOT_KEY_FOUND = "Not key found";
     public static final String SUCCESS = "Success";
@@ -250,12 +249,8 @@ public class SamlSecurityRealm extends SecurityRealm {
      * @return the http response.
      */
     @SuppressWarnings("unused")
-    public HttpResponse doCommenceLogin(final StaplerRequest2 request, final StaplerResponse2 response, @QueryParameter
-            String from, @Header("Referer") final String referer) {
+    public HttpResponse doCommenceLogin(final StaplerRequest2 request, final StaplerResponse2 response) {
         LOG.fine("SamlSecurityRealm.doCommenceLogin called. Using consumerServiceUrl " + getSamlPluginConfig().getConsumerServiceUrl());
-
-        String redirectOnFinish = calculateSafeRedirect(from, referer);
-        request.getSession().setAttribute(REFERER_ATTRIBUTE, redirectOnFinish);
 
         RedirectionAction action = new SamlRedirectActionWrapper(getSamlPluginConfig(), request, response).get();
         if (action instanceof SeeOtherAction || action instanceof FoundAction) {
@@ -270,29 +265,6 @@ public class SamlSecurityRealm extends SecurityRealm {
     }
 
     /**
-     * Check parameters "from" and "referer" to decide where is the safe URL to be redirected.
-     * @param from http request "from" parameter.
-     * @param referer referer header.
-     * @return a safe URL to be redirected.
-     */
-    private String calculateSafeRedirect(String from, String referer) {
-        String redirectURL;
-        String rootUrl = baseUrl();
-        //noinspection PointlessNullCheck
-        if (from != null && Util.isSafeToRedirectTo(from)) {
-            redirectURL = from;
-        } else {
-            if (referer != null && (referer.startsWith(rootUrl) || Util.isSafeToRedirectTo(referer))) {
-                redirectURL = referer;
-            } else {
-                redirectURL = rootUrl;
-            }
-        }
-        LOG.fine("Safe URL redirection: " + redirectURL);
-        return redirectURL;
-    }
-
-    /**
      * /securityRealm/finishLogin
      *
      * @param request  http request.
@@ -303,17 +275,16 @@ public class SamlSecurityRealm extends SecurityRealm {
     @RequirePOST
     public HttpResponse doFinishLogin(final StaplerRequest2 request, final StaplerResponse2 response) {
         LOG.finer("SamlSecurityRealm.doFinishLogin called");
-        String referer = (String) request.getSession().getAttribute(REFERER_ATTRIBUTE);
-        // redirect back to original page
-        String redirectUrl = referer != null ? referer : baseUrl();
-        recreateSession(request);
+        String redirectUrl = null;
         logSamlResponse(request);
 
         boolean saveUser = false;
         SAML2Profile saml2Profile;
 
         try {
-            saml2Profile = new SamlProfileWrapper(getSamlPluginConfig(), request, response).get();
+            final SamlProfileWrapper samlProfileWrapper = new SamlProfileWrapper(getSamlPluginConfig(), request, response);
+            saml2Profile = samlProfileWrapper.get();
+            redirectUrl = samlProfileWrapper.getRedirectUrl();
         } catch (BadCredentialsException e){
             LOG.log(Level.WARNING, "Unable to validate the SAML Response: " + e.getMessage()
                     + CHECK_MAX_AUTH_LIFETIME
@@ -442,7 +413,7 @@ public class SamlSecurityRealm extends SecurityRealm {
         }
     }
 
-    private String baseUrl() {
+    /* package */ static String baseUrl() {
         return  Jenkins.get().getRootUrl();
     }
 
