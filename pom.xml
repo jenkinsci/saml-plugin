@@ -93,6 +93,10 @@ under the License.
   <dependencies>
     <dependency>
       <groupId>io.jenkins.plugins</groupId>
+      <artifactId>caffeine-api</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>io.jenkins.plugins</groupId>
       <artifactId>commons-lang3-api</artifactId>
     </dependency>
     <dependency>
@@ -253,6 +257,12 @@ under the License.
       <version>1.21.0</version>
       <scope>test</scope>
     </dependency>
+    <dependency>
+      <groupId>com.github.ben-manes.caffeine</groupId>
+      <artifactId>caffeine</artifactId>
+      <version>3.2.0</version>
+      <scope>compile</scope>
+    </dependency>
   </dependencies>
   <dependencyManagement>
     <dependencies>
@@ -273,6 +283,11 @@ under the License.
         <groupId>org.apache.velocity</groupId>
         <artifactId>velocity-engine-core</artifactId>
         <version>2.4.1</version>
+      </dependency>
+      <dependency>
+        <groupId>com.google.errorprone</groupId>
+        <artifactId>error_prone_annotations</artifactId>
+        <version>2.36.0</version>
       </dependency>
     </dependencies>
   </dependencyManagement>

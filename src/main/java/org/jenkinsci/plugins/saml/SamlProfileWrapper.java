@@ -61,7 +61,10 @@ public class SamlProfileWrapper extends OpenSAMLWrapper<SAML2Profile> {
             SAML2Credentials unvalidated = (SAML2Credentials) client.getCredentials(ctx).orElse(null);
             credentials = (SAML2AuthenticationCredentials) client.validateCredentials(ctx, unvalidated).orElse(null);
             saml2Profile = (SAML2Profile) client.getUserProfile(ctx, credentials).orElse(null);
-            redirectUrl = context.getRequestParameter("RelayState").orElse(Jenkins.get().getRootUrl());
+            context.getRequestParameter("RelayState").ifPresent(relayState -> redirectUrl = RefererStateGenerator.CACHE.getIfPresent(relayState));
+            if (redirectUrl == null) {
+                redirectUrl = Jenkins.get().getRootUrl();
+            }
             client.destroy();
         } catch (HttpAction|SAMLException e) {
             //if the SAMLResponse is not valid we send the user again to the IdP
