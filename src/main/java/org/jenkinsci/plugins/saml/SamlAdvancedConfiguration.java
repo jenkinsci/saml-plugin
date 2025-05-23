@@ -18,6 +18,7 @@ under the License. */
 package org.jenkinsci.plugins.saml;
 
 import edu.umd.cs.findbugs.annotations.NonNull;
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import org.apache.commons.lang.StringUtils;
 import org.kohsuke.stapler.DataBoundConstructor;
 import org.kohsuke.stapler.DataBoundSetter;
@@ -42,7 +43,9 @@ public class SamlAdvancedConfiguration extends AbstractDescribableImpl<SamlAdvan
 
     private Boolean useDiskCache = false;
 
-    private Boolean randomRelayState = false;
+    // transient but retained to not cause old data warnings
+    @SuppressFBWarnings("UUF_UNUSED_FIELD")
+    private transient Boolean randomRelayState;
 
     @DataBoundConstructor
     public SamlAdvancedConfiguration(Boolean forceAuthn,
@@ -80,23 +83,13 @@ public class SamlAdvancedConfiguration extends AbstractDescribableImpl<SamlAdvan
         this.useDiskCache = useDiskCache;
     }
 
-    public Boolean getRandomRelayState() {
-        return randomRelayState != null ? randomRelayState : false;
-    }
-
-    @DataBoundSetter
-    public void setRandomRelayState(Boolean randomRelayState) {
-        this.randomRelayState = randomRelayState;
-    }
-
     @Override
     public String toString() {
         return "SamlAdvancedConfiguration{" + "forceAuthn=" + getForceAuthn() + ", authnContextClassRef='"
                + StringUtils.defaultIfBlank(getAuthnContextClassRef(), "none") + '\'' + ", spEntityId='"
                + StringUtils.defaultIfBlank(getSpEntityId(), "none") + '\'' + ", nameIdPolicyFormat='"
                + StringUtils.defaultIfBlank(getNameIdPolicyFormat(), "none") + '\''
-               + ", useDiskCache=" + getUseDiskCache()
-               + ", randomRelayState=" + getRandomRelayState() + '}';
+               + ", useDiskCache=" + getUseDiskCache() + '}';
     }
 
     @SuppressWarnings("unused")
