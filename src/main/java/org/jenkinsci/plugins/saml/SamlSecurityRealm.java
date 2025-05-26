@@ -28,7 +28,6 @@ import java.util.logging.Logger;
 import edu.umd.cs.findbugs.annotations.NonNull;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpSession;
-import edu.umd.cs.findbugs.annotations.NonNull;
 import org.springframework.security.core.Authentication;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
@@ -58,7 +57,6 @@ import hudson.Extension;
 import hudson.Util;
 import hudson.model.Descriptor;
 import hudson.model.User;
-import hudson.security.ACL;
 import hudson.security.GroupDetails;
 import hudson.security.SecurityRealm;
 import hudson.security.UserMayOrMayNotExistException2;
@@ -66,6 +64,8 @@ import hudson.tasks.Mailer.UserProperty;
 import hudson.util.FormValidation;
 import jenkins.model.Jenkins;
 import jenkins.security.SecurityListener;
+import org.springframework.security.core.context.SecurityContextHolder;
+
 import static org.apache.commons.codec.binary.Base64.decodeBase64;
 import static org.apache.commons.codec.binary.Base64.isBase64;
 import static org.opensaml.saml.common.xml.SAMLConstants.SAML2_REDIRECT_BINDING_URI;
@@ -300,7 +300,7 @@ public class SamlSecurityRealm extends SecurityRealm {
 
         SamlAuthenticationToken samlAuthToken = new SamlAuthenticationToken(userDetails);
 
-        ACL.as2(samlAuthToken);
+        SecurityContextHolder.getContext().setAuthentication(samlAuthToken);
         SecurityListener.fireAuthenticated2(userDetails);
         User user = User.current();
 
