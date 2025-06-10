@@ -25,7 +25,6 @@ import org.kohsuke.stapler.StaplerResponse2;
 import org.opensaml.core.config.InitializationException;
 import org.opensaml.core.config.InitializationService;
 import org.pac4j.core.context.session.SessionStore;
-import org.pac4j.core.util.generator.RandomValueGenerator;
 import org.pac4j.jee.context.JEEContext;
 import org.pac4j.core.context.WebContext;
 import org.pac4j.core.exception.TechnicalException;
@@ -166,9 +165,7 @@ public abstract class OpenSAMLWrapper<T> {
         SAML2Client saml2Client = new SAML2Client(config);
         saml2Client.setCallbackUrl(samlPluginConfig.getConsumerServiceUrl());
         saml2Client.setCallbackUrlResolver(new NoParameterCallbackUrlResolver());
-        if(advancedConfiguration != null && advancedConfiguration.getRandomRelayState()){
-            saml2Client.setStateGenerator(new RandomValueGenerator());
-        }
+        saml2Client.setStateGenerator(new RefererStateGenerator());
         saml2Client.init();
 
         if (LOG.isLoggable(FINE)) {
