@@ -17,6 +17,8 @@ under the License. */
 
 package org.jenkinsci.plugins.saml;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 import hudson.util.FormValidation.Kind;
 import hudson.util.Secret;
 import org.junit.jupiter.api.BeforeEach;
@@ -24,8 +26,6 @@ import org.junit.jupiter.api.Test;
 import org.jvnet.hudson.test.JenkinsRule;
 import org.jvnet.hudson.test.junit.jupiter.WithJenkins;
 import org.jvnet.hudson.test.recipes.LocalData;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  * Different form validation tests
@@ -51,18 +51,23 @@ class SamlFormValidationsTest {
         } else {
             throw new RuntimeException("The security Realm it is not correct");
         }
-        if (samlSecurityRealm.getAdvancedConfiguration().getDescriptor() instanceof SamlAdvancedConfiguration.DescriptorImpl) {
-            advCdescriptor = (SamlAdvancedConfiguration.DescriptorImpl) samlSecurityRealm.getAdvancedConfiguration().getDescriptor();
+        if (samlSecurityRealm.getAdvancedConfiguration().getDescriptor()
+                instanceof SamlAdvancedConfiguration.DescriptorImpl) {
+            advCdescriptor = (SamlAdvancedConfiguration.DescriptorImpl)
+                    samlSecurityRealm.getAdvancedConfiguration().getDescriptor();
         } else {
             throw new RuntimeException("The security Realm it is not correct");
         }
-        if (samlSecurityRealm.getIdpMetadataConfiguration().getDescriptor() instanceof IdpMetadataConfiguration.DescriptorImpl) {
-            idpMCdescriptor = (IdpMetadataConfiguration.DescriptorImpl) samlSecurityRealm.getIdpMetadataConfiguration().getDescriptor();
+        if (samlSecurityRealm.getIdpMetadataConfiguration().getDescriptor()
+                instanceof IdpMetadataConfiguration.DescriptorImpl) {
+            idpMCdescriptor = (IdpMetadataConfiguration.DescriptorImpl)
+                    samlSecurityRealm.getIdpMetadataConfiguration().getDescriptor();
         } else {
             throw new RuntimeException("The security Realm it is not correct");
         }
         if (samlSecurityRealm.getEncryptionData().getDescriptor() instanceof SamlEncryptionData.DescriptorImpl) {
-            endescriptor = (SamlEncryptionData.DescriptorImpl) samlSecurityRealm.getEncryptionData().getDescriptor();
+            endescriptor = (SamlEncryptionData.DescriptorImpl)
+                    samlSecurityRealm.getEncryptionData().getDescriptor();
         } else {
             throw new RuntimeException("The security Realm it is not correct");
         }
@@ -86,15 +91,63 @@ class SamlFormValidationsTest {
     void testKeyStore() {
         BundleKeyStore bks = new BundleKeyStore();
         bks.init();
-        assertEquals(Kind.WARNING, endescriptor.doTestKeyStore("", Secret.fromString(""), Secret.fromString(""), "").kind);
-        assertEquals(Kind.ERROR, endescriptor.doTestKeyStore("none", Secret.fromString(""), Secret.fromString(""), "").kind);
-        assertEquals(Kind.ERROR, endescriptor.doTestKeyStore(bks.getKeystorePath().substring(5), Secret.fromString(""), Secret.fromString(""), "").kind);
-        assertEquals(Kind.ERROR, endescriptor.doTestKeyStore(bks.getKeystorePath().substring(5), Secret.fromString("none"), Secret.fromString(""), "").kind);
-        assertEquals(Kind.ERROR, endescriptor.doTestKeyStore(bks.getKeystorePath().substring(5), Secret.fromString(bks.getKsPassword()), Secret.fromString(""), "").kind);
-        assertEquals(Kind.ERROR, endescriptor.doTestKeyStore(bks.getKeystorePath().substring(5), Secret.fromString(bks.getKsPassword()), Secret.fromString("none"), "").kind);
-        assertEquals(Kind.OK, endescriptor.doTestKeyStore(bks.getKeystorePath().substring(5), Secret.fromString(bks.getKsPassword()), Secret.fromString(bks.getKsPkPassword()), "").kind);
-        assertEquals(Kind.ERROR, endescriptor.doTestKeyStore(bks.getKeystorePath().substring(5), Secret.fromString(bks.getKsPassword()), Secret.fromString(bks.getKsPkPassword()), "none").kind);
-        assertEquals(Kind.OK, endescriptor.doTestKeyStore(bks.getKeystorePath().substring(5), Secret.fromString(bks.getKsPassword()), Secret.fromString(bks.getKsPkPassword()), bks.getKsPkAlias()).kind);
+        assertEquals(
+                Kind.WARNING, endescriptor.doTestKeyStore("", Secret.fromString(""), Secret.fromString(""), "").kind);
+        assertEquals(
+                Kind.ERROR, endescriptor.doTestKeyStore("none", Secret.fromString(""), Secret.fromString(""), "").kind);
+        assertEquals(
+                Kind.ERROR,
+                endescriptor.doTestKeyStore(
+                                bks.getKeystorePath().substring(5), Secret.fromString(""), Secret.fromString(""), "")
+                        .kind);
+        assertEquals(
+                Kind.ERROR,
+                endescriptor.doTestKeyStore(
+                                bks.getKeystorePath().substring(5),
+                                Secret.fromString("none"),
+                                Secret.fromString(""),
+                                "")
+                        .kind);
+        assertEquals(
+                Kind.ERROR,
+                endescriptor.doTestKeyStore(
+                                bks.getKeystorePath().substring(5),
+                                Secret.fromString(bks.getKsPassword()),
+                                Secret.fromString(""),
+                                "")
+                        .kind);
+        assertEquals(
+                Kind.ERROR,
+                endescriptor.doTestKeyStore(
+                                bks.getKeystorePath().substring(5),
+                                Secret.fromString(bks.getKsPassword()),
+                                Secret.fromString("none"),
+                                "")
+                        .kind);
+        assertEquals(
+                Kind.OK,
+                endescriptor.doTestKeyStore(
+                                bks.getKeystorePath().substring(5),
+                                Secret.fromString(bks.getKsPassword()),
+                                Secret.fromString(bks.getKsPkPassword()),
+                                "")
+                        .kind);
+        assertEquals(
+                Kind.ERROR,
+                endescriptor.doTestKeyStore(
+                                bks.getKeystorePath().substring(5),
+                                Secret.fromString(bks.getKsPassword()),
+                                Secret.fromString(bks.getKsPkPassword()),
+                                "none")
+                        .kind);
+        assertEquals(
+                Kind.OK,
+                endescriptor.doTestKeyStore(
+                                bks.getKeystorePath().substring(5),
+                                Secret.fromString(bks.getKsPassword()),
+                                Secret.fromString(bks.getKsPkPassword()),
+                                bks.getKsPkAlias())
+                        .kind);
     }
 
     @LocalData("testReadSimpleConfigurationAdvancedConfiguration")

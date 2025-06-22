@@ -17,7 +17,6 @@ under the License. */
 
 package org.jenkinsci.plugins.saml;
 
-import java.io.IOException;
 import java.util.logging.Logger;
 import jenkins.model.Jenkins;
 import org.kohsuke.stapler.StaplerRequest2;
@@ -58,16 +57,20 @@ public class SamlProfileWrapper extends OpenSAMLWrapper<SAML2Profile> {
             WebContext context = createWebContext();
             SessionStore sessionStore = createSessionStore();
             CallContext ctx = new CallContext(context, sessionStore);
-            SAML2Credentials unvalidated = (SAML2Credentials) client.getCredentials(ctx).orElse(null);
-            credentials = (SAML2AuthenticationCredentials) client.validateCredentials(ctx, unvalidated).orElse(null);
-            saml2Profile = (SAML2Profile) client.getUserProfile(ctx, credentials).orElse(null);
-            context.getRequestParameter("RelayState").ifPresent(relayState -> redirectUrl = RefererStateGenerator.CACHE.getIfPresent(relayState));
+            SAML2Credentials unvalidated =
+                    (SAML2Credentials) client.getCredentials(ctx).orElse(null);
+            credentials = (SAML2AuthenticationCredentials)
+                    client.validateCredentials(ctx, unvalidated).orElse(null);
+            saml2Profile =
+                    (SAML2Profile) client.getUserProfile(ctx, credentials).orElse(null);
+            context.getRequestParameter("RelayState")
+                    .ifPresent(relayState -> redirectUrl = RefererStateGenerator.CACHE.getIfPresent(relayState));
             if (redirectUrl == null) {
                 redirectUrl = Jenkins.get().getRootUrl();
             }
             client.destroy();
-        } catch (HttpAction|SAMLException e) {
-            //if the SAMLResponse is not valid we send the user again to the IdP
+        } catch (HttpAction | SAMLException e) {
+            // if the SAMLResponse is not valid we send the user again to the IdP
             throw new BadCredentialsException(e.getMessage(), e);
         }
         if (saml2Profile == null) {

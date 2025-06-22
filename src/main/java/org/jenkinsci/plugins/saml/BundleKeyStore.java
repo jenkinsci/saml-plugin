@@ -1,5 +1,10 @@
 package org.jenkinsci.plugins.saml;
 
+import static java.util.logging.Level.SEVERE;
+import static java.util.logging.Level.WARNING;
+
+import hudson.XmlFile;
+import hudson.util.Secret;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -21,6 +26,7 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Logger;
+import jenkins.model.Jenkins;
 import org.apache.commons.lang.math.NumberUtils;
 import org.bouncycastle.asn1.ASN1Encodable;
 import org.bouncycastle.asn1.DERSequence;
@@ -36,11 +42,6 @@ import org.bouncycastle.cert.jcajce.JcaX509ExtensionUtils;
 import org.bouncycastle.cert.jcajce.JcaX509v3CertificateBuilder;
 import org.bouncycastle.operator.OperatorCreationException;
 import org.bouncycastle.operator.jcajce.JcaContentSignerBuilder;
-import hudson.XmlFile;
-import hudson.util.Secret;
-import jenkins.model.Jenkins;
-import static java.util.logging.Level.SEVERE;
-import static java.util.logging.Level.WARNING;
 
 /**
  * Pac4j requires to set a keystore for encryption operations,
@@ -68,14 +69,14 @@ public class BundleKeyStore {
     public static final String CN_SAML_JENKINS = "cn=SAML-jenkins";
 
     private String keystorePath = PAC4J_DEMO_KEYSTORE;
-    private Secret ksPassword =  Secret.fromString(PAC4J_DEMO_PASSWD);
-    private Secret ksPkPassword =  Secret.fromString(PAC4J_DEMO_PASSWD);
+    private Secret ksPassword = Secret.fromString(PAC4J_DEMO_PASSWD);
+    private Secret ksPkPassword = Secret.fromString(PAC4J_DEMO_PASSWD);
     private String ksPkAlias = PAC4J_DEMO_ALIAS;
     private Date dateValidity;
     private File keystore;
     private transient XmlFile config = null;
 
-    public BundleKeyStore(){
+    public BundleKeyStore() {
         Jenkins jenkins = Jenkins.get();
         File jdir = jenkins.getRootDir();
         File configFile = new File(jdir, SAML_JENKINS_KEYSTORE_XML);
@@ -85,8 +86,11 @@ public class BundleKeyStore {
                 config.unmarshal(this);
             }
         } catch (IOException e) {
-            LOG.log(WARNING, "It is not possible to write the configuration file "
-                             + config.getFile().getAbsolutePath(), e);
+            LOG.log(
+                    WARNING,
+                    "It is not possible to write the configuration file "
+                            + config.getFile().getAbsolutePath(),
+                    e);
         }
     }
 
@@ -98,7 +102,8 @@ public class BundleKeyStore {
         try {
             if (keystore == null || !keystoreFileExists()) {
                 String jenkinsHome = jenkins.model.Jenkins.get().getRootDir().getPath();
-                keystore = java.nio.file.Paths.get(jenkinsHome, SAML_JENKINS_KEYSTORE_JKS).toFile();
+                keystore = java.nio.file.Paths.get(jenkinsHome, SAML_JENKINS_KEYSTORE_JKS)
+                        .toFile();
                 keystorePath = "file:" + keystore.getPath();
             }
 
@@ -110,21 +115,28 @@ public class BundleKeyStore {
             KeyStore ks = loadKeyStore(keystore, ksPassword.getPlainText());
             KeyPair keypair = generate();
             X509Certificate[] chain = createCertificateChain(keypair);
-            ks.setKeyEntry(ksPkAlias, keypair.getPrivate(), ksPkPassword.getPlainText().toCharArray(), chain);
+            ks.setKeyEntry(
+                    ksPkAlias, keypair.getPrivate(), ksPkPassword.getPlainText().toCharArray(), chain);
             saveKeyStore(keystore, ks, ksPassword.getPlainText());
             LOG.warning("Using automatic generated keystore : " + keystorePath);
             try {
                 config.write(this);
             } catch (IOException e) {
-                LOG.log(WARNING, "It is not possible to write the configuration file "
-                                 + config.getFile().getAbsolutePath(), e);
+                LOG.log(
+                        WARNING,
+                        "It is not possible to write the configuration file "
+                                + config.getFile().getAbsolutePath(),
+                        e);
             }
         } catch (Exception e) {
-            LOG.log(SEVERE, "Error accessing to " + SAML_JENKINS_KEYSTORE_JKS + " keystore file, check the " +
-                    "troubleshooting guide https://github.com/jenkinsci/saml-plugin/blob/master/doc/TROUBLESHOOTING.md", e);
+            LOG.log(
+                    SEVERE,
+                    "Error accessing to " + SAML_JENKINS_KEYSTORE_JKS + " keystore file, check the "
+                            + "troubleshooting guide https://github.com/jenkinsci/saml-plugin/blob/master/doc/TROUBLESHOOTING.md",
+                    e);
             LOG.warning("Using bundled keystore : " + PAC4J_DEMO_KEYSTORE);
             ksPassword = Secret.fromString(PAC4J_DEMO_PASSWD);
-            ksPkPassword =  Secret.fromString(PAC4J_DEMO_PASSWD);
+            ksPkPassword = Secret.fromString(PAC4J_DEMO_PASSWD);
             keystorePath = PAC4J_DEMO_KEYSTORE;
             ksPkAlias = PAC4J_DEMO_ALIAS;
         }
@@ -179,7 +191,7 @@ public class BundleKeyStore {
      */
     private void saveKeyStore(File keystore, KeyStore ks, String password)
             throws KeyStoreException, IOException, NoSuchAlgorithmException, CertificateException {
-        try (FileOutputStream fos = new FileOutputStream(keystore)){
+        try (FileOutputStream fos = new FileOutputStream(keystore)) {
             ks.store(fos, password.toCharArray());
         }
     }
@@ -249,25 +261,19 @@ public class BundleKeyStore {
         Date notAfter = new Date(notBefore.getTime() + validity * 1000L);
         dateValidity = notAfter;
         X509v3CertificateBuilder builder = new JcaX509v3CertificateBuilder(
-                dn,
-                new BigInteger(160, new SecureRandom()),
-                notBefore,
-                notAfter,
-                dn,
-                keyPair.getPublic()
-        );
+                dn, new BigInteger(160, new SecureRandom()), notBefore, notAfter, dn, keyPair.getPublic());
 
         JcaX509ExtensionUtils extUtils = new JcaX509ExtensionUtils();
 
-        builder.addExtension(Extension.subjectKeyIdentifier, false,
-                extUtils.createSubjectKeyIdentifier(keyPair.getPublic()));
+        builder.addExtension(
+                Extension.subjectKeyIdentifier, false, extUtils.createSubjectKeyIdentifier(keyPair.getPublic()));
 
         ASN1Encodable[] subjectAltNAmes = {new GeneralName(GeneralName.dNSName, BundleKeyStore.CN_SAML_JENKINS)};
-        builder.addExtension(Extension.subjectAlternativeName, false,
-                GeneralNames.getInstance(new DERSequence(subjectAltNAmes)));
+        builder.addExtension(
+                Extension.subjectAlternativeName, false, GeneralNames.getInstance(new DERSequence(subjectAltNAmes)));
 
-        X509CertificateHolder certHldr = builder.build(
-                new JcaContentSignerBuilder(SIGNATURE_ALGORITHM).build(keyPair.getPrivate()));
+        X509CertificateHolder certHldr =
+                builder.build(new JcaContentSignerBuilder(SIGNATURE_ALGORITHM).build(keyPair.getPrivate()));
         return new JcaX509CertificateConverter().getCertificate(certHldr);
     }
 
@@ -307,11 +313,14 @@ public class BundleKeyStore {
             validity.setTime(dateValidity);
             notExpired = Calendar.getInstance().compareTo(validity) <= 0;
         }
-        if(fileExists) {
+        if (fileExists) {
             try {
                 KeyStore ks = loadKeyStore(keystore, ksPassword.getPlainText());
                 keysExists = ks.getKey(ksPkAlias, ksPkPassword.getPlainText().toCharArray()) != null;
-            } catch (KeyStoreException | IOException | CertificateException | NoSuchAlgorithmException
+            } catch (KeyStoreException
+                    | IOException
+                    | CertificateException
+                    | NoSuchAlgorithmException
                     | UnrecoverableKeyException e) {
                 LOG.log(WARNING, "THe keystore is not accessible", e);
                 //noinspection ConstantConditions
@@ -326,6 +335,6 @@ public class BundleKeyStore {
      * @return true if the keystore file exists and is readable.
      */
     private boolean keystoreFileExists() {
-        return keystore != null  && keystore.exists() && keystore.canRead();
+        return keystore != null && keystore.exists() && keystore.canRead();
     }
 }

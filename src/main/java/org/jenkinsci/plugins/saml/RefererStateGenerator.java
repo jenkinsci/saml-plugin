@@ -1,5 +1,7 @@
 package org.jenkinsci.plugins.saml;
 
+import static org.jenkinsci.plugins.saml.SamlSecurityRealm.baseUrl;
+
 import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
 import hudson.Util;
@@ -12,8 +14,6 @@ import org.pac4j.core.context.CallContext;
 import org.pac4j.core.context.WebContext;
 import org.pac4j.core.util.generator.ValueGenerator;
 
-import static org.jenkinsci.plugins.saml.SamlSecurityRealm.baseUrl;
-
 /**
  * Generates relay state storing the referer for redirect after login
  */
@@ -21,7 +21,10 @@ import static org.jenkinsci.plugins.saml.SamlSecurityRealm.baseUrl;
 class RefererStateGenerator implements ValueGenerator {
     private static final Logger LOGGER = Logger.getLogger(RefererStateGenerator.class.getName());
 
-    public static final Cache<String, String> CACHE = Caffeine.newBuilder().maximumSize(10_000).expireAfterWrite(Duration.ofMinutes(30)).build();
+    public static final Cache<String, String> CACHE = Caffeine.newBuilder()
+            .maximumSize(10_000)
+            .expireAfterWrite(Duration.ofMinutes(30))
+            .build();
 
     public String generateValue(CallContext ctx) {
         final WebContext webContext = ctx.webContext();
@@ -54,5 +57,4 @@ class RefererStateGenerator implements ValueGenerator {
         LOGGER.fine("Safe URL redirection: " + redirectURL);
         return redirectURL;
     }
-
 }

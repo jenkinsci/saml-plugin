@@ -16,11 +16,12 @@
 
 package org.jenkinsci.plugins.saml;
 
-import java.util.logging.Level;
-import org.htmlunit.Page;
-import org.htmlunit.html.HtmlPage;
-import org.htmlunit.html.HtmlPasswordInput;
-import org.htmlunit.html.HtmlTextInput;
+import static org.hamcrest.CoreMatchers.allOf;
+import static org.hamcrest.CoreMatchers.containsString;
+import static org.hamcrest.CoreMatchers.endsWith;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.Assume.assumeTrue;
+
 import hudson.util.Secret;
 import java.io.File;
 import java.io.IOException;
@@ -29,15 +30,15 @@ import java.net.URLConnection;
 import java.nio.charset.StandardCharsets;
 import java.util.Collections;
 import java.util.Objects;
+import java.util.logging.Level;
 import jenkins.model.Jenkins;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
-import static org.hamcrest.CoreMatchers.allOf;
-import static org.hamcrest.CoreMatchers.containsString;
-import static org.hamcrest.CoreMatchers.endsWith;
-import static org.hamcrest.MatcherAssert.assertThat;
+import org.htmlunit.Page;
+import org.htmlunit.html.HtmlPage;
+import org.htmlunit.html.HtmlPasswordInput;
+import org.htmlunit.html.HtmlTextInput;
 import org.junit.After;
-import static org.junit.Assume.assumeTrue;
 import org.junit.BeforeClass;
 import org.junit.Rule;
 import org.junit.Test;
@@ -50,16 +51,20 @@ import org.testcontainers.utility.MountableFile;
 
 public class LiveTest {
 
-    @BeforeClass public static void requiresDocker() {
+    @BeforeClass
+    public static void requiresDocker() {
         assumeTrue(DockerClientFactory.instance().isDockerAvailable());
     }
 
-    @Rule public final RealJenkinsRule rr = new RealJenkinsRule();
+    @Rule
+    public final RealJenkinsRule rr = new RealJenkinsRule();
 
     @SuppressWarnings("rawtypes")
-    private final GenericContainer samlContainer = new GenericContainer("kristophjunge/test-saml-idp:1.14.15").withExposedPorts(80);
+    private final GenericContainer samlContainer =
+            new GenericContainer("kristophjunge/test-saml-idp:1.14.15").withExposedPorts(80);
 
-    @After public void stop() {
+    @After
+    public void stop() {
         samlContainer.stop();
     }
 
@@ -74,12 +79,17 @@ public class LiveTest {
 
     private static class AuthenticationOK implements RealJenkinsRule.Step {
         private final String idpMetadata;
+
         AuthenticationOK(String idpMetadata) {
             this.idpMetadata = idpMetadata;
         }
+
         @Override
         public void run(JenkinsRule r) throws Throwable {
-            SamlSecurityRealm realm = configureBasicSettings(new IdpMetadataConfiguration(idpMetadata), new SamlAdvancedConfiguration(false, null, SERVICE_PROVIDER_ID, null), SAML2_REDIRECT_BINDING_URI);
+            SamlSecurityRealm realm = configureBasicSettings(
+                    new IdpMetadataConfiguration(idpMetadata),
+                    new SamlAdvancedConfiguration(false, null, SERVICE_PROVIDER_ID, null),
+                    SAML2_REDIRECT_BINDING_URI);
             r.jenkins.setSecurityRealm(realm);
             configureAuthorization();
             makeLoginWithUser1(r);
@@ -91,22 +101,28 @@ public class LiveTest {
         rr.withLogger("org.jenkinsci.plugins.saml.RefererStateGenerator", Level.FINE);
         then(() -> new AuthenticationRelayStateRandom(readIdPMetadataFromURL()));
     }
+
     private static class AuthenticationRelayStateRandom implements RealJenkinsRule.Step {
         private final String idpMetadata;
+
         AuthenticationRelayStateRandom(String idpMetadata) {
             this.idpMetadata = idpMetadata;
         }
+
         @Override
         public void run(JenkinsRule r) throws Throwable {
             IdpMetadataConfiguration idpMetadataConfiguration = new IdpMetadataConfiguration(idpMetadata);
-            SamlAdvancedConfiguration advancedConfiguration = new SamlAdvancedConfiguration(
-                false, null, SERVICE_PROVIDER_ID, null);
-            SamlSecurityRealm realm = configureBasicSettings(idpMetadataConfiguration, advancedConfiguration, SAML2_REDIRECT_BINDING_URI);
+            SamlAdvancedConfiguration advancedConfiguration =
+                    new SamlAdvancedConfiguration(false, null, SERVICE_PROVIDER_ID, null);
+            SamlSecurityRealm realm =
+                    configureBasicSettings(idpMetadataConfiguration, advancedConfiguration, SAML2_REDIRECT_BINDING_URI);
             r.jenkins.setSecurityRealm(realm);
             configureAuthorization();
             final HtmlPage htmlPage = makeLoginWithUser1(r, "/builds");
             assertThat(htmlPage.getUrl().toString(), endsWith("/builds"));
-            Jenkins.logRecords.stream().filter(l -> l.getLoggerName().equals("org.jenkinsci.plugins.saml.RefererStateGenerator")).forEach(l -> assertThat(l.getMessage(), containsString("Safe URL redirection: /builds")));
+            Jenkins.logRecords.stream()
+                    .filter(l -> l.getLoggerName().equals("org.jenkinsci.plugins.saml.RefererStateGenerator"))
+                    .forEach(l -> assertThat(l.getMessage(), containsString("Safe URL redirection: /builds")));
         }
     }
 
@@ -114,14 +130,20 @@ public class LiveTest {
     public void authenticationOKFromURL() throws Throwable {
         then(() -> new AuthenticationOKFromURL(createIdPMetadataURL()));
     }
+
     private static class AuthenticationOKFromURL implements RealJenkinsRule.Step {
         private final String idpMetadataUrl;
+
         AuthenticationOKFromURL(String idpMetadataUrl) {
             this.idpMetadataUrl = idpMetadataUrl;
         }
+
         @Override
         public void run(JenkinsRule r) throws Throwable {
-            SamlSecurityRealm realm = configureBasicSettings(new IdpMetadataConfiguration(idpMetadataUrl, 0L), new SamlAdvancedConfiguration(false, null, SERVICE_PROVIDER_ID, null), SAML2_REDIRECT_BINDING_URI);
+            SamlSecurityRealm realm = configureBasicSettings(
+                    new IdpMetadataConfiguration(idpMetadataUrl, 0L),
+                    new SamlAdvancedConfiguration(false, null, SERVICE_PROVIDER_ID, null),
+                    SAML2_REDIRECT_BINDING_URI);
             Jenkins.XSTREAM2.toXMLUTF8(realm, System.out);
             System.out.println();
             r.jenkins.setSecurityRealm(realm);
@@ -134,14 +156,20 @@ public class LiveTest {
     public void authenticationOKPostBinding() throws Throwable {
         then(() -> new AuthenticationOKPostBinding(readIdPMetadataFromURL()));
     }
+
     private static class AuthenticationOKPostBinding implements RealJenkinsRule.Step {
         private final String idpMetadata;
+
         AuthenticationOKPostBinding(String idpMetadata) {
             this.idpMetadata = idpMetadata;
         }
+
         @Override
         public void run(JenkinsRule r) throws Throwable {
-            SamlSecurityRealm realm = configureBasicSettings(new IdpMetadataConfiguration(idpMetadata), new SamlAdvancedConfiguration(false, null, SERVICE_PROVIDER_ID, null), SAML2_POST_BINDING_URI);
+            SamlSecurityRealm realm = configureBasicSettings(
+                    new IdpMetadataConfiguration(idpMetadata),
+                    new SamlAdvancedConfiguration(false, null, SERVICE_PROVIDER_ID, null),
+                    SAML2_POST_BINDING_URI);
             r.jenkins.setSecurityRealm(realm);
             configureAuthorization();
             makeLoginWithUser1(r);
@@ -152,14 +180,20 @@ public class LiveTest {
     public void authenticationFail() throws Throwable {
         then(() -> new AuthenticationFail(readIdPMetadataFromURL()));
     }
+
     private static class AuthenticationFail implements RealJenkinsRule.Step {
         private final String idpMetadata;
+
         AuthenticationFail(String idpMetadata) {
             this.idpMetadata = idpMetadata;
         }
+
         @Override
         public void run(JenkinsRule r) throws Throwable {
-            SamlSecurityRealm realm = configureBasicSettings(new IdpMetadataConfiguration(idpMetadata), new SamlAdvancedConfiguration(false, null, SERVICE_PROVIDER_ID, null), SAML2_REDIRECT_BINDING_URI);
+            SamlSecurityRealm realm = configureBasicSettings(
+                    new IdpMetadataConfiguration(idpMetadata),
+                    new SamlAdvancedConfiguration(false, null, SERVICE_PROVIDER_ID, null),
+                    SAML2_REDIRECT_BINDING_URI);
             r.jenkins.setSecurityRealm(realm);
             configureAuthorization();
             JenkinsRule.WebClient wc = r.createWebClient();
@@ -167,7 +201,10 @@ public class LiveTest {
             ((HtmlTextInput) login.getElementById("username")).setText("user1");
             ((HtmlPasswordInput) login.getElementById("password")).setText("WrOnGpAsSwOrD");
             HtmlPage fail = login.getElementsByTagName("button").get(0).click();
-            assertThat(fail.getWebResponse().getContentAsString(), containsString("Either no user with the given username could be found, or the password you gave was wrong"));
+            assertThat(
+                    fail.getWebResponse().getContentAsString(),
+                    containsString(
+                            "Either no user with the given username could be found, or the password you gave was wrong"));
             assertThat(fail.getUrl().toString(), containsString("simplesaml/module.php/core/loginuserpass.php"));
         }
     }
@@ -180,7 +217,8 @@ public class LiveTest {
     }
 
     private String createIdPMetadataURL() {
-        return "http://" + samlContainer.getHost() + ":" + samlContainer.getFirstMappedPort() + "/simplesaml/saml2/idp/metadata.php";
+        return "http://" + samlContainer.getHost() + ":" + samlContainer.getFirstMappedPort()
+                + "/simplesaml/saml2/idp/metadata.php";
     }
 
     @FunctionalInterface
@@ -199,59 +237,96 @@ public class LiveTest {
     }
 
     private static void configureAuthorization() {
-        Jenkins.get().setAuthorizationStrategy(new MockAuthorizationStrategy().
-                grant(Jenkins.ADMINISTER).everywhere().to("group1").
-                grant(Jenkins.READ).everywhere().to("group2"));
+        Jenkins.get()
+                .setAuthorizationStrategy(new MockAuthorizationStrategy()
+                        .grant(Jenkins.ADMINISTER)
+                        .everywhere()
+                        .to("group1")
+                        .grant(Jenkins.READ)
+                        .everywhere()
+                        .to("group2"));
     }
 
-    private static SamlSecurityRealm configureBasicSettings(IdpMetadataConfiguration idpMetadataConfiguration, SamlAdvancedConfiguration advancedConfiguration, String binding) throws IOException {
+    private static SamlSecurityRealm configureBasicSettings(
+            IdpMetadataConfiguration idpMetadataConfiguration,
+            SamlAdvancedConfiguration advancedConfiguration,
+            String binding)
+            throws IOException {
         // TODO use @DataBoundSetter wherever possible and load defaults from DescriptorImpl
         File samlKey = new File(Jenkins.get().getRootDir(), "saml-key.jks");
         FileUtils.copyURLToFile(Objects.requireNonNull(LiveTest.class.getResource("LiveTest/saml-key.jks")), samlKey);
-        SamlEncryptionData samlEncryptionData = new SamlEncryptionData(samlKey.getAbsolutePath(), Secret.fromString(
-                "changeit"), Secret.fromString("changeit"), null, false, true);
-        return new SamlSecurityRealm(idpMetadataConfiguration, "displayName", "eduPersonAffiliation", 86400, "uid", "email", null, advancedConfiguration, samlEncryptionData, "none", binding, Collections.emptyList());
+        SamlEncryptionData samlEncryptionData = new SamlEncryptionData(
+                samlKey.getAbsolutePath(),
+                Secret.fromString("changeit"),
+                Secret.fromString("changeit"),
+                null,
+                false,
+                true);
+        return new SamlSecurityRealm(
+                idpMetadataConfiguration,
+                "displayName",
+                "eduPersonAffiliation",
+                86400,
+                "uid",
+                "email",
+                null,
+                advancedConfiguration,
+                samlEncryptionData,
+                "none",
+                binding,
+                Collections.emptyList());
     }
 
     private void startSimpleSAML(String rootUrl) {
-        samlContainer.
-                withEnv("SIMPLESAMLPHP_SP_ENTITY_ID", SERVICE_PROVIDER_ID).
-                withEnv("SIMPLESAMLPHP_SP_ASSERTION_CONSUMER_SERVICE", rootUrl + "securityRealm/finishLogin"). // login back URL
+        samlContainer
+                .withEnv("SIMPLESAMLPHP_SP_ENTITY_ID", SERVICE_PROVIDER_ID)
+                .withEnv("SIMPLESAMLPHP_SP_ASSERTION_CONSUMER_SERVICE", rootUrl + "securityRealm/finishLogin")
+                . // login back URL
                 withEnv("SIMPLESAMLPHP_SP_SINGLE_LOGOUT_SERVICE", rootUrl + "logout"); // unused
         System.out.println(samlContainer.getEnv());
         samlContainer.start();
-        samlContainer.copyFileToContainer(MountableFile.forClasspathResource("org/jenkinsci/plugins/saml/LiveTest/users.php"), "/var/www/simplesamlphp/config/authsources.php"); // users info
-        samlContainer.copyFileToContainer(MountableFile.forClasspathResource("org/jenkinsci/plugins/saml/LiveTest/config.php"), "/var/www/simplesamlphp/config/config.php"); // config info,
-        samlContainer.copyFileToContainer(MountableFile.forClasspathResource("org/jenkinsci/plugins/saml/LiveTest/saml20-idp-hosted.php"), "/var/www/simplesamlphp/metadata/saml20-idp-hosted.php"); //IdP advanced configuration
+        samlContainer.copyFileToContainer(
+                MountableFile.forClasspathResource("org/jenkinsci/plugins/saml/LiveTest/users.php"),
+                "/var/www/simplesamlphp/config/authsources.php"); // users info
+        samlContainer.copyFileToContainer(
+                MountableFile.forClasspathResource("org/jenkinsci/plugins/saml/LiveTest/config.php"),
+                "/var/www/simplesamlphp/config/config.php"); // config info,
+        samlContainer.copyFileToContainer(
+                MountableFile.forClasspathResource("org/jenkinsci/plugins/saml/LiveTest/saml20-idp-hosted.php"),
+                "/var/www/simplesamlphp/metadata/saml20-idp-hosted.php"); // IdP advanced configuration
     }
 
     private static HtmlPage openLogin(JenkinsRule.WebClient wc, JenkinsRule r) throws Exception {
         return openLogin(wc, r, null);
     }
+
     private static HtmlPage openLogin(JenkinsRule.WebClient wc, JenkinsRule r, String startUrl) throws Exception {
         wc.setThrowExceptionOnFailingStatusCode(false);
         String loc = r.getURL().toString();
         if (startUrl != null) {
             loc += startUrl;
         }
-        // in default redirectEnabled mode, this gets a 403 from Jenkins, perhaps because the redirect to /securityRealm/commenceLogin is via JavaScript not a 302
+        // in default redirectEnabled mode, this gets a 403 from Jenkins, perhaps because the redirect to
+        // /securityRealm/commenceLogin is via JavaScript not a 302
         while (true) {
             @SuppressWarnings("deprecation")
             Page p = wc.getPage(loc);
             int code = p.getWebResponse().getStatusCode();
             switch (code) {
-            case 302:
-            case 303:
-                loc = p.getWebResponse().getResponseHeaderValue("Location");
-                System.out.println("redirecting to " + loc);
-                break;
-            case 200:
-                wc.setRedirectEnabled(true);
-                wc.setThrowExceptionOnFailingStatusCode(true);
-                assertThat(p.getWebResponse().getContentAsString(), containsString("Enter your username and password")); // SAML service login page
-                return (HtmlPage) p;
-            default:
-                assert false : code;
+                case 302:
+                case 303:
+                    loc = p.getWebResponse().getResponseHeaderValue("Location");
+                    System.out.println("redirecting to " + loc);
+                    break;
+                case 200:
+                    wc.setRedirectEnabled(true);
+                    wc.setThrowExceptionOnFailingStatusCode(true);
+                    assertThat(
+                            p.getWebResponse().getContentAsString(),
+                            containsString("Enter your username and password")); // SAML service login page
+                    return (HtmlPage) p;
+                default:
+                    assert false : code;
             }
         }
     }
@@ -266,8 +341,9 @@ public class LiveTest {
         ((HtmlTextInput) login.getElementById("username")).setText("user1");
         ((HtmlPasswordInput) login.getElementById("password")).setText("user1pass");
         HtmlPage dashboard = login.getElementsByTagName("button").get(0).click();
-        assertThat(dashboard.getWebResponse().getContentAsString(), allOf(containsString("User 1"), containsString("Manage Jenkins")));
+        assertThat(
+                dashboard.getWebResponse().getContentAsString(),
+                allOf(containsString("User 1"), containsString("Manage Jenkins")));
         return dashboard;
     }
-
 }

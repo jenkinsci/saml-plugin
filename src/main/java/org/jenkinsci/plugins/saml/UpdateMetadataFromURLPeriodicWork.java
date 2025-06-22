@@ -1,13 +1,13 @@
 package org.jenkinsci.plugins.saml;
 
+import hudson.Extension;
+import hudson.model.AsyncAperiodicWork;
 import java.io.IOException;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import org.apache.commons.lang.StringUtils;
-import hudson.Extension;
-import hudson.model.AsyncAperiodicWork;
 import jenkins.model.Jenkins;
+import org.apache.commons.lang.StringUtils;
 
 /**
  * <p>This periodic work update the IdP Metadata File, the periodicof the execution is defined on the SAML Plugin configuration.</p>
@@ -21,7 +21,9 @@ public class UpdateMetadataFromURLPeriodicWork extends AsyncAperiodicWork {
      * property to set the initial delay of the AsyncAperiodicWork.
      * -Dorg.jenkinsci.plugins.saml.UpdateMetadataFromURLPeriodicWork.initialDelay=MILLISECONDS
      */
-    public static final String INITIAL_DELAY_PROPERTY = UpdateMetadataFromURLPeriodicWork.class.getName() + ".initialDelay";
+    public static final String INITIAL_DELAY_PROPERTY =
+            UpdateMetadataFromURLPeriodicWork.class.getName() + ".initialDelay";
+
     public static final long INITIAL_DELAY = Long.parseLong(System.getProperty(INITIAL_DELAY_PROPERTY, "10000"));
 
     /**
@@ -62,7 +64,7 @@ public class UpdateMetadataFromURLPeriodicWork extends AsyncAperiodicWork {
         if (j.getSecurityRealm() instanceof SamlSecurityRealm) {
             SamlSecurityRealm samlSecurityRealm = (SamlSecurityRealm) j.getSecurityRealm();
             IdpMetadataConfiguration config = samlSecurityRealm.getIdpMetadataConfiguration();
-            if(config != null && config.getPeriod() != null && StringUtils.isNotBlank(config.getUrl())) {
+            if (config != null && config.getPeriod() != null && StringUtils.isNotBlank(config.getUrl())) {
                 ret = TimeUnit.MINUTES.toMillis(config.getPeriod());
             }
         }

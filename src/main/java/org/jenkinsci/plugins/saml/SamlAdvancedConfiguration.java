@@ -17,19 +17,20 @@ under the License. */
 
 package org.jenkinsci.plugins.saml;
 
+import static org.jenkinsci.plugins.saml.SamlSecurityRealm.ERROR_NOT_VALID_NUMBER;
+
 import edu.umd.cs.findbugs.annotations.NonNull;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
-import org.apache.commons.lang.StringUtils;
-import org.kohsuke.stapler.DataBoundConstructor;
-import org.kohsuke.stapler.DataBoundSetter;
-import org.kohsuke.stapler.interceptor.RequirePOST;
 import hudson.Extension;
 import hudson.Util;
 import hudson.model.AbstractDescribableImpl;
 import hudson.model.Descriptor;
 import hudson.util.FormValidation;
 import jenkins.model.Jenkins;
-import static org.jenkinsci.plugins.saml.SamlSecurityRealm.ERROR_NOT_VALID_NUMBER;
+import org.apache.commons.lang.StringUtils;
+import org.kohsuke.stapler.DataBoundConstructor;
+import org.kohsuke.stapler.DataBoundSetter;
+import org.kohsuke.stapler.interceptor.RequirePOST;
 
 /**
  * Simple immutable data class to hold the optional advanced configuration data section
@@ -48,10 +49,8 @@ public class SamlAdvancedConfiguration extends AbstractDescribableImpl<SamlAdvan
     private transient Boolean randomRelayState;
 
     @DataBoundConstructor
-    public SamlAdvancedConfiguration(Boolean forceAuthn,
-                                     String authnContextClassRef,
-                                     String spEntityId,
-                                     String nameIdPolicyFormat) {
+    public SamlAdvancedConfiguration(
+            Boolean forceAuthn, String authnContextClassRef, String spEntityId, String nameIdPolicyFormat) {
         this.forceAuthn = (forceAuthn != null) ? forceAuthn : false;
         this.authnContextClassRef = Util.fixEmptyAndTrim(authnContextClassRef);
         this.spEntityId = Util.fixEmptyAndTrim(spEntityId);
@@ -86,10 +85,10 @@ public class SamlAdvancedConfiguration extends AbstractDescribableImpl<SamlAdvan
     @Override
     public String toString() {
         return "SamlAdvancedConfiguration{" + "forceAuthn=" + getForceAuthn() + ", authnContextClassRef='"
-               + StringUtils.defaultIfBlank(getAuthnContextClassRef(), "none") + '\'' + ", spEntityId='"
-               + StringUtils.defaultIfBlank(getSpEntityId(), "none") + '\'' + ", nameIdPolicyFormat='"
-               + StringUtils.defaultIfBlank(getNameIdPolicyFormat(), "none") + '\''
-               + ", useDiskCache=" + getUseDiskCache() + '}';
+                + StringUtils.defaultIfBlank(getAuthnContextClassRef(), "none") + '\'' + ", spEntityId='"
+                + StringUtils.defaultIfBlank(getSpEntityId(), "none") + '\'' + ", nameIdPolicyFormat='"
+                + StringUtils.defaultIfBlank(getNameIdPolicyFormat(), "none") + '\''
+                + ", useDiskCache=" + getUseDiskCache() + '}';
     }
 
     @SuppressWarnings("unused")
@@ -109,13 +108,12 @@ public class SamlAdvancedConfiguration extends AbstractDescribableImpl<SamlAdvan
             return "Advanced Configuration";
         }
 
-
         @RequirePOST
-        public FormValidation doCheckAuthnContextClassRef(@org.kohsuke.stapler.QueryParameter String authnContextClassRef) {
+        public FormValidation doCheckAuthnContextClassRef(
+                @org.kohsuke.stapler.QueryParameter String authnContextClassRef) {
             Jenkins.get().checkPermission(Jenkins.ADMINISTER);
-           return SamlFormValidation.checkStringFormat(authnContextClassRef);
+            return SamlFormValidation.checkStringFormat(authnContextClassRef);
         }
-
 
         @RequirePOST
         public FormValidation doCheckSpEntityId(@org.kohsuke.stapler.QueryParameter String spEntityId) {
@@ -130,7 +128,8 @@ public class SamlAdvancedConfiguration extends AbstractDescribableImpl<SamlAdvan
         }
 
         @RequirePOST
-        public FormValidation doCheckMaximumSessionLifetime(@org.kohsuke.stapler.QueryParameter String maximumSessionLifetime) {
+        public FormValidation doCheckMaximumSessionLifetime(
+                @org.kohsuke.stapler.QueryParameter String maximumSessionLifetime) {
             Jenkins.get().checkPermission(Jenkins.ADMINISTER);
             if (StringUtils.isEmpty(maximumSessionLifetime)) {
                 return hudson.util.FormValidation.ok();
@@ -153,6 +152,5 @@ public class SamlAdvancedConfiguration extends AbstractDescribableImpl<SamlAdvan
 
             return hudson.util.FormValidation.ok();
         }
-
     }
 }
