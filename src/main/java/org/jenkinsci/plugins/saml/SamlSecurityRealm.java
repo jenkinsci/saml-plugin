@@ -23,7 +23,6 @@ import static org.opensaml.saml.common.xml.SAMLConstants.SAML2_REDIRECT_BINDING_
 
 import edu.umd.cs.findbugs.annotations.NonNull;
 import hudson.Extension;
-import hudson.Util;
 import hudson.model.Descriptor;
 import hudson.model.User;
 import hudson.security.GroupDetails;
@@ -51,7 +50,6 @@ import org.jenkinsci.plugins.saml.user.SamlCustomProperty;
 import org.kohsuke.accmod.Restricted;
 import org.kohsuke.accmod.restrictions.NoExternalUse;
 import org.kohsuke.stapler.DataBoundConstructor;
-import org.kohsuke.stapler.Header;
 import org.kohsuke.stapler.HttpResponse;
 import org.kohsuke.stapler.HttpResponses;
 import org.kohsuke.stapler.QueryParameter;
@@ -268,7 +266,8 @@ public class SamlSecurityRealm extends SecurityRealm {
      */
     @SuppressWarnings("unused")
     public HttpResponse doCommenceLogin(final StaplerRequest2 request, final StaplerResponse2 response) {
-        LOG.fine("SamlSecurityRealm.doCommenceLogin called. Using consumerServiceUrl " + getSamlPluginConfig().getConsumerServiceUrl());
+        LOG.fine("SamlSecurityRealm.doCommenceLogin called. Using consumerServiceUrl "
+                + getSamlPluginConfig().getConsumerServiceUrl());
 
         RedirectionAction action = new SamlRedirectActionWrapper(getSamlPluginConfig(), request, response).get();
         if (action instanceof SeeOtherAction || action instanceof FoundAction) {
@@ -300,13 +299,17 @@ public class SamlSecurityRealm extends SecurityRealm {
         SAML2Profile saml2Profile;
 
         try {
-            final SamlProfileWrapper samlProfileWrapper = new SamlProfileWrapper(getSamlPluginConfig(), request, response);
+            final SamlProfileWrapper samlProfileWrapper =
+                    new SamlProfileWrapper(getSamlPluginConfig(), request, response);
             saml2Profile = samlProfileWrapper.get();
             redirectUrl = samlProfileWrapper.getRedirectUrl();
-        } catch (BadCredentialsException e){
-            LOG.log(Level.WARNING, "Unable to validate the SAML Response: " + e.getMessage()
-                    + CHECK_MAX_AUTH_LIFETIME
-                    + CHECK_TROUBLESHOOTING_GUIDE, e);
+        } catch (BadCredentialsException e) {
+            LOG.log(
+                    Level.WARNING,
+                    "Unable to validate the SAML Response: " + e.getMessage()
+                            + CHECK_MAX_AUTH_LIFETIME
+                            + CHECK_TROUBLESHOOTING_GUIDE,
+                    e);
             return HttpResponses.redirectTo(getEffectiveLogoutUrl());
         }
 
@@ -435,7 +438,7 @@ public class SamlSecurityRealm extends SecurityRealm {
     }
 
     /* package */ static String baseUrl() {
-        return  Jenkins.get().getRootUrl();
+        return Jenkins.get().getRootUrl();
     }
 
     /**

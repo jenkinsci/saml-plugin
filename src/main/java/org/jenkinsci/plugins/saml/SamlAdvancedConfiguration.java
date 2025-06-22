@@ -21,10 +21,6 @@ import static org.jenkinsci.plugins.saml.SamlSecurityRealm.ERROR_NOT_VALID_NUMBE
 
 import edu.umd.cs.findbugs.annotations.NonNull;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
-import org.apache.commons.lang.StringUtils;
-import org.kohsuke.stapler.DataBoundConstructor;
-import org.kohsuke.stapler.DataBoundSetter;
-import org.kohsuke.stapler.interceptor.RequirePOST;
 import hudson.Extension;
 import hudson.Util;
 import hudson.model.AbstractDescribableImpl;
@@ -89,10 +85,10 @@ public class SamlAdvancedConfiguration extends AbstractDescribableImpl<SamlAdvan
     @Override
     public String toString() {
         return "SamlAdvancedConfiguration{" + "forceAuthn=" + getForceAuthn() + ", authnContextClassRef='"
-               + StringUtils.defaultIfBlank(getAuthnContextClassRef(), "none") + '\'' + ", spEntityId='"
-               + StringUtils.defaultIfBlank(getSpEntityId(), "none") + '\'' + ", nameIdPolicyFormat='"
-               + StringUtils.defaultIfBlank(getNameIdPolicyFormat(), "none") + '\''
-               + ", useDiskCache=" + getUseDiskCache() + '}';
+                + StringUtils.defaultIfBlank(getAuthnContextClassRef(), "none") + '\'' + ", spEntityId='"
+                + StringUtils.defaultIfBlank(getSpEntityId(), "none") + '\'' + ", nameIdPolicyFormat='"
+                + StringUtils.defaultIfBlank(getNameIdPolicyFormat(), "none") + '\''
+                + ", useDiskCache=" + getUseDiskCache() + '}';
     }
 
     @SuppressWarnings("unused")
