@@ -16,20 +16,19 @@ specific language governing permissions and limitations
 under the License. */
 package org.jenkinsci.plugins.saml;
 
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import java.io.IOException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.jvnet.hudson.test.JenkinsRule;
 import org.jvnet.hudson.test.junit.jupiter.WithJenkins;
 import org.jvnet.hudson.test.recipes.LocalData;
-
-import java.io.IOException;
-
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * Test the ScrumExclusion.
@@ -49,8 +48,7 @@ class SamlCrumbExclusionTest {
         requestOK = new FakeRequest("/securityRealm/finishLogin");
         requestError = new FakeRequest("/foo/securityRealm/finishLogin");
         response = null;
-        filterChain = (servletRequest, servletResponse) -> {
-        };
+        filterChain = (servletRequest, servletResponse) -> {};
     }
 
     @LocalData("testReadSimpleConfiguration")

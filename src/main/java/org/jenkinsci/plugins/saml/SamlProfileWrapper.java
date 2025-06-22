@@ -17,7 +17,6 @@ under the License. */
 
 package org.jenkinsci.plugins.saml;
 
-import java.io.IOException;
 import java.util.logging.Logger;
 import jenkins.model.Jenkins;
 import org.kohsuke.stapler.StaplerRequest2;
@@ -66,8 +65,8 @@ public class SamlProfileWrapper extends OpenSAMLWrapper<SAML2Profile> {
                 redirectUrl = Jenkins.get().getRootUrl();
             }
             client.destroy();
-        } catch (HttpAction|SAMLException e) {
-            //if the SAMLResponse is not valid we send the user again to the IdP
+        } catch (HttpAction | SAMLException e) {
+            // if the SAMLResponse is not valid we send the user again to the IdP
             throw new BadCredentialsException(e.getMessage(), e);
         }
         if (saml2Profile == null) {

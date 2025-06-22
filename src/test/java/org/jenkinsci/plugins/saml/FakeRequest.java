@@ -16,12 +16,6 @@ specific language governing permissions and limitations
 under the License. */
 package org.jenkinsci.plugins.saml;
 
-import java.io.BufferedReader;
-import java.security.Principal;
-import java.util.Collection;
-import java.util.Enumeration;
-import java.util.Locale;
-import java.util.Map;
 import jakarta.servlet.AsyncContext;
 import jakarta.servlet.DispatcherType;
 import jakarta.servlet.RequestDispatcher;
@@ -35,6 +29,12 @@ import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import jakarta.servlet.http.HttpUpgradeHandler;
 import jakarta.servlet.http.Part;
+import java.io.BufferedReader;
+import java.security.Principal;
+import java.util.Collection;
+import java.util.Enumeration;
+import java.util.Locale;
+import java.util.Map;
 
 /**
  * Class to Fake a HttpServletRequest for the ScrumExclusion tests.
@@ -42,6 +42,7 @@ import jakarta.servlet.http.Part;
  */
 public class FakeRequest implements HttpServletRequest {
     private final String pathInfo;
+
     public FakeRequest(String pathInfo) {
         this.pathInfo = pathInfo;
     }
@@ -182,14 +183,10 @@ public class FakeRequest implements HttpServletRequest {
     }
 
     @Override
-    public void login(String s, String s1) {
-
-    }
+    public void login(String s, String s1) {}
 
     @Override
-    public void logout() {
-
-    }
+    public void logout() {}
 
     @Override
     public Collection<Part> getParts() {
@@ -222,9 +219,7 @@ public class FakeRequest implements HttpServletRequest {
     }
 
     @Override
-    public void setCharacterEncoding(String s) {
-
-    }
+    public void setCharacterEncoding(String s) {}
 
     @Override
     public int getContentLength() {
@@ -302,14 +297,10 @@ public class FakeRequest implements HttpServletRequest {
     }
 
     @Override
-    public void setAttribute(String s, Object o) {
-
-    }
+    public void setAttribute(String s, Object o) {}
 
     @Override
-    public void removeAttribute(String s) {
-
-    }
+    public void removeAttribute(String s) {}
 
     @Override
     public Locale getLocale() {

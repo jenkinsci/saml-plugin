@@ -17,6 +17,9 @@ under the License. */
 
 package org.jenkinsci.plugins.saml;
 
+import static java.util.logging.Level.FINE;
+import static java.util.logging.Level.SEVERE;
+
 import java.util.Arrays;
 import java.util.logging.Logger;
 import org.apache.commons.lang.StringUtils;
@@ -26,15 +29,17 @@ import org.opensaml.core.config.InitializationException;
 import org.opensaml.core.config.InitializationService;
 import org.pac4j.core.context.session.SessionStore;
 import org.pac4j.jee.context.JEEContext;
+
 import org.pac4j.core.context.WebContext;
+import org.pac4j.core.context.session.SessionStore;
 import org.pac4j.core.exception.TechnicalException;
 import org.pac4j.core.http.callback.NoParameterCallbackUrlResolver;
+import org.pac4j.core.util.generator.RandomValueGenerator;
+import org.pac4j.jee.context.JEEContext;
 import org.pac4j.jee.context.JEEFrameworkParameters;
 import org.pac4j.jee.context.session.JEESessionStoreFactory;
 import org.pac4j.saml.client.SAML2Client;
 import org.pac4j.saml.config.SAML2Configuration;
-import static java.util.logging.Level.FINE;
-import static java.util.logging.Level.SEVERE;
 
 /**
  * Overall wrapper to all operation using OpenSAML library, this allows to load the Service Loaders properly
@@ -84,7 +89,7 @@ public abstract class OpenSAMLWrapper<T> {
      *
      * @return process return type
      */
-    abstract protected T process();
+    protected abstract T process();
 
     /**
      * @return J2E Context from the current HTTP request and response.
@@ -114,7 +119,7 @@ public abstract class OpenSAMLWrapper<T> {
             config.setWantsAssertionsSigned(false);
         }
 
-        if(encryptionData != null && StringUtils.isNotBlank(encryptionData.getKeystorePath())){
+        if (encryptionData != null && StringUtils.isNotBlank(encryptionData.getKeystorePath())) {
             config.setKeystorePath(encryptionData.getKeystorePath());
             config.setKeystorePassword(encryptionData.getKeystorePasswordPlainText());
             config.setPrivateKeyPassword(encryptionData.getPrivateKeyPasswordPlainText());
@@ -155,7 +160,7 @@ public abstract class OpenSAMLWrapper<T> {
                 config.setComparisonType("exact");
             }
 
-            if(samlPluginConfig.getNameIdPolicyFormat() != null) {
+            if (samlPluginConfig.getNameIdPolicyFormat() != null) {
                 config.setNameIdPolicyFormat(samlPluginConfig.getNameIdPolicyFormat());
             }
         }
@@ -177,5 +182,4 @@ public abstract class OpenSAMLWrapper<T> {
         }
         return saml2Client;
     }
-
 }

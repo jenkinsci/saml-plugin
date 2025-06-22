@@ -17,13 +17,6 @@ under the License. */
 
 package org.jenkinsci.plugins.saml;
 
-import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang.NotImplementedException;
-import org.pac4j.core.exception.TechnicalException;
-import org.springframework.core.io.Resource;
-import org.springframework.core.io.WritableResource;
-
 import edu.umd.cs.findbugs.annotations.NonNull;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -39,6 +32,12 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang.NotImplementedException;
+import org.pac4j.core.exception.TechnicalException;
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.WritableResource;
 
 /**
  * Class to manage the metadata files using cache.
@@ -50,15 +49,15 @@ class SamlFileResourceCache implements WritableResource {
 
     private String fileName;
 
-    private final static Map<String,String> cache = new HashMap<>();
+    private static final Map<String, String> cache = new HashMap<>();
 
     public SamlFileResourceCache(@NonNull String fileName) {
-        LOG.log(Level.FINER, "Creating Resource cache: %s", fileName );
+        LOG.log(Level.FINER, "Creating Resource cache: %s", fileName);
         this.fileName = fileName;
     }
 
     public SamlFileResourceCache(@NonNull String fileName, @NonNull String data) {
-        LOG.log(Level.FINER, "Creating Resource cache from data: %s", fileName );
+        LOG.log(Level.FINER, "Creating Resource cache from data: %s", fileName);
         this.fileName = fileName;
         try {
             save(fileName, data);
@@ -106,9 +105,9 @@ class SamlFileResourceCache implements WritableResource {
 
     @Override
     public InputStream getInputStream() throws IOException {
-        LOG.log(Level.FINER, "Get cache inputStream : %s", fileName );
-        if (cache.containsKey(fileName)){
-            return IOUtils.toInputStream(cache.get(fileName),"UTF-8");
+        LOG.log(Level.FINER, "Get cache inputStream : %s", fileName);
+        if (cache.containsKey(fileName)) {
+            return IOUtils.toInputStream(cache.get(fileName), "UTF-8");
         } else {
             return FileUtils.openInputStream(getFile());
         }
@@ -141,8 +140,8 @@ class SamlFileResourceCache implements WritableResource {
 
     @Override
     public OutputStream getOutputStream() throws IOException {
-        LOG.log(Level.FINER, "Creating cache outputStream: %s", fileName );
-        return new ByteArrayOutputStream(){
+        LOG.log(Level.FINER, "Creating cache outputStream: %s", fileName);
+        return new ByteArrayOutputStream() {
             @Override
             public void close() throws IOException {
                 save(fileName, IOUtils.toString(this.buf, "UTF-8").trim());
@@ -150,7 +149,7 @@ class SamlFileResourceCache implements WritableResource {
         };
     }
 
-    private boolean isNew(String fileName, String data){
+    private boolean isNew(String fileName, String data) {
         String oldData = cache.containsKey(fileName) ? cache.get(fileName) : "";
         String md5SumNew = org.apache.commons.codec.digest.DigestUtils.md5Hex(data);
         String md5SumOld = org.apache.commons.codec.digest.DigestUtils.md5Hex(oldData);
@@ -158,8 +157,8 @@ class SamlFileResourceCache implements WritableResource {
     }
 
     private void save(@NonNull String fileName, @NonNull String data) throws IOException {
-        if(isNew(fileName, data)) {
-            LOG.log(Level.FINER, "Save resource to disk : %s", fileName );
+        if (isNew(fileName, data)) {
+            LOG.log(Level.FINER, "Save resource to disk : %s", fileName);
             Files.write(new File(fileName).toPath(), data.getBytes("UTF-8"));
             cache.put(fileName, data);
         }

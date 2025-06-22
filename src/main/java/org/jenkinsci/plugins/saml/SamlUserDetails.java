@@ -1,6 +1,6 @@
 /* Licensed to Jenkins CI under one or more contributor license
 agreements.  See the NOTICE file distributed with this work
-for additional information regarding copyright ownership. 
+for additional information regarding copyright ownership.
 Jenkins CI licenses this file to you under the Apache License,
 Version 2.0 (the "License"); you may not use this file except
 in compliance with the License.  You may obtain a copy of the
@@ -17,11 +17,9 @@ under the License. */
 
 package org.jenkinsci.plugins.saml;
 
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
 import edu.umd.cs.findbugs.annotations.NonNull;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -71,11 +69,12 @@ public class SamlUserDetails implements UserDetails {
 
     @Override
     public String toString() {
-        return "SamlUserDetails{" + "username='" + getUsername() + '\'' + ", authorities=" + (getAuthorities() == null
-                                                                                       ? "null"
-                                                                                       : Arrays.asList(getAuthorities()).toString())
-           + '\'' + ", isAccountNonExpired='" + isAccountNonExpired() + '\'' + ", isAccountNonLocked='"
-           + isAccountNonLocked() + '\'' + ", isCredentialsNonExpired='" + isCredentialsNonExpired() + '\''
-           + ", isEnabled='" + isEnabled() + '}';
+        return "SamlUserDetails{" + "username='" + getUsername() + '\'' + ", authorities="
+                + (getAuthorities() == null
+                        ? "null"
+                        : Arrays.asList(getAuthorities()).toString())
+                + '\'' + ", isAccountNonExpired='" + isAccountNonExpired() + '\'' + ", isAccountNonLocked='"
+                + isAccountNonLocked() + '\'' + ", isCredentialsNonExpired='" + isCredentialsNonExpired() + '\''
+                + ", isEnabled='" + isEnabled() + '}';
     }
 }

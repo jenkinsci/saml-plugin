@@ -7,4 +7,4 @@ import hudson.model.AbstractDescribableImpl;
  *
  * @author Kuisathaverat
  */
-public  abstract class AttributeEntry extends AbstractDescribableImpl<AttributeEntry> {}
+public abstract class AttributeEntry extends AbstractDescribableImpl<AttributeEntry> {}
