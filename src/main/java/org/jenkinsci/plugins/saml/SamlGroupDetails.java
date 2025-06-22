@@ -16,12 +16,11 @@ specific language governing permissions and limitations
 under the License. */
 package org.jenkinsci.plugins.saml;
 
-import java.util.HashSet;
-import java.util.Set;
 import hudson.model.User;
 import hudson.security.GroupDetails;
+import java.util.HashSet;
+import java.util.Set;
 import jenkins.security.LastGrantedAuthoritiesProperty;
-
 
 /**
  * Created by kuisathaverat on 03/05/2017.

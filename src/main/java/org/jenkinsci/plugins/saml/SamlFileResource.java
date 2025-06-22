@@ -17,18 +17,16 @@ under the License. */
 
 package org.jenkinsci.plugins.saml;
 
+import edu.umd.cs.findbugs.annotations.NonNull;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.URI;
 import java.net.URL;
-
 import org.apache.commons.lang.NotImplementedException;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.WritableResource;
-
-import edu.umd.cs.findbugs.annotations.NonNull;
 
 /**
  * Class to manage the metadata files.
@@ -38,7 +36,7 @@ class SamlFileResource implements WritableResource {
     private final WritableResource resource;
 
     public SamlFileResource(@NonNull String fileName) {
-        if(getUseDiskCache()){
+        if (getUseDiskCache()) {
             this.resource = new SamlFileResourceCache(fileName);
         } else {
             this.resource = new SamlFileResourceDisk(fileName);
@@ -46,7 +44,7 @@ class SamlFileResource implements WritableResource {
     }
 
     public SamlFileResource(@NonNull String fileName, @NonNull String data) {
-        if(getUseDiskCache()){
+        if (getUseDiskCache()) {
             this.resource = new SamlFileResourceCache(fileName, data);
         } else {
             this.resource = new SamlFileResourceDisk(fileName, data);
@@ -59,7 +57,7 @@ class SamlFileResource implements WritableResource {
         if (j.getSecurityRealm() instanceof SamlSecurityRealm) {
             SamlSecurityRealm samlSecurityRealm = (SamlSecurityRealm) j.getSecurityRealm();
             SamlAdvancedConfiguration config = samlSecurityRealm.getAdvancedConfiguration();
-            if(config != null ) {
+            if (config != null) {
                 ret = config.getUseDiskCache();
             }
         }
