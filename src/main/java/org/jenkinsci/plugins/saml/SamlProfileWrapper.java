@@ -18,6 +18,7 @@ under the License. */
 package org.jenkinsci.plugins.saml;
 
 import java.util.logging.Logger;
+import jenkins.model.Jenkins;
 import org.kohsuke.stapler.StaplerRequest2;
 import org.kohsuke.stapler.StaplerResponse2;
 import org.pac4j.core.context.CallContext;
@@ -36,6 +37,8 @@ import org.springframework.security.authentication.BadCredentialsException;
  */
 public class SamlProfileWrapper extends OpenSAMLWrapper<SAML2Profile> {
     private static final Logger LOG = Logger.getLogger(SamlProfileWrapper.class.getName());
+
+    private String redirectUrl;
 
     public SamlProfileWrapper(SamlPluginConfig samlPluginConfig, StaplerRequest2 request, StaplerResponse2 response) {
         this.request = request;
@@ -60,6 +63,11 @@ public class SamlProfileWrapper extends OpenSAMLWrapper<SAML2Profile> {
                     client.validateCredentials(ctx, unvalidated).orElse(null);
             saml2Profile =
                     (SAML2Profile) client.getUserProfile(ctx, credentials).orElse(null);
+            context.getRequestParameter("RelayState")
+                    .ifPresent(relayState -> redirectUrl = RefererStateGenerator.CACHE.getIfPresent(relayState));
+            if (redirectUrl == null) {
+                redirectUrl = Jenkins.get().getRootUrl();
+            }
             client.destroy();
         } catch (HttpAction | SAMLException e) {
             // if the SAMLResponse is not valid we send the user again to the IdP
@@ -73,5 +81,9 @@ public class SamlProfileWrapper extends OpenSAMLWrapper<SAML2Profile> {
 
         LOG.finer(saml2Profile.toString());
         return saml2Profile;
+    }
+
+    public String getRedirectUrl() {
+        return redirectUrl;
     }
 }
