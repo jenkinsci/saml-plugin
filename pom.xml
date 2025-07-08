@@ -136,7 +136,7 @@ under the License.
     <dependency>
       <groupId>org.pac4j</groupId>
       <artifactId>pac4j-jakartaee</artifactId>
-      <version>6.1.2</version>
+      <version>6.2.0</version>
       <exclusions>
         <exclusion>
           <groupId>com.google.code.findbugs</groupId>
@@ -151,7 +151,7 @@ under the License.
     <dependency>
       <groupId>org.pac4j</groupId>
       <artifactId>pac4j-saml</artifactId>
-      <version>6.1.2</version>
+      <version>6.2.0</version>
       <optional>false</optional>
       <exclusions>
         <exclusion>
