@@ -18,6 +18,7 @@ package org.jenkinsci.plugins.saml;
 
 import static org.hamcrest.CoreMatchers.allOf;
 import static org.hamcrest.CoreMatchers.containsString;
+import static org.hamcrest.CoreMatchers.endsWith;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.Assume.assumeTrue;
 
@@ -29,6 +30,7 @@ import java.net.URLConnection;
 import java.nio.charset.StandardCharsets;
 import java.util.Collections;
 import java.util.Objects;
+import java.util.logging.Level;
 import jenkins.model.Jenkins;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
@@ -95,7 +97,8 @@ public class LiveTest {
     }
 
     @Test
-    public void authenticationRelayStateRandom() throws Throwable {
+    public void authenticationRelayState() throws Throwable {
+        rr.withLogger("org.jenkinsci.plugins.saml.RefererStateGenerator", Level.FINE);
         then(() -> new AuthenticationRelayStateRandom(readIdPMetadataFromURL()));
     }
 
@@ -111,12 +114,15 @@ public class LiveTest {
             IdpMetadataConfiguration idpMetadataConfiguration = new IdpMetadataConfiguration(idpMetadata);
             SamlAdvancedConfiguration advancedConfiguration =
                     new SamlAdvancedConfiguration(false, null, SERVICE_PROVIDER_ID, null);
-            advancedConfiguration.setRandomRelayState(true);
             SamlSecurityRealm realm =
                     configureBasicSettings(idpMetadataConfiguration, advancedConfiguration, SAML2_REDIRECT_BINDING_URI);
             r.jenkins.setSecurityRealm(realm);
             configureAuthorization();
-            makeLoginWithUser1(r);
+            final HtmlPage htmlPage = makeLoginWithUser1(r, "/builds");
+            assertThat(htmlPage.getUrl().toString(), endsWith("/builds"));
+            Jenkins.logRecords.stream()
+                    .filter(l -> l.getLoggerName().equals("org.jenkinsci.plugins.saml.RefererStateGenerator"))
+                    .forEach(l -> assertThat(l.getMessage(), containsString("Safe URL redirection: /builds")));
         }
     }
 
@@ -291,9 +297,15 @@ public class LiveTest {
     }
 
     private static HtmlPage openLogin(JenkinsRule.WebClient wc, JenkinsRule r) throws Exception {
-        wc.setRedirectEnabled(false);
+        return openLogin(wc, r, null);
+    }
+
+    private static HtmlPage openLogin(JenkinsRule.WebClient wc, JenkinsRule r, String startUrl) throws Exception {
         wc.setThrowExceptionOnFailingStatusCode(false);
         String loc = r.getURL().toString();
+        if (startUrl != null) {
+            loc += startUrl;
+        }
         // in default redirectEnabled mode, this gets a 403 from Jenkins, perhaps because the redirect to
         // /securityRealm/commenceLogin is via JavaScript not a 302
         while (true) {
@@ -320,13 +332,18 @@ public class LiveTest {
     }
 
     private static void makeLoginWithUser1(JenkinsRule r) throws Exception {
+        makeLoginWithUser1(r, null);
+    }
+
+    private static HtmlPage makeLoginWithUser1(JenkinsRule r, String from) throws Exception {
         JenkinsRule.WebClient wc = r.createWebClient();
-        HtmlPage login = openLogin(wc, r);
+        HtmlPage login = openLogin(wc, r, from);
         ((HtmlTextInput) login.getElementById("username")).setText("user1");
         ((HtmlPasswordInput) login.getElementById("password")).setText("user1pass");
         HtmlPage dashboard = login.getElementsByTagName("button").get(0).click();
         assertThat(
                 dashboard.getWebResponse().getContentAsString(),
                 allOf(containsString("User 1"), containsString("Manage Jenkins")));
+        return dashboard;
     }
 }
