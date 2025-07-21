@@ -31,7 +31,6 @@ import org.pac4j.core.context.WebContext;
 import org.pac4j.core.context.session.SessionStore;
 import org.pac4j.core.exception.TechnicalException;
 import org.pac4j.core.http.callback.NoParameterCallbackUrlResolver;
-import org.pac4j.core.util.generator.RandomValueGenerator;
 import org.pac4j.jee.context.JEEContext;
 import org.pac4j.jee.context.JEEFrameworkParameters;
 import org.pac4j.jee.context.session.JEESessionStoreFactory;
@@ -167,9 +166,7 @@ public abstract class OpenSAMLWrapper<T> {
         SAML2Client saml2Client = new SAML2Client(config);
         saml2Client.setCallbackUrl(samlPluginConfig.getConsumerServiceUrl());
         saml2Client.setCallbackUrlResolver(new NoParameterCallbackUrlResolver());
-        if (advancedConfiguration != null && advancedConfiguration.getRandomRelayState()) {
-            saml2Client.setStateGenerator(new RandomValueGenerator());
-        }
+        saml2Client.setStateGenerator(new RefererStateGenerator());
         saml2Client.init();
 
         if (LOG.isLoggable(FINE)) {
