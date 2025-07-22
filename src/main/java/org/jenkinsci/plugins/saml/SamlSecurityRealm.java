@@ -293,6 +293,7 @@ public class SamlSecurityRealm extends SecurityRealm {
     public HttpResponse doFinishLogin(final StaplerRequest2 request, final StaplerResponse2 response) {
         LOG.finer("SamlSecurityRealm.doFinishLogin called");
         String redirectUrl = null;
+        recreateSession(request);
         logSamlResponse(request);
 
         boolean saveUser = false;
