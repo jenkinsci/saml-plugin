@@ -35,8 +35,6 @@ import edu.umd.cs.findbugs.annotations.CheckForNull;
 import edu.umd.cs.findbugs.annotations.NonNull;
 import hudson.Extension;
 import hudson.Util;
-import hudson.model.AbstractDescribableImpl;
-import hudson.model.Descriptor;
 import hudson.util.FormValidation;
 import hudson.util.Secret;
 import java.io.FileInputStream;
@@ -49,23 +47,31 @@ import java.security.UnrecoverableEntryException;
 import java.security.UnrecoverableKeyException;
 import java.security.cert.CertificateException;
 import java.util.Enumeration;
+import java.util.logging.Logger;
 import jenkins.model.Jenkins;
 import org.apache.commons.lang.StringUtils;
+import org.jenkinsci.Symbol;
 import org.kohsuke.stapler.DataBoundConstructor;
 import org.kohsuke.stapler.QueryParameter;
 import org.kohsuke.stapler.interceptor.RequirePOST;
+import org.pac4j.saml.config.SAML2Configuration;
 
 /**
  * Simple immutable data class to hold the optional encryption data section
  * of the plugin's configuration page
+ *
+ * Kept in {@link org.jenkinsci.plugins.saml} for backward compatibility, but really belongs to {@link org.jenkinsci.plugins.saml.properties}
  */
-public class SamlEncryptionData extends AbstractDescribableImpl<SamlEncryptionData> {
+public class SamlEncryptionData extends SamlProperty {
+    private static final Logger LOGGER = Logger.getLogger(SamlEncryptionData.class.getName());
+
     private final String keystorePath;
     private Secret keystorePasswordSecret;
     private Secret privateKeyPasswordSecret;
     private final String privateKeyAlias;
     private final boolean forceSignRedirectBindingAuthnRequest;
     private boolean wantsAssertionsSigned;
+    private static final BundleKeyStore KS = new BundleKeyStore();
 
     @DataBoundConstructor
     public SamlEncryptionData(
@@ -139,15 +145,42 @@ public class SamlEncryptionData extends AbstractDescribableImpl<SamlEncryptionDa
         return this;
     }
 
+    @NonNull
+    @Override
+    public SamlPropertyExecution newExecution() {
+        return new ExecutionImpl(this);
+    }
+
+    private record ExecutionImpl(@NonNull SamlEncryptionData prop) implements SamlPropertyExecution {
+        @Override
+        public void customizeConfiguration(@NonNull SAML2Configuration configuration) {
+            configuration.setAuthnRequestSigned(prop.isForceSignRedirectBindingAuthnRequest());
+            configuration.setWantsAssertionsSigned(prop.isWantsAssertionsSigned());
+            if (StringUtils.isNotBlank(prop.getKeystorePath())) {
+                configuration.setKeystorePath(prop.getKeystorePath());
+                configuration.setKeystorePassword(prop.getKeystorePasswordPlainText());
+                configuration.setPrivateKeyPassword(prop.getPrivateKeyPasswordPlainText());
+                configuration.setKeyStoreAlias(prop.getPrivateKeyAlias());
+            }
+        }
+    }
+
     @SuppressWarnings("unused")
     @Extension
-    public static final class DescriptorImpl extends Descriptor<SamlEncryptionData> {
-        public DescriptorImpl() {
-            super();
-        }
-
-        public DescriptorImpl(Class<? extends SamlEncryptionData> clazz) {
-            super(clazz);
+    @Symbol("encryptionData")
+    public static final class DescriptorImpl extends SamlPropertyDescriptor {
+        @Override
+        public void getDefaultConfiguration(@NonNull SAML2Configuration configuration) {
+            if (!KS.isValid()) {
+                KS.init();
+            }
+            if (KS.isUsingDemoKeyStore()) {
+                LOGGER.warning("Using bundled keystore : " + KS.getKeystorePath());
+            }
+            configuration.setKeystorePath(KS.getKeystorePath());
+            configuration.setKeystorePassword(KS.getKsPassword());
+            configuration.setPrivateKeyPassword(KS.getKsPkPassword());
+            configuration.setKeyStoreAlias(KS.getKsPkAlias());
         }
 
         @NonNull

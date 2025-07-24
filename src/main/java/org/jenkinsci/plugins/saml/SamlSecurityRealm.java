@@ -19,16 +19,18 @@ package org.jenkinsci.plugins.saml;
 
 import static org.apache.commons.codec.binary.Base64.decodeBase64;
 import static org.apache.commons.codec.binary.Base64.isBase64;
-import static org.opensaml.saml.common.xml.SAMLConstants.SAML2_REDIRECT_BINDING_URI;
 
+import edu.umd.cs.findbugs.annotations.CheckForNull;
 import edu.umd.cs.findbugs.annotations.NonNull;
 import hudson.Extension;
 import hudson.model.Descriptor;
+import hudson.model.Saveable;
 import hudson.model.User;
 import hudson.security.GroupDetails;
 import hudson.security.SecurityRealm;
 import hudson.security.UserMayOrMayNotExistException2;
 import hudson.tasks.Mailer.UserProperty;
+import hudson.util.DescribableList;
 import hudson.util.FormValidation;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpSession;
@@ -46,10 +48,17 @@ import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.jenkinsci.plugins.saml.conf.Attribute;
 import org.jenkinsci.plugins.saml.conf.AttributeEntry;
+import org.jenkinsci.plugins.saml.properties.AuthenticationContext;
+import org.jenkinsci.plugins.saml.properties.DataBindingMethod;
+import org.jenkinsci.plugins.saml.properties.ForceAuthentication;
+import org.jenkinsci.plugins.saml.properties.MaximumAuthenticationLifetime;
+import org.jenkinsci.plugins.saml.properties.NameIdPolicyFormat;
+import org.jenkinsci.plugins.saml.properties.SpEntityId;
 import org.jenkinsci.plugins.saml.user.SamlCustomProperty;
 import org.kohsuke.accmod.Restricted;
 import org.kohsuke.accmod.restrictions.NoExternalUse;
 import org.kohsuke.stapler.DataBoundConstructor;
+import org.kohsuke.stapler.DataBoundSetter;
 import org.kohsuke.stapler.HttpResponse;
 import org.kohsuke.stapler.HttpResponses;
 import org.kohsuke.stapler.QueryParameter;
@@ -79,7 +88,6 @@ public class SamlSecurityRealm extends SecurityRealm {
     public static final String DEFAULT_DISPLAY_NAME_ATTRIBUTE_NAME =
             "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name";
     public static final String DEFAULT_GROUPS_ATTRIBUTE_NAME = "http://schemas.xmlsoap.org/claims/Group";
-    public static final int DEFAULT_MAXIMUM_AUTHENTICATION_LIFETIME = 24 * 60 * 60; // 24h
     public static final String DEFAULT_USERNAME_CASE_CONVERSION = "none";
     public static final String SP_METADATA_FILE_NAME = "saml-sp-metadata.xml";
     public static final String IDP_METADATA_FILE_NAME = "saml-idp-metadata.xml";
@@ -142,13 +150,29 @@ public class SamlSecurityRealm extends SecurityRealm {
     private final String usernameCaseConversion;
     private final String usernameAttributeName;
     private final String logoutUrl;
-    private String binding;
+    /**
+     * @deprecated, now stored under properties as {@link DataBindingMethod}.
+     */
+    @Deprecated
+    private transient String binding;
 
-    private final SamlEncryptionData encryptionData;
-    private final SamlAdvancedConfiguration advancedConfiguration;
+    /**
+     * @deprecated, now stored under properties as {@link SamlEncryptionData}.
+     */
+    @Deprecated
+    private transient SamlEncryptionData encryptionData;
+
+    /**
+     * @deprecated, now stored under properties.
+     */
+    @Deprecated
+    private transient SamlAdvancedConfiguration advancedConfiguration;
+
     private final IdpMetadataConfiguration idpMetadataConfiguration;
 
     private List<AttributeEntry> samlCustomAttributes;
+
+    private DescribableList<SamlProperty, SamlPropertyDescriptor> properties = new DescribableList<>(Saveable.NOOP);
 
     /**
      * Jenkins passes these parameters in when you update the settings.
@@ -157,14 +181,10 @@ public class SamlSecurityRealm extends SecurityRealm {
      * @param idpMetadataConfiguration      How to obtain the IdP Metadata configuration.
      * @param displayNameAttributeName      attribute that has the displayname
      * @param groupsAttributeName           attribute that has the groups
-     * @param maximumAuthenticationLifetime maximum time that an identification it is valid
      * @param usernameAttributeName         attribute that has the username
      * @param emailAttributeName            attribute that has the email
      * @param logoutUrl                     optional URL to redirect on logout
-     * @param advancedConfiguration         advanced configuration settings
-     * @param encryptionData                encryption configuration settings
      * @param usernameCaseConversion        username case sensitive settings
-     * @param binding                       SAML binding method.
      * @param samlCustomAttributes          Custom Attributes to read from the SAML Responsse.
      * @throws IOException if it is not possible to write the IdP metadata file.
      */
@@ -173,16 +193,12 @@ public class SamlSecurityRealm extends SecurityRealm {
             IdpMetadataConfiguration idpMetadataConfiguration,
             String displayNameAttributeName,
             String groupsAttributeName,
-            Integer maximumAuthenticationLifetime,
             String usernameAttributeName,
             String emailAttributeName,
             String logoutUrl,
-            SamlAdvancedConfiguration advancedConfiguration,
-            SamlEncryptionData encryptionData,
             String usernameCaseConversion,
-            String binding,
             List<AttributeEntry> samlCustomAttributes)
-            throws IOException {
+            throws IOException, Descriptor.FormException {
         super();
         this.idpMetadataConfiguration = idpMetadataConfiguration;
         this.usernameAttributeName = hudson.Util.fixEmptyAndTrim(usernameAttributeName);
@@ -191,23 +207,17 @@ public class SamlSecurityRealm extends SecurityRealm {
         this.logoutUrl = hudson.Util.fixEmptyAndTrim(logoutUrl);
         this.displayNameAttributeName = DEFAULT_DISPLAY_NAME_ATTRIBUTE_NAME;
         this.groupsAttributeName = DEFAULT_GROUPS_ATTRIBUTE_NAME;
-        this.maximumAuthenticationLifetime = DEFAULT_MAXIMUM_AUTHENTICATION_LIFETIME;
         if (displayNameAttributeName != null && !displayNameAttributeName.isEmpty()) {
             this.displayNameAttributeName = displayNameAttributeName;
         }
         if (groupsAttributeName != null && !groupsAttributeName.isEmpty()) {
             this.groupsAttributeName = groupsAttributeName;
         }
-        if (maximumAuthenticationLifetime != null && maximumAuthenticationLifetime > 0) {
-            this.maximumAuthenticationLifetime = maximumAuthenticationLifetime;
-        }
         if (org.apache.commons.lang.StringUtils.isNotBlank(emailAttributeName)) {
             this.emailAttributeName = hudson.Util.fixEmptyAndTrim(emailAttributeName);
         }
-        this.advancedConfiguration = advancedConfiguration;
-        this.encryptionData = encryptionData;
-        this.binding = binding;
-        this.samlCustomAttributes = samlCustomAttributes;
+        this.samlCustomAttributes =
+                samlCustomAttributes == null ? Collections.emptyList() : new ArrayList<>(samlCustomAttributes);
 
         this.idpMetadataConfiguration.createIdPMetadataFile();
         LOG.finer(this.toString());
@@ -226,12 +236,73 @@ public class SamlSecurityRealm extends SecurityRealm {
                 LOG.log(Level.SEVERE, e.getMessage(), e);
             }
         }
-
-        if (StringUtils.isEmpty(getBinding())) {
-            binding = SAML2_REDIRECT_BINDING_URI;
+        if (properties == null) {
+            properties = new DescribableList<>(Saveable.NOOP);
+        }
+        if (encryptionData != null) {
+            properties.add(encryptionData);
+            encryptionData = null;
+        }
+        if (maximumAuthenticationLifetime != 0) {
+            MaximumAuthenticationLifetime.getPropertyFor(maximumAuthenticationLifetime)
+                    .ifPresent(properties::add);
+            maximumAuthenticationLifetime = 0;
         }
 
+        if (binding != null) {
+            DataBindingMethod.getPropertyFor(binding).ifPresent(properties::add);
+            binding = null;
+        }
+        if (advancedConfiguration != null) {
+            if (Boolean.TRUE.equals(advancedConfiguration.getForceAuthn())) {
+                properties.add(new ForceAuthentication());
+            }
+            if (advancedConfiguration.getAuthnContextClassRef() != null) {
+                properties.add(new AuthenticationContext(advancedConfiguration.getAuthnContextClassRef()));
+            }
+            if (advancedConfiguration.getNameIdPolicyFormat() != null) {
+                properties.add(new NameIdPolicyFormat(advancedConfiguration.getNameIdPolicyFormat()));
+            }
+            if (advancedConfiguration.getSpEntityId() != null) {
+                properties.add(new SpEntityId(advancedConfiguration.getSpEntityId()));
+            }
+            advancedConfiguration = null;
+        }
         return this;
+    }
+
+    public List<SamlProperty> getProperties() {
+        return properties;
+    }
+
+    @DataBoundSetter
+    public void setProperties(@CheckForNull List<SamlProperty> properties)
+            throws IOException, Descriptor.FormException {
+        if (properties != null) {
+            ensureCompatibility(properties);
+            this.properties.replaceBy(properties);
+        } else {
+            this.properties.replaceBy(List.of());
+        }
+    }
+
+    private static void ensureCompatibility(List<SamlProperty> properties) throws Descriptor.FormException {
+        for (var p : properties) {
+            var propertyClasses = p.getDescriptor().getIncompatibleProperties();
+            for (Class<? extends SamlProperty> incompatibleClass : propertyClasses) {
+                var incompatibleProperty = properties.stream()
+                        .filter(incompatibleClass::isInstance)
+                        .findAny();
+                if (incompatibleProperty.isPresent()) {
+                    throw new Descriptor.FormException(
+                            "Please remove property "
+                                    + incompatibleProperty.get().getDescriptor().getDisplayName()
+                                    + " if you want to use property "
+                                    + p.getDescriptor().getDisplayName(),
+                            "properties");
+                }
+            }
+        }
     }
 
     @Override
@@ -652,15 +723,12 @@ public class SamlSecurityRealm extends SecurityRealm {
         return new SamlPluginConfig(
                 displayNameAttributeName,
                 groupsAttributeName,
-                maximumAuthenticationLifetime,
                 emailAttributeName,
                 idpMetadataConfiguration,
                 usernameCaseConversion,
                 usernameAttributeName,
                 logoutUrl,
-                binding,
-                encryptionData,
-                advancedConfiguration);
+                properties);
     }
 
     @SuppressWarnings("unused")
@@ -713,13 +781,6 @@ public class SamlSecurityRealm extends SecurityRealm {
             return SamlFormValidation.checkStringAttributeFormat(
                     emailAttributeName, SamlSecurityRealm.WARN_RECOMMENDED_TO_SET_THE_EMAIL_ATTRIBUTE, true);
         }
-
-        @RequirePOST
-        public FormValidation doCheckMaximumAuthenticationLifetime(
-                @QueryParameter String maximumAuthenticationLifetime) {
-            Jenkins.get().checkPermission(Jenkins.ADMINISTER);
-            return SamlFormValidation.checkIntegerFormat(maximumAuthenticationLifetime);
-        }
     }
 
     public String getUsernameAttributeName() {
@@ -734,18 +795,14 @@ public class SamlSecurityRealm extends SecurityRealm {
         return groupsAttributeName;
     }
 
-    public Integer getMaximumAuthenticationLifetime() {
-        return maximumAuthenticationLifetime;
-    }
-
-    public SamlAdvancedConfiguration getAdvancedConfiguration() {
-        return advancedConfiguration;
-    }
-
     public String getBinding() {
         return binding;
     }
 
+    /**
+     * @deprecated use getProperties().get(SamlEncryptionData.class) instead.
+     */
+    @Deprecated
     public SamlEncryptionData getEncryptionData() {
         return encryptionData;
     }

@@ -1,19 +1,8 @@
 jenkins:
   securityRealm:
     saml:
-      advancedConfiguration:
-        authnContextClassRef: "anotherContext"
-        forceAuthn: true
-        spEntityId: "mySpEntityId"
-      binding: "urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect"
       displayNameAttributeName: "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name"
       emailAttributeName: "fake@mail.com"
-      encryptionData:
-        forceSignRedirectBindingAuthnRequest: true
-        keystorePassword: "{AQAAABAAAAAQW05cASi2RE3zzrl9xskAhhuYAamBbQe0k5Bk9lkDd80=}"
-        keystorePath: "/home/jdk/keystore"
-        privateKeyAlias: "privatealias"
-        privateKeyPassword: "{AQAAABAAAAAQ40qxDUu7fjfmHst04RrBvBm24Om5JBeKAYLnA/9OXZk=}"
       groupsAttributeName: "http://schemas.xmlsoap.org/claims/Group"
       idpMetadataConfiguration:
         period: 2
@@ -46,7 +35,18 @@ jenkins:
             </md:ContactPerson>
           </md:EntityDescriptor>
       logoutUrl: "http://fake.logout.url"
-      maximumAuthenticationLifetime: 86400
+      properties:
+        - authenticationContext:
+            value: "anotherContext"
+        - spEntityId:
+            value: "mySpEntityId"
+        - "forceAuthentication"
+        - encryptionData:
+            forceSignRedirectBindingAuthnRequest: true
+            keystorePassword: "{AQAAABAAAAAQW05cASi2RE3zzrl9xskAhhuYAamBbQe0k5Bk9lkDd80=}"
+            keystorePath: "/home/jdk/keystore"
+            privateKeyAlias: "privatealias"
+            privateKeyPassword: "{AQAAABAAAAAQ40qxDUu7fjfmHst04RrBvBm24Om5JBeKAYLnA/9OXZk=}"
       samlCustomAttributes:
         - attribute:
             displayName: "display1"
