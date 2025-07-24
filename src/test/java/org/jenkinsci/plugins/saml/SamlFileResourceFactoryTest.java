@@ -26,18 +26,15 @@ import org.jvnet.hudson.test.recipes.LocalData;
  * Test SamlFileResource implementations with and without cache.
  */
 @WithJenkins
-class SamlFileResourceTest {
+class SamlFileResourceFactoryTest {
 
     @TempDir
     private File tempFolder;
-
-    private SamlSecurityRealm samlSecurityRealm;
 
     @BeforeEach
     void start(JenkinsRule jenkinsRule) {
         SecurityRealm securityRealm = jenkinsRule.getInstance().getSecurityRealm();
         assertThat("The security realm should be saml", securityRealm, instanceOf(SamlSecurityRealm.class));
-        samlSecurityRealm = (SamlSecurityRealm) securityRealm;
         Logger logger = Logger.getLogger("org.jenkinsci.plugins.saml");
         logger.setLevel(Level.FINEST);
         LogManager.getLogManager().addLogger(logger);
@@ -49,31 +46,28 @@ class SamlFileResourceTest {
     @Test
     @LocalData("configuration")
     void testSamlFileResource() throws InterruptedException, IOException {
-        samlSecurityRealm.getAdvancedConfiguration().setUseDiskCache(true);
         File tempFile = File.createTempFile("testSamlFileResource.txt", null, tempFolder);
-        SamlFileResource obj = new SamlFileResource(tempFile.getAbsolutePath(), "data");
+        var obj = SamlFileResourceFactory.create(tempFile.getAbsolutePath(), "data", true);
         long timestamp = obj.lastModified();
 
         Thread.sleep(1000);
-        SamlFileResource obj1 = new SamlFileResource(tempFile.getAbsolutePath(), "data");
+        var obj1 = SamlFileResourceFactory.create(tempFile.getAbsolutePath(), "data", true);
         assertEquals(timestamp, obj1.lastModified());
 
-        SamlFileResource obj2 = new SamlFileResource(tempFile.getAbsolutePath(), "data1");
+        var obj2 = SamlFileResourceFactory.create(tempFile.getAbsolutePath(), "data1", true);
         assertNotEquals(timestamp, obj2.lastModified());
     }
 
     @Test
     @LocalData("configuration")
     void testGetInputStream() throws IOException {
-        assertReadFile();
-
-        samlSecurityRealm.getAdvancedConfiguration().setUseDiskCache(true);
-        assertReadFile();
+        assertReadFile(false);
+        assertReadFile(true);
     }
 
-    private void assertReadFile() throws IOException {
-        File tempFile = getTempFile("testGetInputStream");
-        SamlFileResource obj = new SamlFileResource(tempFile.getAbsolutePath());
+    private void assertReadFile(boolean useDiskCache) throws IOException {
+        File tempFile = getTempFile("testGetInputStream", useDiskCache);
+        var obj = SamlFileResourceFactory.create(tempFile.getAbsolutePath(), useDiskCache);
         assertEquals("", IOUtils.toString(obj.getInputStream(), UTF_8));
         assertEquals("", FileUtils.readFileToString(tempFile, UTF_8));
 
@@ -81,14 +75,14 @@ class SamlFileResourceTest {
         assertEquals("data", IOUtils.toString(obj.getInputStream(), UTF_8));
         assertEquals("data", FileUtils.readFileToString(tempFile, UTF_8));
 
-        SamlFileResource obj1 = new SamlFileResource(tempFile.getAbsolutePath(), "data1");
+        var obj1 = SamlFileResourceFactory.create(tempFile.getAbsolutePath(), "data1", useDiskCache);
         assertEquals("data1", IOUtils.toString(obj1.getInputStream(), UTF_8));
         assertEquals("data1", FileUtils.readFileToString(tempFile, UTF_8));
     }
 
-    private File getTempFile(String filePattern) throws IOException {
+    private File getTempFile(String filePattern, boolean useDiskCache) throws IOException {
         String type;
-        if (samlSecurityRealm.getAdvancedConfiguration().getUseDiskCache()) {
+        if (useDiskCache) {
             type = "_cache";
         } else {
             type = "_file";
@@ -99,15 +93,13 @@ class SamlFileResourceTest {
     @Test
     @LocalData("configuration")
     void testGetOutputStream() throws IOException {
-        assertOutputStream();
-
-        samlSecurityRealm.getAdvancedConfiguration().setUseDiskCache(true);
-        assertOutputStream();
+        assertOutputStream(false);
+        assertOutputStream(true);
     }
 
-    private void assertOutputStream() throws IOException {
-        File tempFile = getTempFile("testGetOutputStream");
-        SamlFileResource obj = new SamlFileResource(tempFile.getAbsolutePath());
+    private void assertOutputStream(boolean useDiskCache) throws IOException {
+        File tempFile = getTempFile("testGetOutputStream", useDiskCache);
+        var obj = SamlFileResourceFactory.create(tempFile.getAbsolutePath(), useDiskCache);
 
         try (OutputStream out = obj.getOutputStream()) {
             IOUtils.write("data", out, UTF_8);
