@@ -34,7 +34,6 @@ under the License.
   <packaging>hpi</packaging>
   <name>SAML Plugin</name>
   <url>https://github.com/jenkinsci/${project.artifactId}-plugin</url>
-
   <licenses>
     <license>
       <name>Apache 2.0 License</name>
@@ -70,12 +69,13 @@ under the License.
     <revision>4</revision>
     <changelist>999999-SNAPSHOT</changelist>
     <!-- https://www.jenkins.io/doc/developer/plugin-development/choosing-jenkins-baseline/ -->
-    <jenkins.baseline>2.479</jenkins.baseline>
-    <jenkins.version>${jenkins.baseline}.3</jenkins.version>
+    <jenkins.baseline>2.504</jenkins.baseline>
+    <jenkins.version>${jenkins.baseline}.1</jenkins.version>
     <gitHubRepo>jenkinsci/${project.artifactId}-plugin</gitHubRepo>
     <hpi.compatibleSinceVersion>3.343.vb_63a_6c3df23c</hpi.compatibleSinceVersion>
     <spotless.check.skip>false</spotless.check.skip>
   </properties>
+
   <dependencyManagement>
     <dependencies>
       <dependency>
