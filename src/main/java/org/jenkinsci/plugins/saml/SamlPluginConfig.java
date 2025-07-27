@@ -17,10 +17,11 @@ under the License. */
 
 package org.jenkinsci.plugins.saml;
 
-import org.apache.commons.lang.StringUtils;
-import jenkins.model.Jenkins;
 import static org.jenkinsci.plugins.saml.SamlSecurityRealm.CONSUMER_SERVICE_URL_PATH;
 import static org.jenkinsci.plugins.saml.SamlSecurityRealm.DEFAULT_USERNAME_CASE_CONVERSION;
+
+import jenkins.model.Jenkins;
+import org.apache.commons.lang.StringUtils;
 
 /**
  * contains all the Jenkins SAML Plugin settings
@@ -40,16 +41,25 @@ public class SamlPluginConfig {
     private final SamlEncryptionData encryptionData;
     private final SamlAdvancedConfiguration advancedConfiguration;
 
-    public SamlPluginConfig(String displayNameAttributeName, String groupsAttributeName,
-                            int maximumAuthenticationLifetime, String emailAttributeName, IdpMetadataConfiguration idpMetadataConfiguration,
-                            String usernameCaseConversion, String usernameAttributeName, String logoutUrl, String binding,
-                            SamlEncryptionData encryptionData, SamlAdvancedConfiguration advancedConfiguration) {
+    public SamlPluginConfig(
+            String displayNameAttributeName,
+            String groupsAttributeName,
+            int maximumAuthenticationLifetime,
+            String emailAttributeName,
+            IdpMetadataConfiguration idpMetadataConfiguration,
+            String usernameCaseConversion,
+            String usernameAttributeName,
+            String logoutUrl,
+            String binding,
+            SamlEncryptionData encryptionData,
+            SamlAdvancedConfiguration advancedConfiguration) {
         this.displayNameAttributeName = displayNameAttributeName;
         this.groupsAttributeName = groupsAttributeName;
         this.maximumAuthenticationLifetime = maximumAuthenticationLifetime;
         this.emailAttributeName = emailAttributeName;
         this.idpMetadataConfiguration = idpMetadataConfiguration;
-        this.usernameCaseConversion = StringUtils.defaultIfBlank(usernameCaseConversion, DEFAULT_USERNAME_CASE_CONVERSION);
+        this.usernameCaseConversion =
+                StringUtils.defaultIfBlank(usernameCaseConversion, DEFAULT_USERNAME_CASE_CONVERSION);
         this.usernameAttributeName = hudson.Util.fixEmptyAndTrim(usernameAttributeName);
         this.logoutUrl = logoutUrl;
         this.binding = binding;
@@ -60,7 +70,6 @@ public class SamlPluginConfig {
     public String getUsernameAttributeName() {
         return usernameAttributeName;
     }
-
 
     public String getDisplayNameAttributeName() {
         return displayNameAttributeName;
@@ -129,12 +138,12 @@ public class SamlPluginConfig {
     @Override
     public String toString() {
         return "SamlPluginConfig{" + "idpMetadataConfiguration='" + getIdpMetadataConfiguration() + '\''
-               + ", displayNameAttributeName='" + getDisplayNameAttributeName() + '\'' + ", groupsAttributeName='"
-               + getGroupsAttributeName() + '\'' + ", emailAttributeName='" + getEmailAttributeName() + '\''
-               + ", usernameAttributeName='" + getUsernameAttributeName() + '\''
-               + ", maximumAuthenticationLifetime=" + getMaximumAuthenticationLifetime()
-               + ", usernameCaseConversion='" + getUsernameCaseConversion() + '\'' + ", logoutUrl='"
-               + getLogoutUrl() + '\'' + ", binding='" + getBinding() + '\'' + ", encryptionData="
-               + getEncryptionData() + ", advancedConfiguration=" + getAdvancedConfiguration() + '}';
+                + ", displayNameAttributeName='" + getDisplayNameAttributeName() + '\'' + ", groupsAttributeName='"
+                + getGroupsAttributeName() + '\'' + ", emailAttributeName='" + getEmailAttributeName() + '\''
+                + ", usernameAttributeName='" + getUsernameAttributeName() + '\''
+                + ", maximumAuthenticationLifetime=" + getMaximumAuthenticationLifetime()
+                + ", usernameCaseConversion='" + getUsernameCaseConversion() + '\'' + ", logoutUrl='"
+                + getLogoutUrl() + '\'' + ", binding='" + getBinding() + '\'' + ", encryptionData="
+                + getEncryptionData() + ", advancedConfiguration=" + getAdvancedConfiguration() + '}';
     }
 }

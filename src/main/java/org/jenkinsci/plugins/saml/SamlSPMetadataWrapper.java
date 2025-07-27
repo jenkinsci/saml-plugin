@@ -29,7 +29,8 @@ import org.pac4j.saml.client.SAML2Client;
  */
 public class SamlSPMetadataWrapper extends OpenSAMLWrapper<HttpResponse> {
 
-    public SamlSPMetadataWrapper(SamlPluginConfig samlPluginConfig, StaplerRequest2 request, StaplerResponse2 response) {
+    public SamlSPMetadataWrapper(
+            SamlPluginConfig samlPluginConfig, StaplerRequest2 request, StaplerResponse2 response) {
         this.request = request;
         this.response = response;
         this.samlPluginConfig = samlPluginConfig;
@@ -47,7 +48,7 @@ public class SamlSPMetadataWrapper extends OpenSAMLWrapper<HttpResponse> {
             metadata = client.getServiceProviderMetadataResolver().getMetadata();
             client.destroy();
         } catch (TechnicalException e) {
-           throw new IllegalStateException(e);
+            throw new IllegalStateException(e);
         }
         return HttpResponses.text(metadata);
     }

@@ -16,35 +16,22 @@ specific language governing permissions and limitations
 under the License. */
 package org.jenkinsci.plugins.saml.user;
 
+import edu.umd.cs.findbugs.annotations.NonNull;
 import hudson.Extension;
-import hudson.model.Descriptor.FormException;
 import hudson.model.User;
 import hudson.model.UserProperty;
 import hudson.model.UserPropertyDescriptor;
-import edu.umd.cs.findbugs.annotations.NonNull;
-import net.sf.json.JSONObject;
-import org.apache.commons.lang.time.FastDateFormat;
 import hudson.security.SecurityRealm;
-import jenkins.model.Jenkins;
-import org.jenkinsci.plugins.saml.SamlSecurityRealm;
-import org.kohsuke.stapler.DataBoundConstructor;
-import org.kohsuke.stapler.StaplerRequest2;
-
 import java.util.Date;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import jenkins.model.Jenkins;
 import net.sf.json.JSONObject;
 import org.apache.commons.lang.time.FastDateFormat;
 import org.jenkinsci.plugins.saml.SamlSecurityRealm;
 import org.kohsuke.stapler.DataBoundConstructor;
 import org.kohsuke.stapler.StaplerRequest2;
 import org.springframework.security.core.Authentication;
-import hudson.Extension;
-import hudson.model.User;
-import hudson.model.UserProperty;
-import hudson.model.UserPropertyDescriptor;
-import hudson.security.SecurityRealm;
-import jenkins.model.Jenkins;
 
 /**
  * Store details about create and login processes
@@ -58,11 +45,10 @@ public class LoginDetailsProperty extends UserProperty {
     private long lastLoginTimestamp;
     private long loginCount;
 
-
     @SuppressWarnings("unused")
     @DataBoundConstructor
     public LoginDetailsProperty() {
-        //NOOP
+        // NOOP
     }
 
     @SuppressWarnings("unused")
@@ -139,7 +125,6 @@ public class LoginDetailsProperty extends UserProperty {
         return this;
     }
 
-
     /**
      * Listen to the login success/failure event to persist {@link LoginDetailsProperty}s properly.
      */
@@ -155,7 +140,6 @@ public class LoginDetailsProperty extends UserProperty {
                 return;
             }
 
-
             try {
                 User u = User.getById(username, true);
                 LoginDetailsProperty o = u.getProperty(LoginDetailsProperty.class);
@@ -165,15 +149,13 @@ public class LoginDetailsProperty extends UserProperty {
                 u.addProperty(o);
                 Authentication a = Jenkins.getAuthentication2();
                 if (a.getName().equals(username)) {
-                    o.update();    // just for defensive sanity checking
+                    o.update(); // just for defensive sanity checking
                 }
             } catch (java.io.IOException e) {
                 LOG.log(Level.WARNING, "Failed to record granted authorities", e);
             }
         }
-
     }
-
 
     @SuppressWarnings("unused")
     @Extension

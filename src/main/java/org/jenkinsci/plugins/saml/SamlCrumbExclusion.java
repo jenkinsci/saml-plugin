@@ -1,13 +1,13 @@
 package org.jenkinsci.plugins.saml;
 
-import java.io.IOException;
-import java.util.logging.Logger;
+import hudson.Extension;
+import hudson.security.csrf.CrumbExclusion;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import hudson.Extension;
-import hudson.security.csrf.CrumbExclusion;
+import java.io.IOException;
+import java.util.logging.Logger;
 
 /**
  * @see hudson.security.csrf.CrumbExclusion
@@ -20,8 +20,7 @@ public class SamlCrumbExclusion extends CrumbExclusion {
     public boolean process(HttpServletRequest request, HttpServletResponse response, FilterChain chain)
             throws IOException, ServletException {
         jenkins.model.Jenkins j = jenkins.model.Jenkins.get();
-        if (j.getSecurityRealm() instanceof SamlSecurityRealm
-            && shouldExclude(request.getPathInfo())) {
+        if (j.getSecurityRealm() instanceof SamlSecurityRealm && shouldExclude(request.getPathInfo())) {
             chain.doFilter(request, response);
             return true;
         }

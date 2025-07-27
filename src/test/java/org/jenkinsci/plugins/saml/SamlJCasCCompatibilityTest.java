@@ -1,17 +1,17 @@
 package org.jenkinsci.plugins.saml;
 
-import java.util.List;
+import static org.hamcrest.CoreMatchers.containsString;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+
 import hudson.security.SecurityRealm;
 import io.jenkins.plugins.casc.misc.RoundTripAbstractTest;
+import java.util.List;
 import org.jenkinsci.plugins.saml.conf.Attribute;
 import org.jenkinsci.plugins.saml.conf.AttributeEntry;
 import org.jvnet.hudson.test.RestartableJenkinsRule;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.CoreMatchers.containsString;
-import static org.junit.Assert.assertTrue;
 
 public class SamlJCasCCompatibilityTest extends RoundTripAbstractTest {
     @Override
@@ -20,9 +20,10 @@ public class SamlJCasCCompatibilityTest extends RoundTripAbstractTest {
         assertNotNull(realm);
         assertTrue(realm instanceof SamlSecurityRealm);
 
-        final SamlSecurityRealm samlRealm = (SamlSecurityRealm)realm;
+        final SamlSecurityRealm samlRealm = (SamlSecurityRealm) realm;
         // Simple attributes
-        assertEquals("http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name", samlRealm.getDisplayNameAttributeName());
+        assertEquals(
+                "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name", samlRealm.getDisplayNameAttributeName());
         assertEquals("http://schemas.xmlsoap.org/claims/Group", samlRealm.getGroupsAttributeName());
         assertEquals(86400, samlRealm.getMaximumAuthenticationLifetime().longValue());
         assertEquals("fake@mail.com", samlRealm.getEmailAttributeName());
@@ -47,7 +48,10 @@ public class SamlJCasCCompatibilityTest extends RoundTripAbstractTest {
         assertNotNull(metadata);
         assertEquals("http://fake.ldP.metadata.url", metadata.getUrl());
         assertEquals(2, metadata.getPeriod().longValue());
-        assertThat(metadata.getXml(), containsString("<md:EntityDescriptor xmlns:md=\"urn:oasis:names:tc:SAML:2.0:metadata\" xmlns:ds=\"http://www.w3.org/2000/09/xmldsig#\" entityID=\"simpleSAMLphpIdpHosted\">"));
+        assertThat(
+                metadata.getXml(),
+                containsString(
+                        "<md:EntityDescriptor xmlns:md=\"urn:oasis:names:tc:SAML:2.0:metadata\" xmlns:ds=\"http://www.w3.org/2000/09/xmldsig#\" entityID=\"simpleSAMLphpIdpHosted\">"));
         assertThat(metadata.getXml(), containsString("<md:ContactPerson contactType=\"technical\">"));
         assertThat(metadata.getXml(), containsString("<md:GivenName>Administrator</md:GivenName>"));
         assertThat(metadata.getXml(), containsString("<md:EmailAddress>dublindev@glgroup.com</md:EmailAddress>"));
@@ -55,10 +59,10 @@ public class SamlJCasCCompatibilityTest extends RoundTripAbstractTest {
         final List<AttributeEntry> customAttributes = samlRealm.getSamlCustomAttributes();
         assertNotNull(customAttributes);
         assertEquals(2, customAttributes.size());
-        assertEquals("attribute1", ((Attribute)customAttributes.get(0)).getName());
-        assertEquals("display1", ((Attribute)customAttributes.get(0)).getDisplayName());
-        assertEquals("attribute2", ((Attribute)customAttributes.get(1)).getName());
-        assertEquals("display2", ((Attribute)customAttributes.get(1)).getDisplayName());
+        assertEquals("attribute1", ((Attribute) customAttributes.get(0)).getName());
+        assertEquals("display1", ((Attribute) customAttributes.get(0)).getDisplayName());
+        assertEquals("attribute2", ((Attribute) customAttributes.get(1)).getName());
+        assertEquals("display2", ((Attribute) customAttributes.get(1)).getDisplayName());
     }
 
     @Override

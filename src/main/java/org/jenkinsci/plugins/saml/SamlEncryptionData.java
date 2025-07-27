@@ -17,29 +17,6 @@ under the License. */
 
 package org.jenkinsci.plugins.saml;
 
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.security.KeyStore;
-import java.security.KeyStoreException;
-import java.security.NoSuchAlgorithmException;
-import java.security.UnrecoverableEntryException;
-import java.security.UnrecoverableKeyException;
-import java.security.cert.CertificateException;
-import java.util.Enumeration;
-import edu.umd.cs.findbugs.annotations.CheckForNull;
-import edu.umd.cs.findbugs.annotations.NonNull;
-import org.apache.commons.lang.StringUtils;
-import org.kohsuke.stapler.DataBoundConstructor;
-import org.kohsuke.stapler.QueryParameter;
-import org.kohsuke.stapler.interceptor.RequirePOST;
-import hudson.Extension;
-import hudson.Util;
-import hudson.model.AbstractDescribableImpl;
-import hudson.model.Descriptor;
-import hudson.util.FormValidation;
-import hudson.util.Secret;
-import jenkins.model.Jenkins;
 import static org.jenkinsci.plugins.saml.SamlSecurityRealm.ERROR_ALGORITHM_CANNOT_BE_FOUND;
 import static org.jenkinsci.plugins.saml.SamlSecurityRealm.ERROR_CERTIFICATES_COULD_NOT_BE_LOADED;
 import static org.jenkinsci.plugins.saml.SamlSecurityRealm.ERROR_INSUFFICIENT_OR_INVALID_INFO;
@@ -54,6 +31,30 @@ import static org.jenkinsci.plugins.saml.SamlSecurityRealm.WARN_PRIVATE_KEY_ALIA
 import static org.jenkinsci.plugins.saml.SamlSecurityRealm.WARN_PRIVATE_KEY_PASS_NOT_SET;
 import static org.jenkinsci.plugins.saml.SamlSecurityRealm.WARN_THERE_IS_NOT_KEY_STORE;
 
+import edu.umd.cs.findbugs.annotations.CheckForNull;
+import edu.umd.cs.findbugs.annotations.NonNull;
+import hudson.Extension;
+import hudson.Util;
+import hudson.model.AbstractDescribableImpl;
+import hudson.model.Descriptor;
+import hudson.util.FormValidation;
+import hudson.util.Secret;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.security.KeyStore;
+import java.security.KeyStoreException;
+import java.security.NoSuchAlgorithmException;
+import java.security.UnrecoverableEntryException;
+import java.security.UnrecoverableKeyException;
+import java.security.cert.CertificateException;
+import java.util.Enumeration;
+import jenkins.model.Jenkins;
+import org.apache.commons.lang.StringUtils;
+import org.kohsuke.stapler.DataBoundConstructor;
+import org.kohsuke.stapler.QueryParameter;
+import org.kohsuke.stapler.interceptor.RequirePOST;
+
 /**
  * Simple immutable data class to hold the optional encryption data section
  * of the plugin's configuration page
@@ -67,13 +68,18 @@ public class SamlEncryptionData extends AbstractDescribableImpl<SamlEncryptionDa
     private boolean wantsAssertionsSigned;
 
     @DataBoundConstructor
-    public SamlEncryptionData(String keystorePath, Secret keystorePassword, Secret privateKeyPassword, String privateKeyAlias,
-                              boolean forceSignRedirectBindingAuthnRequest, boolean wantsAssertionsSigned) {
+    public SamlEncryptionData(
+            String keystorePath,
+            Secret keystorePassword,
+            Secret privateKeyPassword,
+            String privateKeyAlias,
+            boolean forceSignRedirectBindingAuthnRequest,
+            boolean wantsAssertionsSigned) {
         this.keystorePath = Util.fixEmptyAndTrim(keystorePath);
-        if(keystorePassword != null && StringUtils.isNotEmpty(keystorePassword.getPlainText())){
+        if (keystorePassword != null && StringUtils.isNotEmpty(keystorePassword.getPlainText())) {
             this.keystorePasswordSecret = keystorePassword;
         }
-        if(privateKeyPassword != null && StringUtils.isNotEmpty(privateKeyPassword.getPlainText())){
+        if (privateKeyPassword != null && StringUtils.isNotEmpty(privateKeyPassword.getPlainText())) {
             this.privateKeyPasswordSecret = privateKeyPassword;
         }
         this.privateKeyAlias = Util.fixEmptyAndTrim(privateKeyAlias);
@@ -121,11 +127,11 @@ public class SamlEncryptionData extends AbstractDescribableImpl<SamlEncryptionDa
     @Override
     public String toString() {
         return "SamlEncryptionData{" + "keystorePath='" + StringUtils.defaultIfBlank(keystorePath, "none") + '\''
-               + ", keystorePassword is NOT empty='" + (getKeystorePasswordPlainText() != null) + '\''
-               + ", privateKeyPassword is NOT empty='" + (getPrivateKeyPasswordPlainText() != null) + '\''
-               + ", privateKeyAlias is NOT empty='" + StringUtils.isNotEmpty(privateKeyAlias) + '\''
-               + ", forceSignRedirectBindingAuthnRequest = " + forceSignRedirectBindingAuthnRequest
-               + ", wantsAssertionsSigned = " + wantsAssertionsSigned + '}';
+                + ", keystorePassword is NOT empty='" + (getKeystorePasswordPlainText() != null) + '\''
+                + ", privateKeyPassword is NOT empty='" + (getPrivateKeyPasswordPlainText() != null) + '\''
+                + ", privateKeyAlias is NOT empty='" + StringUtils.isNotEmpty(privateKeyAlias) + '\''
+                + ", forceSignRedirectBindingAuthnRequest = " + forceSignRedirectBindingAuthnRequest
+                + ", wantsAssertionsSigned = " + wantsAssertionsSigned + '}';
     }
 
     @SuppressWarnings("unused")
@@ -165,20 +171,23 @@ public class SamlEncryptionData extends AbstractDescribableImpl<SamlEncryptionDa
         @RequirePOST
         public FormValidation doCheckKeystorePassword(@QueryParameter String keystorePassword) {
             Jenkins.get().checkPermission(Jenkins.ADMINISTER);
-            return SamlFormValidation.checkStringAttributeFormat(keystorePassword, WARN_PRIVATE_KEYSTORE_PASS_NOT_SET, true);
+            return SamlFormValidation.checkStringAttributeFormat(
+                    keystorePassword, WARN_PRIVATE_KEYSTORE_PASS_NOT_SET, true);
         }
 
         @RequirePOST
         public FormValidation doCheckPrivateKeyPassword(@QueryParameter String privateKeyPassword) {
             Jenkins.get().checkPermission(Jenkins.ADMINISTER);
-            return SamlFormValidation.checkStringAttributeFormat(privateKeyPassword, WARN_PRIVATE_KEY_PASS_NOT_SET, true);
+            return SamlFormValidation.checkStringAttributeFormat(
+                    privateKeyPassword, WARN_PRIVATE_KEY_PASS_NOT_SET, true);
         }
 
         @RequirePOST
-        public FormValidation doTestKeyStore(@QueryParameter("keystorePath") String keystorePath,
-                                                         @QueryParameter("keystorePassword") Secret keystorePassword,
-                                                         @QueryParameter("privateKeyPassword") Secret privateKeyPassword,
-                                                         @QueryParameter("privateKeyAlias") String privateKeyAlias) {
+        public FormValidation doTestKeyStore(
+                @QueryParameter("keystorePath") String keystorePath,
+                @QueryParameter("keystorePassword") Secret keystorePassword,
+                @QueryParameter("privateKeyPassword") Secret privateKeyPassword,
+                @QueryParameter("privateKeyAlias") String privateKeyAlias) {
             Jenkins.get().checkPermission(Jenkins.ADMINISTER);
             if (StringUtils.isBlank(keystorePath)) {
                 return FormValidation.warning(WARN_THERE_IS_NOT_KEY_STORE);
@@ -189,7 +198,8 @@ public class SamlEncryptionData extends AbstractDescribableImpl<SamlEncryptionDa
 
                 KeyStore.PasswordProtection keyPassword = new KeyStore.PasswordProtection(null);
                 if (StringUtils.isNotBlank(privateKeyPassword.getPlainText())) {
-                    keyPassword = new KeyStore.PasswordProtection(privateKeyPassword.getPlainText().toCharArray());
+                    keyPassword = new KeyStore.PasswordProtection(
+                            privateKeyPassword.getPlainText().toCharArray());
                 }
 
                 Enumeration<String> aliases = ks.aliases();
@@ -216,6 +226,5 @@ public class SamlEncryptionData extends AbstractDescribableImpl<SamlEncryptionDa
             }
             return FormValidation.error(ERROR_NOT_KEY_FOUND);
         }
-
     }
 }
