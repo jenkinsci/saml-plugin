@@ -34,7 +34,7 @@ import org.kohsuke.stapler.interceptor.RequirePOST;
 import org.pac4j.saml.config.SAML2Configuration;
 
 /**
- * This property allows to override the Service Provider Entity ID.
+ * This property allows the Service Provider Entity ID to be overridden.
  */
 public class SpEntityId extends SamlProperty {
     @NonNull
