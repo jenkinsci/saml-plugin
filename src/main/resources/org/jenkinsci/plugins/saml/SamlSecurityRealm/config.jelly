@@ -24,8 +24,8 @@
         <f:textbox/>
     </f:entry>
 
-    <f:entry title="Properties">
-        <f:repeatableHeteroProperty field="properties" hasHeader="true" oneEach="true"/>
+    <f:entry title="Properties" field="properties">
+        <f:repeatableHeteroProperty hasHeader="true" oneEach="true"/>
     </f:entry>
 
     <f:entry title="Custom Attributes">
