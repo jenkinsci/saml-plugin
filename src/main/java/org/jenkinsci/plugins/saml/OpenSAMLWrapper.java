@@ -17,12 +17,10 @@ under the License. */
 
 package org.jenkinsci.plugins.saml;
 
-import static java.util.logging.Level.FINE;
 import static java.util.logging.Level.SEVERE;
 
-import java.util.Arrays;
+import java.util.List;
 import java.util.logging.Logger;
-import org.apache.commons.lang.StringUtils;
 import org.kohsuke.stapler.StaplerRequest2;
 import org.kohsuke.stapler.StaplerResponse2;
 import org.opensaml.core.config.InitializationException;
@@ -48,7 +46,6 @@ import org.pac4j.saml.config.SAML2Configuration;
  */
 public abstract class OpenSAMLWrapper<T> {
     private static final Logger LOG = Logger.getLogger(OpenSAMLWrapper.class.getName());
-    private static final BundleKeyStore KS = new BundleKeyStore();
 
     protected SamlPluginConfig samlPluginConfig;
     protected StaplerRequest2 request;
@@ -102,80 +99,43 @@ public abstract class OpenSAMLWrapper<T> {
      * @return a SAML2Client object to interact with the IdP service.
      */
     protected SAML2Client createSAML2Client() {
-        SAML2Configuration config = new SAML2Configuration();
-        config.setIdentityProviderMetadataResource(new SamlFileResource(SamlSecurityRealm.getIDPMetadataFilePath()));
-        config.setAuthnRequestBindingType(samlPluginConfig.getBinding());
+        var propertyExecutions = samlPluginConfig.properties().stream()
+                .map(SamlProperty::newExecution)
+                .toList();
+        var config = createSAML2Configuration(propertyExecutions);
+        return createSAML2Client(config, propertyExecutions);
+    }
 
-        SamlEncryptionData encryptionData = samlPluginConfig.getEncryptionData();
-        if (encryptionData != null) {
-            config.setAuthnRequestSigned(encryptionData.isForceSignRedirectBindingAuthnRequest());
-            config.setWantsAssertionsSigned(encryptionData.isWantsAssertionsSigned());
-        } else {
-            config.setAuthnRequestSigned(false);
-            config.setWantsAssertionsSigned(false);
-        }
-
-        if (encryptionData != null && StringUtils.isNotBlank(encryptionData.getKeystorePath())) {
-            config.setKeystorePath(encryptionData.getKeystorePath());
-            config.setKeystorePassword(encryptionData.getKeystorePasswordPlainText());
-            config.setPrivateKeyPassword(encryptionData.getPrivateKeyPasswordPlainText());
-            config.setKeyStoreAlias(encryptionData.getPrivateKeyAlias());
-        } else {
-            if (!KS.isValid()) {
-                KS.init();
-            }
-            if (KS.isUsingDemoKeyStore()) {
-                LOG.warning("Using bundled keystore : " + KS.getKeystorePath());
-            }
-            config.setKeystorePath(KS.getKeystorePath());
-            config.setKeystorePassword(KS.getKsPassword());
-            config.setPrivateKeyPassword(KS.getKsPkPassword());
-            config.setKeyStoreAlias(KS.getKsPkAlias());
-        }
-
-        config.setMaximumAuthenticationLifetime(samlPluginConfig.getMaximumAuthenticationLifetime());
-        // tolerate missing SAML response Destination attribute https://github.com/pac4j/pac4j/pull/1871
-        config.setResponseDestinationAttributeMandatory(false);
-
-        SamlAdvancedConfiguration advancedConfiguration = samlPluginConfig.getAdvancedConfiguration();
-        if (advancedConfiguration != null) {
-
-            // request forced authentication at the IdP, if selected
-            config.setForceAuth(samlPluginConfig.getForceAuthn());
-
-            // override the default EntityId for this SP, if one is set
-            if (samlPluginConfig.getSpEntityId() != null) {
-                config.setServiceProviderEntityId(samlPluginConfig.getSpEntityId());
-            }
-
-            // if a specific authentication type (authentication context class
-            // reference) is set, include it in the request to the IdP, and request
-            // that the IdP uses exact matching for authentication types
-            if (samlPluginConfig.getAuthnContextClassRef() != null) {
-                config.setAuthnContextClassRefs(Arrays.asList(samlPluginConfig.getAuthnContextClassRef()));
-                config.setComparisonType("exact");
-            }
-
-            if (samlPluginConfig.getNameIdPolicyFormat() != null) {
-                config.setNameIdPolicyFormat(samlPluginConfig.getNameIdPolicyFormat());
-            }
-        }
-
-        config.setForceServiceProviderMetadataGeneration(true);
-        config.setServiceProviderMetadataResource(new SamlFileResource(SamlSecurityRealm.getSPMetadataFilePath()));
+    private SAML2Client createSAML2Client(SAML2Configuration config, List<SamlPropertyExecution> propertyExecutions) {
         SAML2Client saml2Client = new SAML2Client(config);
         saml2Client.setCallbackUrl(samlPluginConfig.getConsumerServiceUrl());
         saml2Client.setCallbackUrlResolver(new NoParameterCallbackUrlResolver());
         saml2Client.setStateGenerator(new RefererStateGenerator());
+        propertyExecutions.forEach(property -> property.customizeClient(saml2Client));
         saml2Client.init();
 
-        if (LOG.isLoggable(FINE)) {
-            try {
-                LOG.fine(saml2Client.getServiceProviderMetadataResolver().getMetadata());
-            } catch (TechnicalException e) {
-                LOG.fine("Is not possible to show the metadata : " + e.getMessage());
-            }
+        try {
+            LOG.fine(() -> saml2Client.getServiceProviderMetadataResolver().getMetadata());
+        } catch (TechnicalException e) {
+            LOG.fine(() -> "Is not possible to show the metadata : " + e.getMessage());
         }
         return saml2Client;
+    }
+
+    private static SAML2Configuration createSAML2Configuration(List<SamlPropertyExecution> propertyExecutions) {
+        SAML2Configuration config = new SAML2Configuration();
+        // tolerate missing SAML response Destination attribute https://github.com/pac4j/pac4j/pull/1871
+        config.setResponseDestinationAttributeMandatory(false);
+        config.setForceServiceProviderMetadataGeneration(true);
+        // Apply default configuration from property descriptors
+        SamlPropertyDescriptor.all().forEach(propertyDescriptor -> propertyDescriptor.getDefaultConfiguration(config));
+        var useDiskCache = propertyExecutions.stream().anyMatch(SamlPropertyExecution::isUseDiskCache);
+        config.setIdentityProviderMetadataResource(
+                SamlFileResourceFactory.create(SamlSecurityRealm.getIDPMetadataFilePath(), useDiskCache));
+        config.setServiceProviderMetadataResource(
+                SamlFileResourceFactory.create(SamlSecurityRealm.getSPMetadataFilePath(), useDiskCache));
+        // Apply all configured property executions to the configuration
+        propertyExecutions.forEach(property -> property.customizeConfiguration(config));
+        return config;
     }
 }
