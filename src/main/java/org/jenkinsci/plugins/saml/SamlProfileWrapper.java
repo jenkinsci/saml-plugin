@@ -17,6 +17,7 @@ under the License. */
 
 package org.jenkinsci.plugins.saml;
 
+import java.util.Optional;
 import java.util.logging.Logger;
 import jenkins.model.Jenkins;
 import org.kohsuke.stapler.StaplerRequest2;
@@ -63,8 +64,12 @@ public class SamlProfileWrapper extends OpenSAMLWrapper<SAML2Profile> {
                     client.validateCredentials(ctx, unvalidated).orElse(null);
             saml2Profile =
                     (SAML2Profile) client.getUserProfile(ctx, credentials).orElse(null);
-            context.getRequestParameter("RelayState")
-                    .ifPresent(relayState -> redirectUrl = RefererStateGenerator.CACHE.getIfPresent(relayState));
+            var stateGenerator = client.getStateGenerator();
+            Optional<String> mayRelayState = context.getRequestParameter("RelayState");
+            if (stateGenerator instanceof RelayStateMapper f && mayRelayState.isPresent()) {
+                mayRelayState = f.map(mayRelayState.get());
+            }
+            mayRelayState.ifPresent(relayState -> redirectUrl = RefererStateGenerator.CACHE.getIfPresent(relayState));
             if (redirectUrl == null) {
                 redirectUrl = Jenkins.get().getRootUrl();
             }

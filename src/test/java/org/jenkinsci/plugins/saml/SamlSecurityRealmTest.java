@@ -232,7 +232,8 @@ class SamlSecurityRealmTest {
                 samlSecurityRealm.getLogoutUrl(),
                 samlSecurityRealm.getBinding(),
                 samlSecurityRealm.getEncryptionData(),
-                samlSecurityRealm.getAdvancedConfiguration());
+                samlSecurityRealm.getAdvancedConfiguration(),
+                samlSecurityRealm.getProperties());
         assertEquals(
                 samlPluginConfig.toString(),
                 samlSecurityRealm.getSamlPluginConfig().toString());
