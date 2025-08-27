@@ -41,12 +41,4 @@ public interface SamlPropertyExecution {
      * @param client             the SAML2 client to customize
      */
     default void customizeClient(@NonNull SAML2Client client) {}
-
-    /**
-     * Indicates whether disk caching should be used.
-     * @return true if disk caching should be used, false otherwise
-     */
-    default boolean isUseDiskCache() {
-        return false;
-    }
 }

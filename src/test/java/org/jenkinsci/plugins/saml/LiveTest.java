@@ -18,18 +18,19 @@ package org.jenkinsci.plugins.saml;
 
 import static org.hamcrest.CoreMatchers.allOf;
 import static org.hamcrest.CoreMatchers.containsString;
+import static org.hamcrest.CoreMatchers.endsWith;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.endsWith;
+import static org.hamcrest.Matchers.is;
 import static org.junit.Assume.assumeTrue;
 
-import hudson.model.Descriptor;
+import edu.umd.cs.findbugs.annotations.NonNull;
 import hudson.util.Secret;
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 import java.net.URLConnection;
 import java.nio.charset.StandardCharsets;
-import java.util.List;
+import java.util.Collections;
 import java.util.Objects;
 import java.util.logging.Level;
 import jenkins.model.Jenkins;
@@ -39,8 +40,7 @@ import org.htmlunit.Page;
 import org.htmlunit.html.HtmlPage;
 import org.htmlunit.html.HtmlPasswordInput;
 import org.htmlunit.html.HtmlTextInput;
-import org.jenkinsci.plugins.saml.properties.DataBindingMethod;
-import org.jenkinsci.plugins.saml.properties.SpEntityId;
+import org.jetbrains.annotations.NotNull;
 import org.junit.After;
 import org.junit.BeforeClass;
 import org.junit.Rule;
@@ -48,6 +48,9 @@ import org.junit.Test;
 import org.jvnet.hudson.test.JenkinsRule;
 import org.jvnet.hudson.test.MockAuthorizationStrategy;
 import org.jvnet.hudson.test.RealJenkinsRule;
+import org.jvnet.hudson.test.TestExtension;
+import org.pac4j.saml.client.SAML2Client;
+import org.pac4j.saml.config.SAML2Configuration;
 import org.testcontainers.DockerClientFactory;
 import org.testcontainers.containers.GenericContainer;
 import org.testcontainers.utility.MountableFile;
@@ -71,6 +74,8 @@ public class LiveTest {
         samlContainer.stop();
     }
 
+    private static final String SAML2_REDIRECT_BINDING_URI = "urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect";
+    private static final String SAML2_POST_BINDING_URI = "urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST";
     private static final String SERVICE_PROVIDER_ID = "jenkins-dev";
 
     @Test
@@ -87,7 +92,10 @@ public class LiveTest {
 
         @Override
         public void run(JenkinsRule r) throws Throwable {
-            SamlSecurityRealm realm = configureBasicSettings(new IdpMetadataConfiguration(idpMetadata));
+            SamlSecurityRealm realm = configureBasicSettings(
+                    new IdpMetadataConfiguration(idpMetadata),
+                    new SamlAdvancedConfiguration(false, null, SERVICE_PROVIDER_ID, null),
+                    SAML2_REDIRECT_BINDING_URI);
             r.jenkins.setSecurityRealm(realm);
             configureAuthorization();
             makeLoginWithUser1(r);
@@ -110,7 +118,10 @@ public class LiveTest {
         @Override
         public void run(JenkinsRule r) throws Throwable {
             IdpMetadataConfiguration idpMetadataConfiguration = new IdpMetadataConfiguration(idpMetadata);
-            SamlSecurityRealm realm = configureBasicSettings(idpMetadataConfiguration);
+            SamlAdvancedConfiguration advancedConfiguration =
+                    new SamlAdvancedConfiguration(false, null, SERVICE_PROVIDER_ID, null);
+            SamlSecurityRealm realm =
+                    configureBasicSettings(idpMetadataConfiguration, advancedConfiguration, SAML2_REDIRECT_BINDING_URI);
             r.jenkins.setSecurityRealm(realm);
             configureAuthorization();
             final HtmlPage htmlPage = makeLoginWithUser1(r, "/builds");
@@ -135,7 +146,10 @@ public class LiveTest {
 
         @Override
         public void run(JenkinsRule r) throws Throwable {
-            SamlSecurityRealm realm = configureBasicSettings(new IdpMetadataConfiguration(idpMetadataUrl, 0L));
+            SamlSecurityRealm realm = configureBasicSettings(
+                    new IdpMetadataConfiguration(idpMetadataUrl, 0L),
+                    new SamlAdvancedConfiguration(false, null, SERVICE_PROVIDER_ID, null),
+                    SAML2_REDIRECT_BINDING_URI);
             Jenkins.XSTREAM2.toXMLUTF8(realm, System.out);
             System.out.println();
             r.jenkins.setSecurityRealm(realm);
@@ -158,8 +172,10 @@ public class LiveTest {
 
         @Override
         public void run(JenkinsRule r) throws Throwable {
-            SamlSecurityRealm realm = configureBasicSettings(new IdpMetadataConfiguration(idpMetadata));
-            realm.getProperties().add(new DataBindingMethod(DataBindingMethod.HTTP_POST_BINDING));
+            SamlSecurityRealm realm = configureBasicSettings(
+                    new IdpMetadataConfiguration(idpMetadata),
+                    new SamlAdvancedConfiguration(false, null, SERVICE_PROVIDER_ID, null),
+                    SAML2_POST_BINDING_URI);
             r.jenkins.setSecurityRealm(realm);
             configureAuthorization();
             makeLoginWithUser1(r);
@@ -180,7 +196,10 @@ public class LiveTest {
 
         @Override
         public void run(JenkinsRule r) throws Throwable {
-            SamlSecurityRealm realm = configureBasicSettings(new IdpMetadataConfiguration(idpMetadata));
+            SamlSecurityRealm realm = configureBasicSettings(
+                    new IdpMetadataConfiguration(idpMetadata),
+                    new SamlAdvancedConfiguration(false, null, SERVICE_PROVIDER_ID, null),
+                    SAML2_REDIRECT_BINDING_URI);
             r.jenkins.setSecurityRealm(realm);
             configureAuthorization();
             JenkinsRule.WebClient wc = r.createWebClient();
@@ -194,6 +213,54 @@ public class LiveTest {
                             "Either no user with the given username could be found, or the password you gave was wrong"));
             assertThat(fail.getUrl().toString(), containsString("simplesaml/module.php/core/loginuserpass.php"));
         }
+    }
+
+    @Test
+    public void withProperty() throws Throwable {
+        then(() -> new AuthenticationWithProperty(readIdPMetadataFromURL()));
+    }
+
+    private record AuthenticationWithProperty(String idpMetadata) implements RealJenkinsRule.Step {
+
+        @Override
+        public void run(JenkinsRule r) throws Throwable {
+            SamlSecurityRealm realm = configureBasicSettings(
+                    new IdpMetadataConfiguration(idpMetadata),
+                    new SamlAdvancedConfiguration(false, null, SERVICE_PROVIDER_ID, null),
+                    SAML2_REDIRECT_BINDING_URI);
+            realm.getProperties().add(new SamlPropertyTestImpl());
+            r.jenkins.setSecurityRealm(realm);
+            configureAuthorization();
+            makeLoginWithUser1(r);
+            assertThat(SamlPropertyTestImpl.ExecutionImpl.calledConfiguration, is(true));
+            assertThat(SamlPropertyTestImpl.ExecutionImpl.calledClient, is(true));
+        }
+    }
+
+    public static class SamlPropertyTestImpl extends SamlProperty {
+        @NonNull
+        @Override
+        public SamlPropertyExecution newExecution() {
+            return new ExecutionImpl();
+        }
+
+        private static class ExecutionImpl implements SamlPropertyExecution {
+            private static boolean calledConfiguration = false;
+            private static boolean calledClient = false;
+
+            @Override
+            public void customizeConfiguration(@NotNull SAML2Configuration configuration) {
+                calledConfiguration = true;
+            }
+
+            @Override
+            public void customizeClient(@NotNull SAML2Client client) {
+                calledClient = true;
+            }
+        }
+
+        @TestExtension
+        public static class DescriptorImpl extends SamlPropertyDescriptor {}
     }
 
     private String readIdPMetadataFromURL() throws IOException {
@@ -234,8 +301,11 @@ public class LiveTest {
                         .to("group2"));
     }
 
-    private static SamlSecurityRealm configureBasicSettings(IdpMetadataConfiguration idpMetadataConfiguration)
-            throws IOException, Descriptor.FormException {
+    private static SamlSecurityRealm configureBasicSettings(
+            IdpMetadataConfiguration idpMetadataConfiguration,
+            SamlAdvancedConfiguration advancedConfiguration,
+            String binding)
+            throws IOException {
         // TODO use @DataBoundSetter wherever possible and load defaults from DescriptorImpl
         File samlKey = new File(Jenkins.get().getRootDir(), "saml-key.jks");
         FileUtils.copyURLToFile(Objects.requireNonNull(LiveTest.class.getResource("LiveTest/saml-key.jks")), samlKey);
@@ -246,18 +316,19 @@ public class LiveTest {
                 null,
                 false,
                 true);
-        var samlSecurityRealm = new SamlSecurityRealm(
+        return new SamlSecurityRealm(
                 idpMetadataConfiguration,
                 "displayName",
                 "eduPersonAffiliation",
+                86400,
                 "uid",
                 "email",
                 null,
+                advancedConfiguration,
+                samlEncryptionData,
                 "none",
-                List.of());
-        samlSecurityRealm.getProperties().add(samlEncryptionData);
-        samlSecurityRealm.getProperties().add(new SpEntityId(SERVICE_PROVIDER_ID));
-        return samlSecurityRealm;
+                binding,
+                Collections.emptyList());
     }
 
     private void startSimpleSAML(String rootUrl) {

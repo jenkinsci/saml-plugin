@@ -20,15 +20,16 @@ package org.jenkinsci.plugins.saml;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.StringContains.containsString;
 import static org.mockito.Mockito.when;
+import static org.opensaml.saml.common.xml.SAMLConstants.SAML2_REDIRECT_BINDING_URI;
 
 import hudson.util.Secret;
+import jakarta.servlet.ServletException;
+import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.nio.charset.StandardCharsets;
-import java.util.List;
 import java.util.Objects;
 import org.apache.commons.io.IOUtils;
-import org.jenkinsci.plugins.saml.properties.MaximumAuthenticationLifetime;
 import org.junit.jupiter.api.Test;
 import org.jvnet.hudson.test.JenkinsRule;
 import org.jvnet.hudson.test.junit.jupiter.WithJenkins;
@@ -43,7 +44,7 @@ import org.mockito.Mockito;
 class OpenSamlWrapperTest {
 
     @Test
-    void metadataWrapper(JenkinsRule jenkinsRule) throws Exception {
+    void metadataWrapper(JenkinsRule jenkinsRule) throws IOException, ServletException {
         String metadata = IOUtils.toString(
                 Objects.requireNonNull(this.getClass()
                         .getClassLoader()
@@ -54,12 +55,15 @@ class OpenSamlWrapperTest {
                 new IdpMetadataConfiguration(metadata),
                 "displayName",
                 "groups",
+                10000,
                 "uid",
                 "email",
                 "/logout",
+                null,
+                null,
                 "none",
-                List.of());
-        samlSecurity.getProperties().add(new MaximumAuthenticationLifetime(10000));
+                SAML2_REDIRECT_BINDING_URI,
+                java.util.Collections.emptyList());
         jenkinsRule.jenkins.setSecurityRealm(samlSecurity);
         SamlSPMetadataWrapper samlSPMetadataWrapper =
                 new SamlSPMetadataWrapper(samlSecurity.getSamlPluginConfig(), null, null);
@@ -79,7 +83,7 @@ class OpenSamlWrapperTest {
     }
 
     @Test
-    void metadataWrapperWithEncryptionConfigured(JenkinsRule jenkinsRule) throws Exception {
+    void metadataWrapperWithEncryptionConfigured(JenkinsRule jenkinsRule) throws IOException, ServletException {
         String metadata = IOUtils.toString(
                 Objects.requireNonNull(this.getClass()
                         .getClassLoader()
@@ -98,13 +102,15 @@ class OpenSamlWrapperTest {
                 new IdpMetadataConfiguration(metadata),
                 "displayName",
                 "groups",
+                10000,
                 "uid",
                 "email",
                 "/logout",
+                null,
+                encryptionData,
                 "none",
-                List.of());
-        samlSecurity.getProperties().add(new MaximumAuthenticationLifetime(10000));
-        samlSecurity.getProperties().add(encryptionData);
+                SAML2_REDIRECT_BINDING_URI,
+                java.util.Collections.emptyList());
         jenkinsRule.jenkins.setSecurityRealm(samlSecurity);
         SamlSPMetadataWrapper samlSPMetadataWrapper =
                 new SamlSPMetadataWrapper(samlSecurity.getSamlPluginConfig(), null, null);

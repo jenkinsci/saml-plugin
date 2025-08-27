@@ -40,26 +40,29 @@ Check supported binding redirection types of your IdP.
   * urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect
   * urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST
 * **Logout URL** - The url of your Identity Provider where you want to be redirected once logout.
-* **Properties** - All advanced behaviours allowing customization of the SAML client and configuration
+* **Advanced Configuration** - You could enable this options to use SAML ForceAuthn to force logins at our IdP,
+AuthnContextClassRef to override the default authentication mechanism, and force multi-factor authentication;
+you also could set the sessions on Jenkins to be shorter than those on your IdP.
   * **Force Authentication** - Whether to request the SAML IdP to force (re)authentication of the user,
   rather than allowing an existing session with the IdP to be reused. Off by default
-  * **Authentication Context** - Request that the SAML IdP uses a specific authentication context,
+  * **Authentication Context** - If this field is not empty, request that the SAML IdP uses a specific authentication context,
   rather than its default. Check with the IdP administrators to find out which authentication contexts are available
-  * **Override Service Provider Entity ID** - Overrides the default Entity ID for this Service Provider.
+  * **SP Entity ID** - If this field is not empty, it overrides the default Entity ID for this Service Provider.
   Service Provider Entity IDs are usually a URL, like ***http://jenkins.example.org/securityRealm/finishLogin***.
-  * **Name ID Policy Format** - Set your NameIDPolicy in the AuthnRequest, for example: `urn:oasis:names:tc:SAML:1.1:nameid-format:unspecified`
-  * **Use Disk Cache** - The SP metadata is written on every login, enable this setting change the behaviour to use cache, and save the file only if it has changes.
-  * **Encryption** - If your provider requires encryption or signing, you can specify the keystore details here that should be used.
+  * **NameIDPolicy Format** - Set your NameIDPolicy in the AuthnRequest, for example: `urn:oasis:names:tc:SAML:1.1:nameid-format:unspecified`
+  * **Use cache for configuration files** - The SP metadata is written on every login, enable this setting change the behaviour to use cache, and save the file only if it has changes.
+  * **Use Random relayState value** - When you enable this option the value of the relayState parameter sent to the IdP is a random generated value. The default value of relayState is `JENKINS_URL/securityRealm/finishLogin`
+* **Encryption** - If your provider requires encryption or signing, you can specify the keystore details here that should be used.
 If you do not specify a keystore, the plugin would create one with a key that is valid for a year,
 this key would be recreated when it expires, by default the key is not exposed in the SP metadata if you do not enable signing.
-    * **Keystore path** - The path to the keystore file created with the keygen command.
-    * **Key Alias** - The alias used in the -alias argument of the keytool< command.
-    * **Keystore password** - The password used in the -storepass argument of the keytool command.
-    * **Private Key password** - The password used in the -keypass argument of keytool.
-    * **Auth Request Signature** - Enable signature of the Redirect Binding Auth Request,
+  * **Keystore path** - The path to the keystore file created with the keygen command.
+  * **Key Alias** - The alias used in the -alias argument of the keytool< command.
+  * **Keystore password** - The password used in the -storepass argument of the keytool command.
+  * **Private Key password** - The password used in the -keypass argument of keytool.
+  * **Auth Request Signature** - Enable signature of the Redirect Binding Auth Request,
   If you enable it the encryption and signing key would available in the SP metadata file and URL (`JENKINS_URL/securityRealm/metadata`).
   Disable signing auth request does not work with HTTP redirection binging, it only works for POST binding.
-    * **Wants Assertion Signed** - It requests signed assertions send by the IdP.
+  * **Wants Assertion Signed** - It requests signed assertions send by the IdP.
   
 The attribute is sometimes called a claim, and for some IdPs it has a fixed structure, e.g. a URI. So in some documentation,
 you might see the term URI of the claim instead of the name of the attribute.

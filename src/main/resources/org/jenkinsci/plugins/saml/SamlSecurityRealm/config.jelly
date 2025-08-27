@@ -7,6 +7,9 @@
     <f:entry title="Group Attribute" field="groupsAttributeName">
         <f:textbox default="http://schemas.xmlsoap.org/claims/Group"/>
     </f:entry>
+    <f:entry title="Maximum Authentication Lifetime" field="maximumAuthenticationLifetime">
+        <f:number clazz="required number" min="0" default="86400"/>
+    </f:entry>
     <f:entry title="Username Attribute" field="usernameAttributeName">
         <f:textbox/>
     </f:entry>
@@ -20,13 +23,25 @@
             <f:option value="uppercase" selected="${instance.usernameCaseConversion == 'uppercase'}">Uppercase</f:option>
         </select>
     </f:entry>
+    <f:entry title="Data Binding Method" field="binding">
+        <select name="binding">
+            <f:option value="urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect"
+                      selected="${instance.binding == 'urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect'}">HTTP-Redirect</f:option>
+            <f:option value="urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST"
+                      selected="${instance.binding == 'urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST'}">HTTP-POST</f:option>
+        </select>
+    </f:entry>
     <f:entry title="Logout URL" field="logoutUrl">
         <f:textbox/>
     </f:entry>
 
-    <f:entry title="Properties" field="properties">
-        <f:repeatableHeteroProperty hasHeader="true" oneEach="true"/>
-    </f:entry>
+    <f:optionalProperty title="Advanced Configuration" field="advancedConfiguration"/>
+    <f:optionalProperty title="Encryption Configuration" field="encryptionData"/>
+    <j:if test="${descriptor.displayProperties}">
+      <f:entry title="Properties" field="properties">
+          <f:repeatableHeteroProperty hasHeader="true" oneEach="true"/>
+      </f:entry>
+    </j:if>
 
     <f:entry title="Custom Attributes">
         <f:repeatableHeteroProperty field="samlCustomAttributes" hasHeader="true"/>

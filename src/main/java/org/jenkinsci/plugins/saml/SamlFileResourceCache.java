@@ -45,7 +45,7 @@ import org.springframework.core.io.WritableResource;
  */
 class SamlFileResourceCache implements WritableResource {
 
-    private static final Logger LOG = Logger.getLogger(SamlFileResourceCache.class.getName());
+    private static final Logger LOG = Logger.getLogger(SamlFileResource.class.getName());
 
     private String fileName;
 

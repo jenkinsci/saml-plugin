@@ -17,22 +17,25 @@ under the License. */
 
 package org.jenkinsci.plugins.saml;
 
+import static org.jenkinsci.plugins.saml.SamlSecurityRealm.ERROR_NOT_VALID_NUMBER;
+
 import edu.umd.cs.findbugs.annotations.NonNull;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import hudson.Extension;
 import hudson.Util;
 import hudson.model.AbstractDescribableImpl;
 import hudson.model.Descriptor;
+import hudson.util.FormValidation;
+import jenkins.model.Jenkins;
 import org.apache.commons.lang.StringUtils;
 import org.kohsuke.stapler.DataBoundConstructor;
 import org.kohsuke.stapler.DataBoundSetter;
+import org.kohsuke.stapler.interceptor.RequirePOST;
 
 /**
  * Simple immutable data class to hold the optional advanced configuration data section
  * of the plugin's configuration page
- * @deprecated Use {@link SamlProperty} instances instead.
  */
-@Deprecated
 public class SamlAdvancedConfiguration extends AbstractDescribableImpl<SamlAdvancedConfiguration> {
     private final Boolean forceAuthn;
     private final String authnContextClassRef;
@@ -103,6 +106,51 @@ public class SamlAdvancedConfiguration extends AbstractDescribableImpl<SamlAdvan
         @Override
         public String getDisplayName() {
             return "Advanced Configuration";
+        }
+
+        @RequirePOST
+        public FormValidation doCheckAuthnContextClassRef(
+                @org.kohsuke.stapler.QueryParameter String authnContextClassRef) {
+            Jenkins.get().checkPermission(Jenkins.ADMINISTER);
+            return SamlFormValidation.checkStringFormat(authnContextClassRef);
+        }
+
+        @RequirePOST
+        public FormValidation doCheckSpEntityId(@org.kohsuke.stapler.QueryParameter String spEntityId) {
+            Jenkins.get().checkPermission(Jenkins.ADMINISTER);
+            return SamlFormValidation.checkStringFormat(spEntityId);
+        }
+
+        @RequirePOST
+        public FormValidation doCheckNameIdPolicyFormat(@org.kohsuke.stapler.QueryParameter String nameIdPolicyFormat) {
+            Jenkins.get().checkPermission(Jenkins.ADMINISTER);
+            return SamlFormValidation.checkStringFormat(nameIdPolicyFormat);
+        }
+
+        @RequirePOST
+        public FormValidation doCheckMaximumSessionLifetime(
+                @org.kohsuke.stapler.QueryParameter String maximumSessionLifetime) {
+            Jenkins.get().checkPermission(Jenkins.ADMINISTER);
+            if (StringUtils.isEmpty(maximumSessionLifetime)) {
+                return hudson.util.FormValidation.ok();
+            }
+
+            long i = 0;
+            try {
+                i = Long.parseLong(maximumSessionLifetime);
+            } catch (NumberFormatException e) {
+                return hudson.util.FormValidation.error(ERROR_NOT_VALID_NUMBER, e);
+            }
+
+            if (i < 0) {
+                return hudson.util.FormValidation.error(ERROR_NOT_VALID_NUMBER);
+            }
+
+            if (i > Integer.MAX_VALUE) {
+                return hudson.util.FormValidation.error(ERROR_NOT_VALID_NUMBER);
+            }
+
+            return hudson.util.FormValidation.ok();
         }
     }
 }

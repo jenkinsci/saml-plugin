@@ -17,12 +17,9 @@ under the License. */
 
 package org.jenkinsci.plugins.saml;
 
-import edu.umd.cs.findbugs.annotations.NonNull;
 import hudson.ExtensionList;
 import hudson.ExtensionPoint;
 import hudson.model.Descriptor;
-import java.util.List;
-import org.pac4j.saml.config.SAML2Configuration;
 
 /**
  * Descriptor for SAML properties.
@@ -34,22 +31,5 @@ public abstract class SamlPropertyDescriptor extends Descriptor<SamlProperty> im
      */
     public static ExtensionList<SamlPropertyDescriptor> all() {
         return ExtensionList.lookup(SamlPropertyDescriptor.class);
-    }
-
-    /**
-     * Applies the default configuration of this property to the given SAML2Configuration.
-     * <br>
-     * This method is always called, prior to the property configuration, even if the property is not explicitly configured in the {@link SamlSecurityRealm}.
-     */
-    public void getDefaultConfiguration(@NonNull SAML2Configuration configuration) {
-        // no-op
-    }
-
-    /**
-     * @return a list of incompatible properties with the current property.
-     */
-    @NonNull
-    public List<Class<? extends SamlProperty>> getIncompatibleProperties() {
-        return List.of();
     }
 }

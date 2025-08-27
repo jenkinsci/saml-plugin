@@ -1,0 +1,19 @@
+<?jelly escape-by-default='true'?>
+<j:jelly xmlns:j="jelly:core"
+         xmlns:f="/lib/form">
+    <f:entry title="Force Authentication" field="forceAuthn">
+        <f:checkbox/>
+    </f:entry>
+    <f:entry title="Authentication Context" field="authnContextClassRef">
+        <f:textbox/>
+    </f:entry>
+    <f:entry title="SP Entity ID" field="spEntityId">
+        <f:textbox/>
+    </f:entry>
+    <f:entry title="NameIDPolicy Format" field="nameIdPolicyFormat">
+        <f:textbox/>
+    </f:entry>
+    <f:entry title="Use cache for configuration files" field="useDiskCache">
+        <f:checkbox/>
+    </f:entry>
+</j:jelly>

@@ -19,12 +19,8 @@ package org.jenkinsci.plugins.saml;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import hudson.ExtensionList;
 import hudson.util.FormValidation.Kind;
 import hudson.util.Secret;
-import org.jenkinsci.plugins.saml.properties.AuthenticationContext;
-import org.jenkinsci.plugins.saml.properties.MaximumAuthenticationLifetime;
-import org.jenkinsci.plugins.saml.properties.SpEntityId;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.jvnet.hudson.test.JenkinsRule;
@@ -40,6 +36,8 @@ class SamlFormValidationsTest {
     private SamlSecurityRealm samlSecurityRealm;
     private SamlSecurityRealm.DescriptorImpl descriptor;
     private IdpMetadataConfiguration.DescriptorImpl idpMCdescriptor;
+    private SamlAdvancedConfiguration.DescriptorImpl advCdescriptor;
+    private SamlEncryptionData.DescriptorImpl endescriptor;
 
     @BeforeEach
     void start(JenkinsRule jenkinsRule) {
@@ -53,10 +51,23 @@ class SamlFormValidationsTest {
         } else {
             throw new RuntimeException("The security Realm it is not correct");
         }
+        if (samlSecurityRealm.getAdvancedConfiguration().getDescriptor()
+                instanceof SamlAdvancedConfiguration.DescriptorImpl) {
+            advCdescriptor = (SamlAdvancedConfiguration.DescriptorImpl)
+                    samlSecurityRealm.getAdvancedConfiguration().getDescriptor();
+        } else {
+            throw new RuntimeException("The security Realm it is not correct");
+        }
         if (samlSecurityRealm.getIdpMetadataConfiguration().getDescriptor()
                 instanceof IdpMetadataConfiguration.DescriptorImpl) {
             idpMCdescriptor = (IdpMetadataConfiguration.DescriptorImpl)
                     samlSecurityRealm.getIdpMetadataConfiguration().getDescriptor();
+        } else {
+            throw new RuntimeException("The security Realm it is not correct");
+        }
+        if (samlSecurityRealm.getEncryptionData().getDescriptor() instanceof SamlEncryptionData.DescriptorImpl) {
+            endescriptor = (SamlEncryptionData.DescriptorImpl)
+                    samlSecurityRealm.getEncryptionData().getDescriptor();
         } else {
             throw new RuntimeException("The security Realm it is not correct");
         }
@@ -69,7 +80,7 @@ class SamlFormValidationsTest {
         assertEquals(Kind.ERROR, idpMCdescriptor.doTestIdpMetadata("").kind);
         assertEquals(Kind.ERROR, idpMCdescriptor.doTestIdpMetadata(" ").kind);
         SamlPluginConfig samlPluginConfig = samlSecurityRealm.getSamlPluginConfig();
-        String idpMetadata = samlPluginConfig.idpMetadataConfiguration().getIdpMetadata();
+        String idpMetadata = samlPluginConfig.getIdpMetadataConfiguration().getIdpMetadata();
         assertEquals(Kind.ERROR, idpMCdescriptor.doTestIdpMetadata(idpMetadata + "</none>").kind);
         assertEquals(Kind.ERROR, idpMCdescriptor.doTestIdpMetadata(idpMetadata.substring(20)).kind);
         assertEquals(Kind.OK, idpMCdescriptor.doTestIdpMetadata(idpMetadata).kind);
@@ -80,16 +91,18 @@ class SamlFormValidationsTest {
     void testKeyStore() {
         BundleKeyStore bks = new BundleKeyStore();
         bks.init();
-        var d = ExtensionList.lookupSingleton(SamlEncryptionData.DescriptorImpl.class);
-        assertEquals(Kind.WARNING, d.doTestKeyStore("", Secret.fromString(""), Secret.fromString(""), "").kind);
-        assertEquals(Kind.ERROR, d.doTestKeyStore("none", Secret.fromString(""), Secret.fromString(""), "").kind);
+        assertEquals(
+                Kind.WARNING, endescriptor.doTestKeyStore("", Secret.fromString(""), Secret.fromString(""), "").kind);
+        assertEquals(
+                Kind.ERROR, endescriptor.doTestKeyStore("none", Secret.fromString(""), Secret.fromString(""), "").kind);
         assertEquals(
                 Kind.ERROR,
-                d.doTestKeyStore(bks.getKeystorePath().substring(5), Secret.fromString(""), Secret.fromString(""), "")
+                endescriptor.doTestKeyStore(
+                                bks.getKeystorePath().substring(5), Secret.fromString(""), Secret.fromString(""), "")
                         .kind);
         assertEquals(
                 Kind.ERROR,
-                d.doTestKeyStore(
+                endescriptor.doTestKeyStore(
                                 bks.getKeystorePath().substring(5),
                                 Secret.fromString("none"),
                                 Secret.fromString(""),
@@ -97,7 +110,7 @@ class SamlFormValidationsTest {
                         .kind);
         assertEquals(
                 Kind.ERROR,
-                d.doTestKeyStore(
+                endescriptor.doTestKeyStore(
                                 bks.getKeystorePath().substring(5),
                                 Secret.fromString(bks.getKsPassword()),
                                 Secret.fromString(""),
@@ -105,7 +118,7 @@ class SamlFormValidationsTest {
                         .kind);
         assertEquals(
                 Kind.ERROR,
-                d.doTestKeyStore(
+                endescriptor.doTestKeyStore(
                                 bks.getKeystorePath().substring(5),
                                 Secret.fromString(bks.getKsPassword()),
                                 Secret.fromString("none"),
@@ -113,7 +126,7 @@ class SamlFormValidationsTest {
                         .kind);
         assertEquals(
                 Kind.OK,
-                d.doTestKeyStore(
+                endescriptor.doTestKeyStore(
                                 bks.getKeystorePath().substring(5),
                                 Secret.fromString(bks.getKsPassword()),
                                 Secret.fromString(bks.getKsPkPassword()),
@@ -121,7 +134,7 @@ class SamlFormValidationsTest {
                         .kind);
         assertEquals(
                 Kind.ERROR,
-                d.doTestKeyStore(
+                endescriptor.doTestKeyStore(
                                 bks.getKeystorePath().substring(5),
                                 Secret.fromString(bks.getKsPassword()),
                                 Secret.fromString(bks.getKsPkPassword()),
@@ -129,7 +142,7 @@ class SamlFormValidationsTest {
                         .kind);
         assertEquals(
                 Kind.OK,
-                d.doTestKeyStore(
+                endescriptor.doTestKeyStore(
                                 bks.getKeystorePath().substring(5),
                                 Secret.fromString(bks.getKsPassword()),
                                 Secret.fromString(bks.getKsPkPassword()),
@@ -167,11 +180,10 @@ class SamlFormValidationsTest {
     @LocalData("testReadSimpleConfigurationAdvancedConfiguration")
     @Test
     void testCheckAuthnContextClassRef() {
-        var d = ExtensionList.lookupSingleton(AuthenticationContext.DescriptorImpl.class);
-        assertEquals(Kind.OK, d.doCheckValue(null).kind);
-        assertEquals(Kind.OK, d.doCheckValue("").kind);
-        assertEquals(Kind.ERROR, d.doCheckValue(" ").kind);
-        assertEquals(Kind.OK, d.doCheckValue("value").kind);
+        assertEquals(Kind.OK, advCdescriptor.doCheckAuthnContextClassRef(null).kind);
+        assertEquals(Kind.OK, advCdescriptor.doCheckAuthnContextClassRef("").kind);
+        assertEquals(Kind.ERROR, advCdescriptor.doCheckAuthnContextClassRef(" ").kind);
+        assertEquals(Kind.OK, advCdescriptor.doCheckAuthnContextClassRef("value").kind);
     }
 
     @LocalData("testReadSimpleConfigurationAdvancedConfiguration")
@@ -195,62 +207,67 @@ class SamlFormValidationsTest {
     @LocalData("testReadSimpleConfigurationAdvancedConfiguration")
     @Test
     void testCheckKeystorePath() {
-        var d = ExtensionList.lookupSingleton(SamlEncryptionData.DescriptorImpl.class);
-        assertEquals(Kind.WARNING, d.doCheckKeystorePath(null).kind);
-        assertEquals(Kind.WARNING, d.doCheckKeystorePath("").kind);
-        assertEquals(Kind.ERROR, d.doCheckKeystorePath(" ").kind);
-        assertEquals(Kind.OK, d.doCheckKeystorePath("value").kind);
+        assertEquals(Kind.WARNING, endescriptor.doCheckKeystorePath(null).kind);
+        assertEquals(Kind.WARNING, endescriptor.doCheckKeystorePath("").kind);
+        assertEquals(Kind.ERROR, endescriptor.doCheckKeystorePath(" ").kind);
+        assertEquals(Kind.OK, endescriptor.doCheckKeystorePath("value").kind);
     }
 
     @LocalData("testReadSimpleConfigurationAdvancedConfiguration")
     @Test
     void testCheckKPrivateKeyAlias() {
-        var d = ExtensionList.lookupSingleton(SamlEncryptionData.DescriptorImpl.class);
-        assertEquals(Kind.WARNING, d.doCheckPrivateKeyAlias(null).kind);
-        assertEquals(Kind.WARNING, d.doCheckPrivateKeyAlias("").kind);
-        assertEquals(Kind.ERROR, d.doCheckPrivateKeyAlias(" ").kind);
-        assertEquals(Kind.OK, d.doCheckPrivateKeyAlias("value").kind);
+        assertEquals(Kind.WARNING, endescriptor.doCheckPrivateKeyAlias(null).kind);
+        assertEquals(Kind.WARNING, endescriptor.doCheckPrivateKeyAlias("").kind);
+        assertEquals(Kind.ERROR, endescriptor.doCheckPrivateKeyAlias(" ").kind);
+        assertEquals(Kind.OK, endescriptor.doCheckPrivateKeyAlias("value").kind);
     }
 
     @LocalData("testReadSimpleConfigurationAdvancedConfiguration")
     @Test
     void testCheckKeystorePassword() {
-        var d = ExtensionList.lookupSingleton(SamlEncryptionData.DescriptorImpl.class);
-        assertEquals(Kind.WARNING, d.doCheckKeystorePassword(null).kind);
-        assertEquals(Kind.WARNING, d.doCheckKeystorePassword("").kind);
-        assertEquals(Kind.ERROR, d.doCheckKeystorePassword(" ").kind);
-        assertEquals(Kind.OK, d.doCheckKeystorePassword("value").kind);
+        assertEquals(Kind.WARNING, endescriptor.doCheckKeystorePassword(null).kind);
+        assertEquals(Kind.WARNING, endescriptor.doCheckKeystorePassword("").kind);
+        assertEquals(Kind.ERROR, endescriptor.doCheckKeystorePassword(" ").kind);
+        assertEquals(Kind.OK, endescriptor.doCheckKeystorePassword("value").kind);
     }
 
     @LocalData("testReadSimpleConfigurationAdvancedConfiguration")
     @Test
     void testCheckKPrivateKeyPassword() {
-        var d = ExtensionList.lookupSingleton(SamlEncryptionData.DescriptorImpl.class);
-        assertEquals(Kind.WARNING, d.doCheckPrivateKeyPassword(null).kind);
-        assertEquals(Kind.WARNING, d.doCheckPrivateKeyPassword("").kind);
-        assertEquals(Kind.ERROR, d.doCheckPrivateKeyPassword(" ").kind);
-        assertEquals(Kind.OK, d.doCheckPrivateKeyPassword("value").kind);
+        assertEquals(Kind.WARNING, endescriptor.doCheckPrivateKeyPassword(null).kind);
+        assertEquals(Kind.WARNING, endescriptor.doCheckPrivateKeyPassword("").kind);
+        assertEquals(Kind.ERROR, endescriptor.doCheckPrivateKeyPassword(" ").kind);
+        assertEquals(Kind.OK, endescriptor.doCheckPrivateKeyPassword("value").kind);
     }
 
     @LocalData("testReadSimpleConfigurationAdvancedConfiguration")
     @Test
     void testCheckMaximumAuthenticationLifetime() {
-        var d = ExtensionList.lookupSingleton(MaximumAuthenticationLifetime.DescriptorImpl.class);
-        assertEquals(Kind.OK, d.doCheckValue(null).kind);
-        assertEquals(Kind.OK, d.doCheckValue("").kind);
-        assertEquals(Kind.ERROR, d.doCheckValue("novalid").kind);
-        assertEquals(Kind.ERROR, d.doCheckValue(Integer.MAX_VALUE + "999999").kind);
-        assertEquals(Kind.ERROR, d.doCheckValue("-1").kind);
-        assertEquals(Kind.OK, d.doCheckValue("86400").kind);
+        assertEquals(Kind.OK, descriptor.doCheckMaximumAuthenticationLifetime(null).kind);
+        assertEquals(Kind.OK, descriptor.doCheckMaximumAuthenticationLifetime("").kind);
+        assertEquals(Kind.ERROR, descriptor.doCheckMaximumAuthenticationLifetime("novalid").kind);
+        assertEquals(Kind.ERROR, descriptor.doCheckMaximumAuthenticationLifetime(Integer.MAX_VALUE + "999999").kind);
+        assertEquals(Kind.ERROR, descriptor.doCheckMaximumAuthenticationLifetime("-1").kind);
+        assertEquals(Kind.OK, descriptor.doCheckMaximumAuthenticationLifetime("86400").kind);
+    }
+
+    @LocalData("testReadSimpleConfigurationAdvancedConfiguration")
+    @Test
+    void testCheckMaximumSessionLifetime() {
+        assertEquals(Kind.OK, advCdescriptor.doCheckMaximumSessionLifetime(null).kind);
+        assertEquals(Kind.OK, advCdescriptor.doCheckMaximumSessionLifetime("").kind);
+        assertEquals(Kind.ERROR, advCdescriptor.doCheckMaximumSessionLifetime("novalid").kind);
+        assertEquals(Kind.ERROR, advCdescriptor.doCheckMaximumSessionLifetime(Integer.MAX_VALUE + "999999").kind);
+        assertEquals(Kind.ERROR, advCdescriptor.doCheckMaximumSessionLifetime("-1").kind);
+        assertEquals(Kind.OK, advCdescriptor.doCheckMaximumSessionLifetime("86400").kind);
     }
 
     @LocalData("testReadSimpleConfigurationAdvancedConfiguration")
     @Test
     void testCheckSpEntityId() {
-        var d = ExtensionList.lookupSingleton(SpEntityId.DescriptorImpl.class);
-        assertEquals(Kind.OK, d.doCheckValue(null).kind);
-        assertEquals(Kind.OK, d.doCheckValue("").kind);
-        assertEquals(Kind.ERROR, d.doCheckValue(" ").kind);
-        assertEquals(Kind.OK, d.doCheckValue("value").kind);
+        assertEquals(Kind.OK, advCdescriptor.doCheckSpEntityId(null).kind);
+        assertEquals(Kind.OK, advCdescriptor.doCheckSpEntityId("").kind);
+        assertEquals(Kind.ERROR, advCdescriptor.doCheckSpEntityId(" ").kind);
+        assertEquals(Kind.OK, advCdescriptor.doCheckSpEntityId("value").kind);
     }
 }
