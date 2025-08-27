@@ -18,12 +18,13 @@ under the License. */
 package org.jenkinsci.plugins.saml;
 
 import edu.umd.cs.findbugs.annotations.NonNull;
+import hudson.ExtensionPoint;
 import hudson.model.AbstractDescribableImpl;
 
 /**
  * Represents a property that can be configured for SAML authentication.
  */
-public abstract class SamlProperty extends AbstractDescribableImpl<SamlProperty> {
+public abstract class SamlProperty extends AbstractDescribableImpl<SamlProperty> implements ExtensionPoint {
     /**
      * @return a new execution for this property, holding any required state.
      */
