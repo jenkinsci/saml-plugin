@@ -23,7 +23,6 @@ import hudson.model.Descriptor;
 
 /**
  * Descriptor for SAML properties.
- * It also implements directly {@link SamlPropertyExecution} so that it can be used to decorate configuration and client even if not explicitly configured.
  */
 public abstract class SamlPropertyDescriptor extends Descriptor<SamlProperty> implements ExtensionPoint {
     /**
