@@ -37,6 +37,11 @@
 
     <f:optionalProperty title="Advanced Configuration" field="advancedConfiguration"/>
     <f:optionalProperty title="Encryption Configuration" field="encryptionData"/>
+    <j:if test="${descriptor.displayProperties}">
+      <f:entry title="Properties" field="properties">
+          <f:repeatableHeteroProperty hasHeader="true" oneEach="true"/>
+      </f:entry>
+    </j:if>
 
     <f:entry title="Custom Attributes">
         <f:repeatableHeteroProperty field="samlCustomAttributes" hasHeader="true"/>

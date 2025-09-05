@@ -20,6 +20,8 @@ package org.jenkinsci.plugins.saml;
 import static org.jenkinsci.plugins.saml.SamlSecurityRealm.CONSUMER_SERVICE_URL_PATH;
 import static org.jenkinsci.plugins.saml.SamlSecurityRealm.DEFAULT_USERNAME_CASE_CONVERSION;
 
+import edu.umd.cs.findbugs.annotations.NonNull;
+import java.util.List;
 import jenkins.model.Jenkins;
 import org.apache.commons.lang.StringUtils;
 
@@ -40,6 +42,7 @@ public class SamlPluginConfig {
 
     private final SamlEncryptionData encryptionData;
     private final SamlAdvancedConfiguration advancedConfiguration;
+    private final List<SamlProperty> properties;
 
     public SamlPluginConfig(
             String displayNameAttributeName,
@@ -52,7 +55,8 @@ public class SamlPluginConfig {
             String logoutUrl,
             String binding,
             SamlEncryptionData encryptionData,
-            SamlAdvancedConfiguration advancedConfiguration) {
+            SamlAdvancedConfiguration advancedConfiguration,
+            @NonNull List<SamlProperty> properties) {
         this.displayNameAttributeName = displayNameAttributeName;
         this.groupsAttributeName = groupsAttributeName;
         this.maximumAuthenticationLifetime = maximumAuthenticationLifetime;
@@ -65,6 +69,7 @@ public class SamlPluginConfig {
         this.binding = binding;
         this.encryptionData = encryptionData;
         this.advancedConfiguration = advancedConfiguration;
+        this.properties = List.copyOf(properties);
     }
 
     public String getUsernameAttributeName() {
@@ -135,6 +140,11 @@ public class SamlPluginConfig {
         return binding;
     }
 
+    @NonNull
+    public List<SamlProperty> getProperties() {
+        return properties;
+    }
+
     @Override
     public String toString() {
         return "SamlPluginConfig{" + "idpMetadataConfiguration='" + getIdpMetadataConfiguration() + '\''
@@ -144,6 +154,7 @@ public class SamlPluginConfig {
                 + ", maximumAuthenticationLifetime=" + getMaximumAuthenticationLifetime()
                 + ", usernameCaseConversion='" + getUsernameCaseConversion() + '\'' + ", logoutUrl='"
                 + getLogoutUrl() + '\'' + ", binding='" + getBinding() + '\'' + ", encryptionData="
-                + getEncryptionData() + ", advancedConfiguration=" + getAdvancedConfiguration() + '}';
+                + getEncryptionData() + ", advancedConfiguration=" + getAdvancedConfiguration() + ",properties="
+                + getProperties() + '}';
     }
 }

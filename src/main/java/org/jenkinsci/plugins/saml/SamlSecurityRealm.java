@@ -21,14 +21,17 @@ import static org.apache.commons.codec.binary.Base64.decodeBase64;
 import static org.apache.commons.codec.binary.Base64.isBase64;
 import static org.opensaml.saml.common.xml.SAMLConstants.SAML2_REDIRECT_BINDING_URI;
 
+import edu.umd.cs.findbugs.annotations.CheckForNull;
 import edu.umd.cs.findbugs.annotations.NonNull;
 import hudson.Extension;
 import hudson.model.Descriptor;
+import hudson.model.Saveable;
 import hudson.model.User;
 import hudson.security.GroupDetails;
 import hudson.security.SecurityRealm;
 import hudson.security.UserMayOrMayNotExistException2;
 import hudson.tasks.Mailer.UserProperty;
+import hudson.util.DescribableList;
 import hudson.util.FormValidation;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpSession;
@@ -50,6 +53,7 @@ import org.jenkinsci.plugins.saml.user.SamlCustomProperty;
 import org.kohsuke.accmod.Restricted;
 import org.kohsuke.accmod.restrictions.NoExternalUse;
 import org.kohsuke.stapler.DataBoundConstructor;
+import org.kohsuke.stapler.DataBoundSetter;
 import org.kohsuke.stapler.HttpResponse;
 import org.kohsuke.stapler.HttpResponses;
 import org.kohsuke.stapler.QueryParameter;
@@ -150,6 +154,8 @@ public class SamlSecurityRealm extends SecurityRealm {
 
     private List<AttributeEntry> samlCustomAttributes;
 
+    private DescribableList<SamlProperty, SamlPropertyDescriptor> properties = new DescribableList<>(Saveable.NOOP);
+
     /**
      * Jenkins passes these parameters in when you update the settings.
      * It does this because of the @DataBoundConstructor.
@@ -230,8 +236,24 @@ public class SamlSecurityRealm extends SecurityRealm {
         if (StringUtils.isEmpty(getBinding())) {
             binding = SAML2_REDIRECT_BINDING_URI;
         }
+        if (properties == null) {
+            properties = new DescribableList<>(Saveable.NOOP);
+        }
 
         return this;
+    }
+
+    public List<SamlProperty> getProperties() {
+        return properties;
+    }
+
+    @DataBoundSetter
+    public void setProperties(@CheckForNull List<SamlProperty> properties) throws IOException {
+        if (properties != null) {
+            this.properties.replaceBy(properties);
+        } else {
+            this.properties.replaceBy(List.of());
+        }
     }
 
     @Override
@@ -660,7 +682,8 @@ public class SamlSecurityRealm extends SecurityRealm {
                 logoutUrl,
                 binding,
                 encryptionData,
-                advancedConfiguration);
+                advancedConfiguration,
+                properties);
     }
 
     @SuppressWarnings("unused")
@@ -719,6 +742,10 @@ public class SamlSecurityRealm extends SecurityRealm {
                 @QueryParameter String maximumAuthenticationLifetime) {
             Jenkins.get().checkPermission(Jenkins.ADMINISTER);
             return SamlFormValidation.checkIntegerFormat(maximumAuthenticationLifetime);
+        }
+
+        public boolean isDisplayProperties() {
+            return !SamlPropertyDescriptor.all().isEmpty();
         }
     }
 

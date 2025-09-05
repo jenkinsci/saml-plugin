@@ -20,8 +20,10 @@ import static org.hamcrest.CoreMatchers.allOf;
 import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.CoreMatchers.endsWith;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.is;
 import static org.junit.Assume.assumeTrue;
 
+import edu.umd.cs.findbugs.annotations.NonNull;
 import hudson.util.Secret;
 import java.io.File;
 import java.io.IOException;
@@ -38,6 +40,7 @@ import org.htmlunit.Page;
 import org.htmlunit.html.HtmlPage;
 import org.htmlunit.html.HtmlPasswordInput;
 import org.htmlunit.html.HtmlTextInput;
+import org.jetbrains.annotations.NotNull;
 import org.junit.After;
 import org.junit.BeforeClass;
 import org.junit.Rule;
@@ -45,6 +48,9 @@ import org.junit.Test;
 import org.jvnet.hudson.test.JenkinsRule;
 import org.jvnet.hudson.test.MockAuthorizationStrategy;
 import org.jvnet.hudson.test.RealJenkinsRule;
+import org.jvnet.hudson.test.TestExtension;
+import org.pac4j.saml.client.SAML2Client;
+import org.pac4j.saml.config.SAML2Configuration;
 import org.testcontainers.DockerClientFactory;
 import org.testcontainers.containers.GenericContainer;
 import org.testcontainers.utility.MountableFile;
@@ -207,6 +213,54 @@ public class LiveTest {
                             "Either no user with the given username could be found, or the password you gave was wrong"));
             assertThat(fail.getUrl().toString(), containsString("simplesaml/module.php/core/loginuserpass.php"));
         }
+    }
+
+    @Test
+    public void withProperty() throws Throwable {
+        then(() -> new AuthenticationWithProperty(readIdPMetadataFromURL()));
+    }
+
+    private record AuthenticationWithProperty(String idpMetadata) implements RealJenkinsRule.Step {
+
+        @Override
+        public void run(JenkinsRule r) throws Throwable {
+            SamlSecurityRealm realm = configureBasicSettings(
+                    new IdpMetadataConfiguration(idpMetadata),
+                    new SamlAdvancedConfiguration(false, null, SERVICE_PROVIDER_ID, null),
+                    SAML2_REDIRECT_BINDING_URI);
+            realm.getProperties().add(new SamlPropertyTestImpl());
+            r.jenkins.setSecurityRealm(realm);
+            configureAuthorization();
+            makeLoginWithUser1(r);
+            assertThat(SamlPropertyTestImpl.ExecutionImpl.calledConfiguration, is(true));
+            assertThat(SamlPropertyTestImpl.ExecutionImpl.calledClient, is(true));
+        }
+    }
+
+    public static class SamlPropertyTestImpl extends SamlProperty {
+        @NonNull
+        @Override
+        public SamlPropertyExecution newExecution() {
+            return new ExecutionImpl();
+        }
+
+        private static class ExecutionImpl implements SamlPropertyExecution {
+            private static boolean calledConfiguration = false;
+            private static boolean calledClient = false;
+
+            @Override
+            public void customizeConfiguration(@NotNull SAML2Configuration configuration) {
+                calledConfiguration = true;
+            }
+
+            @Override
+            public void customizeClient(@NotNull SAML2Client client) {
+                calledClient = true;
+            }
+        }
+
+        @TestExtension
+        public static class DescriptorImpl extends SamlPropertyDescriptor {}
     }
 
     private String readIdPMetadataFromURL() throws IOException {

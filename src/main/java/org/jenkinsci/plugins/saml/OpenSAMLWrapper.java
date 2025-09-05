@@ -102,6 +102,9 @@ public abstract class OpenSAMLWrapper<T> {
      * @return a SAML2Client object to interact with the IdP service.
      */
     protected SAML2Client createSAML2Client() {
+        var propertyExecutions = samlPluginConfig.getProperties().stream()
+                .map(SamlProperty::newExecution)
+                .toList();
         SAML2Configuration config = new SAML2Configuration();
         config.setIdentityProviderMetadataResource(new SamlFileResource(SamlSecurityRealm.getIDPMetadataFilePath()));
         config.setAuthnRequestBindingType(samlPluginConfig.getBinding());
@@ -163,10 +166,13 @@ public abstract class OpenSAMLWrapper<T> {
 
         config.setForceServiceProviderMetadataGeneration(true);
         config.setServiceProviderMetadataResource(new SamlFileResource(SamlSecurityRealm.getSPMetadataFilePath()));
+        // Apply all configured property executions to the configuration
+        propertyExecutions.forEach(property -> property.customizeConfiguration(config));
         SAML2Client saml2Client = new SAML2Client(config);
         saml2Client.setCallbackUrl(samlPluginConfig.getConsumerServiceUrl());
         saml2Client.setCallbackUrlResolver(new NoParameterCallbackUrlResolver());
         saml2Client.setStateGenerator(new RefererStateGenerator());
+        propertyExecutions.forEach(property -> property.customizeClient(saml2Client));
         saml2Client.init();
 
         if (LOG.isLoggable(FINE)) {
