@@ -224,8 +224,7 @@ public class SamlSecurityRealm extends SecurityRealm {
     public Object readResolve() {
         File idpMetadataFile = new File(getIDPMetadataFilePath());
         if (!idpMetadataFile.exists()
-                && idpMetadataConfiguration != null
-                && idpMetadataConfiguration.getXml() != null) {
+                && idpMetadataConfiguration != null) {
             try {
                 idpMetadataConfiguration.createIdPMetadataFile();
             } catch (IOException e) {
