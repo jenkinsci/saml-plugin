@@ -30,7 +30,7 @@ under the License.
   </parent>
 
   <artifactId>saml</artifactId>
-  <version>${revision}.${changelist}</version>
+  <version>${revision}.583.${changelist}</version>
   <packaging>hpi</packaging>
   <name>SAML Plugin</name>
   <url>https://github.com/jenkinsci/${project.artifactId}-plugin</url>
