@@ -168,7 +168,7 @@ public abstract class OpenSAMLWrapper<T> {
         config.setServiceProviderMetadataResource(new SamlFileResource(SamlSecurityRealm.getSPMetadataFilePath()));
         // Apply all configured property executions to the configuration
         propertyExecutions.forEach(property -> property.customizeConfiguration(config));
-        SAML2Client saml2Client = new SAML2Client(config);
+        SAML2Client saml2Client = new JenkinsSAML2Client(config);
         saml2Client.setCallbackUrl(samlPluginConfig.getConsumerServiceUrl());
         saml2Client.setCallbackUrlResolver(new NoParameterCallbackUrlResolver());
         saml2Client.setStateGenerator(new RefererStateGenerator());
