@@ -70,7 +70,7 @@ under the License.
     <changelist>999999-SNAPSHOT</changelist>
     <!-- https://www.jenkins.io/doc/developer/plugin-development/choosing-jenkins-baseline/ -->
     <jenkins.baseline>2.504</jenkins.baseline>
-    <jenkins.version>${jenkins.baseline}.1</jenkins.version>
+    <jenkins.version>${jenkins.baseline}.3</jenkins.version>
     <gitHubRepo>jenkinsci/${project.artifactId}-plugin</gitHubRepo>
     <hpi.compatibleSinceVersion>3.343.vb_63a_6c3df23c</hpi.compatibleSinceVersion>
     <spotless.check.skip>false</spotless.check.skip>
@@ -81,14 +81,7 @@ under the License.
       <dependency>
         <groupId>io.jenkins.tools.bom</groupId>
         <artifactId>bom-${jenkins.baseline}.x</artifactId>
-        <version>5388.v3ea_2e00a_719a_</version>
-        <type>pom</type>
-        <scope>import</scope>
-      </dependency>
-      <dependency>
-        <groupId>io.jenkins.tools.bom</groupId>
-        <artifactId>bom-${jenkins.baseline}.x</artifactId>
-        <version>5388.v3ea_2e00a_719a_</version>
+        <version>5601.v59f37270a_349</version>
         <type>pom</type>
         <scope>import</scope>
       </dependency>
@@ -140,10 +133,6 @@ under the License.
     </dependency>
     <dependency>
       <groupId>io.jenkins.plugins</groupId>
-      <artifactId>jaxb</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>io.jenkins.plugins</groupId>
       <artifactId>joda-time-api</artifactId>
     </dependency>
     <dependency>
@@ -153,7 +142,6 @@ under the License.
     <dependency>
       <groupId>org.jenkins-ci.plugins</groupId>
       <artifactId>jackson2-api</artifactId>
-      <version>2.20.0-411.v6ef8fdee4fe9</version>
     </dependency>
     <dependency>
       <groupId>org.jenkins-ci.plugins</groupId>
@@ -289,7 +277,7 @@ under the License.
     <dependency>
       <groupId>org.testcontainers</groupId>
       <artifactId>testcontainers</artifactId>
-      <version>2.0.1</version>
+      <version>2.0.3</version>
       <scope>test</scope>
     </dependency>
   </dependencies>
