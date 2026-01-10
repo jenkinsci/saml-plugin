@@ -72,6 +72,8 @@ under the License.
     <jenkins.baseline>2.504</jenkins.baseline>
     <jenkins.version>${jenkins.baseline}.3</jenkins.version>
     <gitHubRepo>jenkinsci/${project.artifactId}-plugin</gitHubRepo>
+    <hpi.bundledArtifacts>cryptacular,jakarta.json,metrics-core,metrics-json,opensaml-core-api,opensaml-core-impl,opensaml-messaging-api,opensaml-messaging-impl,opensaml-profile-api,opensaml-profile-impl,opensaml-saml-api,opensaml-saml-impl,opensaml-security-api,opensaml-security-impl,opensaml-soap-api,opensaml-soap-impl,opensaml-storage-api,opensaml-storage-impl,opensaml-xmlsec-api,opensaml-xmlsec-impl,pac4j-core,pac4j-jakartaee,pac4j-saml,shib-networking,shib-security,shib-support,shib-velocity,velocity-engine-core,xmlsec</hpi.bundledArtifacts>
+    <hpi.strictBundledArtifacts>true</hpi.strictBundledArtifacts>
     <hpi.compatibleSinceVersion>3.343.vb_63a_6c3df23c</hpi.compatibleSinceVersion>
     <spotless.check.skip>false</spotless.check.skip>
   </properties>
