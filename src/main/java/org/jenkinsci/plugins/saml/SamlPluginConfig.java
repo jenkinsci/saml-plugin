@@ -23,7 +23,7 @@ import static org.jenkinsci.plugins.saml.SamlSecurityRealm.DEFAULT_USERNAME_CASE
 import edu.umd.cs.findbugs.annotations.NonNull;
 import java.util.List;
 import jenkins.model.Jenkins;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 /**
  * contains all the Jenkins SAML Plugin settings

@@ -46,7 +46,7 @@ import java.util.logging.Logger;
 import jenkins.model.Jenkins;
 import jenkins.security.SecurityListener;
 import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.jenkinsci.plugins.saml.conf.Attribute;
 import org.jenkinsci.plugins.saml.conf.AttributeEntry;
 import org.jenkinsci.plugins.saml.user.SamlCustomProperty;
@@ -192,7 +192,7 @@ public class SamlSecurityRealm extends SecurityRealm {
         super();
         this.idpMetadataConfiguration = idpMetadataConfiguration;
         this.usernameAttributeName = hudson.Util.fixEmptyAndTrim(usernameAttributeName);
-        this.usernameCaseConversion = org.apache.commons.lang.StringUtils.defaultIfBlank(
+        this.usernameCaseConversion = org.apache.commons.lang3.StringUtils.defaultIfBlank(
                 usernameCaseConversion, DEFAULT_USERNAME_CASE_CONVERSION);
         this.logoutUrl = hudson.Util.fixEmptyAndTrim(logoutUrl);
         this.displayNameAttributeName = DEFAULT_DISPLAY_NAME_ATTRIBUTE_NAME;
@@ -207,7 +207,7 @@ public class SamlSecurityRealm extends SecurityRealm {
         if (maximumAuthenticationLifetime != null && maximumAuthenticationLifetime > 0) {
             this.maximumAuthenticationLifetime = maximumAuthenticationLifetime;
         }
-        if (org.apache.commons.lang.StringUtils.isNotBlank(emailAttributeName)) {
+        if (org.apache.commons.lang3.StringUtils.isNotBlank(emailAttributeName)) {
             this.emailAttributeName = hudson.Util.fixEmptyAndTrim(emailAttributeName);
         }
         this.advancedConfiguration = advancedConfiguration;

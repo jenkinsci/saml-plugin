@@ -22,7 +22,7 @@ import static java.util.logging.Level.SEVERE;
 
 import java.util.Arrays;
 import java.util.logging.Logger;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.kohsuke.stapler.StaplerRequest2;
 import org.kohsuke.stapler.StaplerResponse2;
 import org.opensaml.core.config.InitializationException;
