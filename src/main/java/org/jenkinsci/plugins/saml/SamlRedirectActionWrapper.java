@@ -44,13 +44,12 @@ public class SamlRedirectActionWrapper extends OpenSAMLWrapper<RedirectionAction
      */
     @Override
     protected RedirectionAction process() throws IllegalStateException {
-        try (SAML2Client client = createSAML2Client()) {
+        SAML2Client client = createSAML2Client();
+        try {
             WebContext context = createWebContext();
             SessionStore sessionStore = createSessionStore();
             CallContext ctx = new CallContext(context, sessionStore);
-            RedirectionAction redirection = client.getRedirectionAction(ctx).orElse(null);
-            client.destroy();
-            return redirection;
+            return client.getRedirectionAction(ctx).orElse(null);
         } catch (HttpAction e) {
             throw new IllegalStateException(e);
         }

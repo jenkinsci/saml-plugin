@@ -4,7 +4,10 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.instanceOf;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.io.IOException;
+import java.nio.file.Path;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 import org.jvnet.hudson.test.JenkinsRule;
 import org.jvnet.hudson.test.TestExtension;
 import org.jvnet.hudson.test.junit.jupiter.WithJenkins;
@@ -21,12 +24,12 @@ import org.pac4j.saml.replay.ReplayCacheProvider;
 class JenkinsReplayCacheProviderTest {
 
     @Test
-    void testCustomReplayCacheProviderIsUsed(JenkinsRule jenkinsRule) {
+    void testCustomReplayCacheProviderIsUsed(JenkinsRule jenkinsRule, @TempDir Path tempDir) throws IOException {
         SAML2Configuration config = new SAML2Configuration();
         JenkinsSAML2Client client = new JenkinsSAML2Client(config);
         client.setCallbackUrl("http://localhost");
-        BundleKeyStore keyStore = new BundleKeyStore();
         JenkinsReplayCacheProviderDefaultTest.setKeyStore(config);
+        JenkinsReplayCacheProviderDefaultTest.setMetadata(config, tempDir);
         client.init();
         assertThat(
                 "Custom replay cache provider should be used",
