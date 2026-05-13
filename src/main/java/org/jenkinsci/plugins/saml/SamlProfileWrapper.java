@@ -54,7 +54,8 @@ public class SamlProfileWrapper extends OpenSAMLWrapper<SAML2Profile> {
     protected SAML2Profile process() {
         SAML2AuthenticationCredentials credentials;
         SAML2Profile saml2Profile;
-        try (SAML2Client client = createSAML2Client()) {
+        SAML2Client client = createSAML2Client();
+        try {
             WebContext context = createWebContext();
             SessionStore sessionStore = createSessionStore();
             CallContext ctx = new CallContext(context, sessionStore);
@@ -73,7 +74,6 @@ public class SamlProfileWrapper extends OpenSAMLWrapper<SAML2Profile> {
             if (redirectUrl == null) {
                 redirectUrl = Jenkins.get().getRootUrl();
             }
-            client.destroy();
         } catch (HttpAction | SAMLException e) {
             // if the SAMLResponse is not valid we send the user again to the IdP
             throw new BadCredentialsException(e.getMessage(), e);
