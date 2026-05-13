@@ -25,7 +25,7 @@ under the License.
   <parent>
     <groupId>org.jenkins-ci.plugins</groupId>
     <artifactId>plugin</artifactId>
-    <version>5.27</version>
+    <version>6.2153.vcf31911d10c4</version>
     <relativePath />
   </parent>
 
