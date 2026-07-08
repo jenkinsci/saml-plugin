@@ -98,11 +98,6 @@ under the License.
         <artifactId>xmlsec</artifactId>
         <version>4.0.4</version>
       </dependency>
-      <dependency>
-        <groupId>org.apache.santuario</groupId>
-        <artifactId>xmlsec</artifactId>
-        <version>4.0.4</version>
-      </dependency>
     </dependencies>
   </dependencyManagement>
   <dependencies>
@@ -121,10 +116,6 @@ under the License.
     <dependency>
       <groupId>io.jenkins.plugins</groupId>
       <artifactId>commons-text-api</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>io.jenkins.plugins</groupId>
-      <artifactId>joda-time-api</artifactId>
     </dependency>
     <dependency>
       <groupId>org.jenkins-ci.plugins</groupId>
@@ -202,10 +193,6 @@ under the License.
         <exclusion>
           <groupId>commons-text</groupId>
           <artifactId>commons-text</artifactId>
-        </exclusion>
-        <exclusion>
-          <groupId>joda-time</groupId>
-          <artifactId>joda-time</artifactId>
         </exclusion>
         <exclusion>
           <groupId>org.apache.commons</groupId>
