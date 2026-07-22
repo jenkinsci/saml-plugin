@@ -192,7 +192,7 @@ public class SamlSecurityRealm extends SecurityRealm {
         super();
         this.idpMetadataConfiguration = idpMetadataConfiguration;
         this.usernameAttributeName = hudson.Util.fixEmptyAndTrim(usernameAttributeName);
-        this.usernameCaseConversion = org.apache.commons.lang3.StringUtils.defaultIfBlank(
+        this.usernameCaseConversion = StringUtils.defaultIfBlank(
                 usernameCaseConversion, DEFAULT_USERNAME_CASE_CONVERSION);
         this.logoutUrl = hudson.Util.fixEmptyAndTrim(logoutUrl);
         this.displayNameAttributeName = DEFAULT_DISPLAY_NAME_ATTRIBUTE_NAME;
@@ -207,7 +207,7 @@ public class SamlSecurityRealm extends SecurityRealm {
         if (maximumAuthenticationLifetime != null && maximumAuthenticationLifetime > 0) {
             this.maximumAuthenticationLifetime = maximumAuthenticationLifetime;
         }
-        if (org.apache.commons.lang3.StringUtils.isNotBlank(emailAttributeName)) {
+        if (StringUtils.isNotBlank(emailAttributeName)) {
             this.emailAttributeName = hudson.Util.fixEmptyAndTrim(emailAttributeName);
         }
         this.advancedConfiguration = advancedConfiguration;
