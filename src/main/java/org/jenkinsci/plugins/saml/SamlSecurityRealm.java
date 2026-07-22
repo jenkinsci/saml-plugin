@@ -192,8 +192,8 @@ public class SamlSecurityRealm extends SecurityRealm {
         super();
         this.idpMetadataConfiguration = idpMetadataConfiguration;
         this.usernameAttributeName = hudson.Util.fixEmptyAndTrim(usernameAttributeName);
-        this.usernameCaseConversion = StringUtils.defaultIfBlank(
-                usernameCaseConversion, DEFAULT_USERNAME_CASE_CONVERSION);
+        this.usernameCaseConversion =
+                StringUtils.defaultIfBlank(usernameCaseConversion, DEFAULT_USERNAME_CASE_CONVERSION);
         this.logoutUrl = hudson.Util.fixEmptyAndTrim(logoutUrl);
         this.displayNameAttributeName = DEFAULT_DISPLAY_NAME_ATTRIBUTE_NAME;
         this.groupsAttributeName = DEFAULT_GROUPS_ATTRIBUTE_NAME;
