@@ -25,7 +25,7 @@ under the License.
   <parent>
     <groupId>org.jenkins-ci.plugins</groupId>
     <artifactId>plugin</artifactId>
-    <version>6.2116.v7501b_67dc517</version>
+    <version>6.2211.v27f680c93c53</version>
     <relativePath />
   </parent>
 
@@ -75,6 +75,7 @@ under the License.
     <hpi.bundledArtifacts>cryptacular,jakarta.json,metrics-core,metrics-json,opensaml-core-api,opensaml-core-impl,opensaml-messaging-api,opensaml-messaging-impl,opensaml-profile-api,opensaml-profile-impl,opensaml-saml-api,opensaml-saml-impl,opensaml-security-api,opensaml-security-impl,opensaml-soap-api,opensaml-soap-impl,opensaml-storage-api,opensaml-storage-impl,opensaml-xmlsec-api,opensaml-xmlsec-impl,pac4j-core,pac4j-jakartaee,pac4j-saml,shib-networking,shib-security,shib-support,shib-velocity,velocity-engine-core,xmlsec</hpi.bundledArtifacts>
     <hpi.strictBundledArtifacts>true</hpi.strictBundledArtifacts>
     <hpi.compatibleSinceVersion>3.343.vb_63a_6c3df23c</hpi.compatibleSinceVersion>
+    <pac4j.version>6.4.1</pac4j.version>
     <spotless.check.skip>false</spotless.check.skip>
     <ban-commons-lang-2.skip>false</ban-commons-lang-2.skip>
   </properties>
@@ -91,29 +92,12 @@ under the License.
       <dependency>
         <groupId>com.google.errorprone</groupId>
         <artifactId>error_prone_annotations</artifactId>
-        <version>2.42.0</version>
+        <version>2.50.0</version>
       </dependency>
       <dependency>
         <groupId>org.apache.santuario</groupId>
         <artifactId>xmlsec</artifactId>
         <version>4.0.4</version>
-      </dependency>
-      <dependency>
-        <groupId>org.apache.santuario</groupId>
-        <artifactId>xmlsec</artifactId>
-        <version>4.0.4</version>
-      </dependency>
-      <!-- TODO remove when update to pac4j 6.1-->
-      <dependency>
-        <groupId>org.apache.velocity</groupId>
-        <artifactId>velocity-engine-core</artifactId>
-        <version>2.4.1</version>
-      </dependency>
-      <!-- TODO remove when update to pac4j 6.1-->
-      <dependency>
-        <groupId>org.apache.velocity</groupId>
-        <artifactId>velocity-engine-core</artifactId>
-        <version>2.4.1</version>
       </dependency>
     </dependencies>
   </dependencyManagement>
@@ -135,10 +119,6 @@ under the License.
       <artifactId>commons-text-api</artifactId>
     </dependency>
     <dependency>
-      <groupId>io.jenkins.plugins</groupId>
-      <artifactId>joda-time-api</artifactId>
-    </dependency>
-    <dependency>
       <groupId>org.jenkins-ci.plugins</groupId>
       <artifactId>bouncycastle-api</artifactId>
     </dependency>
@@ -153,11 +133,27 @@ under the License.
     <dependency>
       <groupId>org.pac4j</groupId>
       <artifactId>pac4j-jakartaee</artifactId>
-      <version>6.1.2</version>
+      <version>${pac4j.version}</version>
       <exclusions>
+        <exclusion>
+          <groupId>com.fasterxml.jackson.core</groupId>
+          <artifactId>jackson-databind</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>com.fasterxml.jackson.datatype</groupId>
+          <artifactId>jackson-datatype-jsr310</artifactId>
+        </exclusion>
         <exclusion>
           <groupId>com.google.code.findbugs</groupId>
           <artifactId>findbugs-annotations</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>org.apache.commons</groupId>
+          <artifactId>commons-lang3</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>org.apache.commons</groupId>
+          <artifactId>commons-text</artifactId>
         </exclusion>
         <exclusion>
           <groupId>org.slf4j</groupId>
@@ -168,7 +164,7 @@ under the License.
     <dependency>
       <groupId>org.pac4j</groupId>
       <artifactId>pac4j-saml</artifactId>
-      <version>6.1.2</version>
+      <version>${pac4j.version}</version>
       <optional>false</optional>
       <exclusions>
         <exclusion>
@@ -198,10 +194,6 @@ under the License.
         <exclusion>
           <groupId>commons-text</groupId>
           <artifactId>commons-text</artifactId>
-        </exclusion>
-        <exclusion>
-          <groupId>joda-time</groupId>
-          <artifactId>joda-time</artifactId>
         </exclusion>
         <exclusion>
           <groupId>org.apache.commons</groupId>
@@ -280,7 +272,7 @@ under the License.
     <dependency>
       <groupId>org.testcontainers</groupId>
       <artifactId>testcontainers</artifactId>
-      <version>2.0.3</version>
+      <version>2.0.5</version>
       <scope>test</scope>
     </dependency>
   </dependencies>
