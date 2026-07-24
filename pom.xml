@@ -75,7 +75,7 @@ under the License.
     <hpi.bundledArtifacts>cryptacular,jakarta.json,metrics-core,metrics-json,opensaml-core-api,opensaml-core-impl,opensaml-messaging-api,opensaml-messaging-impl,opensaml-profile-api,opensaml-profile-impl,opensaml-saml-api,opensaml-saml-impl,opensaml-security-api,opensaml-security-impl,opensaml-soap-api,opensaml-soap-impl,opensaml-storage-api,opensaml-storage-impl,opensaml-xmlsec-api,opensaml-xmlsec-impl,pac4j-core,pac4j-jakartaee,pac4j-saml,shib-networking,shib-security,shib-support,shib-velocity,velocity-engine-core,xmlsec</hpi.bundledArtifacts>
     <hpi.strictBundledArtifacts>true</hpi.strictBundledArtifacts>
     <hpi.compatibleSinceVersion>3.343.vb_63a_6c3df23c</hpi.compatibleSinceVersion>
-    <pac4j.version>6.4.1</pac4j.version>
+    <pac4j.version>6.5.5</pac4j.version>
     <spotless.check.skip>false</spotless.check.skip>
     <ban-commons-lang-2.skip>false</ban-commons-lang-2.skip>
   </properties>
