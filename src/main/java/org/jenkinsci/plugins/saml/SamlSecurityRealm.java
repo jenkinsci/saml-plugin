@@ -190,6 +190,7 @@ public class SamlSecurityRealm extends SecurityRealm {
             List<AttributeEntry> samlCustomAttributes)
             throws IOException {
         super();
+        Jenkins.get().checkPermission(Jenkins.ADMINISTER);
         this.idpMetadataConfiguration = idpMetadataConfiguration;
         this.usernameAttributeName = hudson.Util.fixEmptyAndTrim(usernameAttributeName);
         this.usernameCaseConversion =
